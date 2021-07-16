@@ -9,7 +9,9 @@
     "contracts"
   ],
   "scripts": {
-    "test:contracts": "yarn workspace contracts test",
-    "dev:vue": "yarn workspace frontend dev"
+    "test:contracts": "yarn workspace contracts run test",
+    "dev:node": "yarn workspace contracts run node",
+    "dev:deploy": "yarn workspace contracts run deploy",
+    "dev:vue": "yarn workspace frontend run dev"
   }
 }
