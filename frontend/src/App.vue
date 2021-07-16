@@ -1,11 +1,15 @@
 <template>
+  <layout-header />
   <p class="text-center">hello vue3</p>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted } from "vue";
+import LayoutHeader from "./components/LayoutHeader.vue";
 
 export default defineComponent({
   name: "App",
+  components: { LayoutHeader },
+  setup() {},
 });
 </script>

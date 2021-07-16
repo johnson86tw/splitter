@@ -3408,7 +3408,7 @@ ethereumjs-wallet@0.6.5:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-ethers@^5.0.0, ethers@^5.0.1, ethers@^5.0.2, ethers@^5.0.26:
+ethers@^5.0.0, ethers@^5.0.1, ethers@^5.0.2, ethers@^5.0.26, ethers@^5.4.1:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.4.1.tgz#bcff1e9f45bf1a061bf313ec04e8d9881d2d53f9"
   integrity sha512-SrcddMdCgP1hukDvCPd87Aipbf4NWjQvdfAbZ65XSZGbfyuYPtIrUJPDH5B1SBRsdlfiEgX3eoz28DdBDzMNFg==
@@ -4219,6 +4219,11 @@ heap@0.2.6:
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/heap/-/heap-0.2.6.tgz#087e1f10b046932fc8594dd9e6d378afc9d1e5ac"
   integrity sha1-CH4fELBGky/IWU3Z5tN4r8nR5aw=
+
+heroicons-vue3@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/heroicons-vue3/-/heroicons-vue3-1.0.1.tgz#324bced2fa9e3bcc7abeab03ebc64f10a0e33ceb"
+  integrity sha512-oSHUq5Nm/ADuBR9c0stAjqsyV9mgsHMX+HUwCU0YsbFqgr/IEi9JyUvGYtJeXrnUyGiFeVPCZ7hTEjde8Y25NQ==
 
 hmac-drbg@^1.0.1:
   version "1.0.1"
