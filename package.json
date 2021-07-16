@@ -1,0 +1,15 @@
+{
+  "name": "prize-splitter",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "contracts"
+  ],
+  "scripts": {
+    "test:contracts": "yarn workspace contracts test",
+    "dev:vue": "yarn workspace frontend dev"
+  }
+}
