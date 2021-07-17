@@ -11,7 +11,7 @@
   "scripts": {
     "test:contracts": "yarn workspace contracts run test",
     "start:node": "yarn workspace contracts run node",
-    "dev:deploy": "yarn workspace contracts run deploy",
+    "deploy:local": "yarn workspace contracts run deploy:local",
     "dev": "yarn workspace frontend run dev"
   }
 }

@@ -1,4 +1,4 @@
-import { ref, onMounted, computed, nextTick } from "vue";
+import { ref, onMounted, computed, markRaw } from "vue";
 import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@ethersproject/providers";
 import { ethers } from "ethers";
 
@@ -13,7 +13,7 @@ declare global {
 }
 
 let provider: JsonRpcProvider;
-let signer: JsonRpcSigner;
+const signer = ref<JsonRpcSigner>();
 const userAddress = ref("");
 const network = ref<Network>();
 
@@ -21,10 +21,11 @@ export default function useWallet() {
   async function connectWallet() {
     if (window.ethereum && window.ethereum.isMetaMask) {
       provider = new ethers.providers.Web3Provider(window.ethereum);
-      signer = provider.getSigner();
-
+      const _signer = provider.getSigner();
       network.value = await provider.getNetwork();
-      userAddress.value = await signer.getAddress();
+      userAddress.value = await _signer.getAddress();
+
+      signer.value = markRaw(_signer);
     }
   }
 
