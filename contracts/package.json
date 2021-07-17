@@ -1,5 +1,5 @@
 {
-  "name": "contracts",
+  "name": "@price-splitter/contracts",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {

@@ -1,5 +1,5 @@
 {
-  "name": "prize-splitter",
+  "name": "@prize-splitter/monorepo",
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
@@ -9,9 +9,9 @@
     "contracts"
   ],
   "scripts": {
-    "test:contracts": "yarn workspace contracts run test",
-    "start:node": "yarn workspace contracts run node",
-    "deploy:local": "yarn workspace contracts run deploy:local",
-    "dev": "yarn workspace frontend run dev"
+    "test:contracts": "yarn workspace @price-splitter/contracts run test",
+    "start:node": "yarn workspace @price-splitter/contracts run node",
+    "deploy:local": "yarn workspace @price-splitter/contracts run deploy:local",
+    "dev": "yarn workspace @price-splitter/frontend run dev"
   }
 }
