@@ -1,9 +1,8 @@
 import { markRaw, onMounted, Ref, ref } from "vue";
 import { Contract, ethers, Signer } from "ethers";
-import useWallet from "./wallet";
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-import contractABI from "../contracts/Greeter.json";
+import contractABI from "@price-splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
 import { JsonRpcSigner } from "../utils/ethers";
 
 const greet = ref("");

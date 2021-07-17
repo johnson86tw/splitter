@@ -10,7 +10,8 @@
   "dependencies": {
     "ethers": "^5.4.1",
     "heroicons-vue3": "^1.0.1",
-    "vue": "^3.0.5"
+    "vue": "^3.0.5",
+    "@price-splitter/contracts": "0.0.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.2.5",
