@@ -6,10 +6,17 @@
 <script lang="ts">
 import { defineComponent, onMounted } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
+import useWallet from "./store/wallet";
 
 export default defineComponent({
   name: "App",
   components: { LayoutHeader },
-  setup() {},
+  setup() {
+    const { connectWallet, provider } = useWallet();
+
+    onMounted(async () => {
+      await connectWallet();
+    });
+  },
 });
 </script>
