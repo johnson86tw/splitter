@@ -2,22 +2,27 @@
 The contract is for hackathon team to evenly split prize from sponsors.
 
 ## contracts
+- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/finance/PaymentSplitter.sol
 - https://github.com/gitcoinco/matching_contracts
 
 ## frontend
 ### vue3 with metamask
+- https://github.com/chnejohnson/vue-tailwind-ethereum-template
 - https://github.com/samatechtw/vue3-eth
 - https://docs.metamask.io/guide/getting-started.html#basic-considerations
 
 ## monorepo architecture
+
 ### yarn workspaces
 - `yarn install` for install all dependencies
 - `yarn test:contracts` for testing contract
 - `yarn dev:vue` for running vite localhost
 
-### add dependencies
-- `yarn workspace frontend add <package> --dev`
+ref: https://classic.yarnpkg.com/en/docs/workspaces/
 
-### Set up frontend and contracts with...
+### add dependencies
+- `yarn workspace @prize-splitter/frontend add <package> --dev`
+
+### initial set up
 - `npx hardhat`
 - `yarn create vite`
