@@ -84,7 +84,7 @@ contract PriceSplitter {
 
     function enableWithdraw() public onlyOwner requireState(State.Finalized) {
         require(!withdrawn[msg.sender], "PrizeSplitter: account has withdrawn");
-        division = address(this).balance / payees.length();
+        (, division) = SafeMath.tryDiv(address(this).balance, payees.length());
         state = State.Withdrawable;
         emit Withdrawable();
     }
@@ -99,8 +99,18 @@ contract PriceSplitter {
         emit PrizeWithdrawn(_recipient, division);
     }
 
-    // @TODO owner can withdraw remain contract balance when all payees are withdrawn
-    // function withdrawAll() public onlyOwner requireState(State.Withdrawable) {
-    //     require()
-    // }
+    function withdrawAll(address payable _owner) public onlyOwner requireState(State.Withdrawable) {
+        require(isLiquidated(), "PrizeSplitter: not yet liquidation");
+        (bool success, ) = _owner.call{value: address(this).balance}("");
+        require(success, "PrizeSplitter: payment to _owner did not go thru");
+    }
+
+    function isLiquidated() public view requireState(State.Withdrawable) returns (bool) {
+        for (uint256 i = 0; i < payees.length(); i++) {
+            if (!withdrawn[payees.at(i)]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
