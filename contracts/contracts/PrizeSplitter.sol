@@ -13,7 +13,7 @@ contract PriceSplitter {
     address public immutable owner;
 
     EnumerableSet.AddressSet private payees;
-    mapping(address => bool) public withdrawn;
+    mapping(address => bool) public isSpent;
 
     enum State {
         Waiting,
@@ -53,6 +53,7 @@ contract PriceSplitter {
 
     // ======================================= METHODS =======================================
 
+    // @todo how to emit event while receiving ERC20 token?
     receive() external payable {
         emit PrizeReceived(msg.sender, msg.value);
     }
@@ -61,9 +62,15 @@ contract PriceSplitter {
         return payees.length();
     }
 
-    function checkPayee(uint256 index) public view returns (address) {
-        return payees.at(index);
+    function checkPayee(uint256 _index) public view returns (address) {
+        return payees.at(_index);
     }
+
+    function isPayee(address _payee) public view returns (bool) {
+        return payees.contains(_payee);
+    }
+
+    // @todo add check payee with address
 
     function addPayee(address _payee) public onlyOwner requireState(State.Waiting) {
         require(_payee != address(0), "PrizeSplitter: account is the zero address");
@@ -83,7 +90,7 @@ contract PriceSplitter {
     }
 
     function enableWithdraw() public onlyOwner requireState(State.Finalized) {
-        require(!withdrawn[msg.sender], "PrizeSplitter: account has withdrawn");
+        require(!isSpent[msg.sender], "PrizeSplitter: account is spent");
         (, division) = SafeMath.tryDiv(address(this).balance, payees.length());
         state = State.Withdrawable;
         emit Withdrawable();
@@ -95,19 +102,19 @@ contract PriceSplitter {
 
         (bool success, ) = _recipient.call{value: division}("");
         require(success, "PrizeSplitter: payment to _recipient did not go thru");
-        withdrawn[_recipient] = true;
+        isSpent[_recipient] = true;
         emit PrizeWithdrawn(_recipient, division);
     }
 
-    function withdrawAll(address payable _owner) public onlyOwner requireState(State.Withdrawable) {
+    function withdrawAll() public onlyOwner requireState(State.Withdrawable) {
         require(isLiquidated(), "PrizeSplitter: not yet liquidation");
-        (bool success, ) = _owner.call{value: address(this).balance}("");
-        require(success, "PrizeSplitter: payment to _owner did not go thru");
+        (bool success, ) = owner.call{value: address(this).balance}("");
+        require(success, "PrizeSplitter: payment to owner did not go thru");
     }
 
     function isLiquidated() public view requireState(State.Withdrawable) returns (bool) {
         for (uint256 i = 0; i < payees.length(); i++) {
-            if (!withdrawn[payees.at(i)]) {
+            if (!isSpent[payees.at(i)]) {
                 return false;
             }
         }
