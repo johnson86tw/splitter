@@ -35,17 +35,13 @@ export default defineComponent({
     const balance = ref("");
 
     onMounted(async () => {
-      try {
-        await connectWallet();
-        if (signer.value) {
-          const balanceBN = await signer.value?.getBalance();
-          balance.value = utils.formatEther(balanceBN);
-          initContract(signer.value);
-        }
-        await getGreeting();
-      } catch (e) {
-        throw new Error(e);
+      // await connectWallet();
+      if (signer.value) {
+        const balanceBN = await signer.value?.getBalance();
+        balance.value = utils.formatEther(balanceBN);
+        // initContract(signer.value);
       }
+      // await getGreeting();
     });
 
     return {
