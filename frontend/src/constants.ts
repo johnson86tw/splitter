@@ -7,7 +7,7 @@ export const ETHERSCAN_KEY = "PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8";
 // // BLOCKNATIVE ID FOR Notify.js:
 export const BLOCKNATIVE_DAPPID = "0b58206a-f3c0-4701-a62f-73c7243e8c77";
 
-interface Network {
+interface INetwork {
   name: string;
   color: string;
   chainId: number;
@@ -18,7 +18,26 @@ interface Network {
   gasPrice?: number;
 }
 
-export const NETWORKS: Readonly<Record<string, Network>> = {
+export type Network =
+  | "localhost"
+  | "mainnet"
+  | "kovan"
+  | "rinkeby"
+  | "ropsten"
+  | "goerli"
+  | "xdai"
+  | "matic"
+  | "mumbai"
+  | "localArbitrum"
+  | "localArbitrumL1"
+  | "rinkebyArbitrum"
+  | "arbitrum"
+  | "localOptimismL1"
+  | "localOptimism"
+  | "kovanOptimism"
+  | "optimism";
+
+export const NETWORKS: Readonly<Record<Network, INetwork>> = {
   localhost: {
     name: "localhost",
     color: "#666666",
@@ -157,9 +176,8 @@ export const NETWORKS: Readonly<Record<string, Network>> = {
 };
 
 export default function NETWORK(chainId?: number) {
-  for (const key in NETWORKS) {
-    if (NETWORKS[key].chainId === chainId) {
-      return NETWORKS[key];
-    }
-  }
+  const key = (Object.keys(NETWORKS) as Array<Network>).find((key: Network) => NETWORKS[key].chainId === chainId);
+
+  if (!key) return undefined;
+  return NETWORKS[key];
 }
