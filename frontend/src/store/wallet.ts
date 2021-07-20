@@ -71,6 +71,8 @@ export default function useWallet() {
       _handleDisconnect(error);
     });
 
+    // @todo "on" getting metamask tx receipt
+
     // @dev auto connect if user have been connected to the site,
     // but how to handle async/await error?
     if (isConnected()) {
