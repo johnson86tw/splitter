@@ -1,3 +1,32 @@
+<script lang="ts">
+import { computed, defineComponent, ref } from "vue";
+import { ExclamationIcon } from "heroicons-vue3/solid";
+import useWallet from "../store/wallet";
+import NETWORK from "../constants";
+
+export default defineComponent({
+  name: "LayoutHeader",
+  components: { ExclamationIcon },
+  setup() {
+    const {
+      userAddress,
+      connectWallet,
+      chainId,
+      isConnected,
+      isSupportedNetwork,
+    } = useWallet();
+
+    return {
+      userAddress,
+      isSupportedNetwork,
+      chainName: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
+      connectWallet,
+      isConnected,
+    };
+  },
+});
+</script>
+
 <template>
   <header class="bg-white">
     <nav
@@ -38,32 +67,3 @@
     </nav>
   </header>
 </template>
-
-<script lang="ts">
-import { computed, defineComponent, ref } from "vue";
-import { ExclamationIcon } from "heroicons-vue3/solid";
-import useWallet from "../store/wallet";
-import NETWORK from "../constants";
-
-export default defineComponent({
-  name: "LayoutHeader",
-  components: { ExclamationIcon },
-  setup() {
-    const {
-      userAddress,
-      connectWallet,
-      chainId,
-      isConnected,
-      isSupportedNetwork,
-    } = useWallet();
-
-    return {
-      userAddress,
-      isSupportedNetwork,
-      chainName: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
-      connectWallet,
-      isConnected,
-    };
-  },
-});
-</script>

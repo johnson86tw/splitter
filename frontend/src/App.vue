@@ -1,30 +1,3 @@
-<template>
-  <layout-header />
-  <div class="text-center">
-    <p
-      class="text-red-600"
-      v-if="changedChainName"
-    > Warning: chain changed into {{ changedChainName }}, start reloading the page...</p>
-
-    <p>ETH: {{ etherBalance }}</p>
-    <p>{{ greet }}</p>
-
-  </div>
-
-  <div class="flex p-12">
-    <input
-      v-model="greetInput"
-      type="text"
-      class="input w-12"
-    >
-    <button
-      @click="setGreeting(greetInput)"
-      class="btn"
-    >setGreeting</button>
-  </div>
-
-</template>
-
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
@@ -51,3 +24,30 @@ export default defineComponent({
   },
 });
 </script>
+
+<template>
+  <layout-header />
+  <div class="text-center">
+    <p
+      class="text-red-600"
+      v-if="changedChainName"
+    > Warning: chain changed into {{ changedChainName }}, start reloading the page...</p>
+
+    <p>ETH: {{ etherBalance }}</p>
+    <p>{{ greet }}</p>
+
+  </div>
+
+  <div class="flex p-12">
+    <input
+      v-model="greetInput"
+      type="text"
+      class="input w-12"
+    >
+    <button
+      @click="setGreeting(greetInput)"
+      class="btn"
+    >setGreeting</button>
+  </div>
+
+</template>
