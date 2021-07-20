@@ -1,7 +1,15 @@
 <template>
   <layout-header />
-  <p class="text-center">ETH: {{ balance }}</p>
-  <p class="text-center">{{ greet }}</p>
+  <div class="text-center">
+    <p
+      class="text-red-600"
+      v-if="changedChainName"
+    > Warning: chain changed into {{ changedChainName }}, start reloading the page...</p>
+
+    <p>ETH: {{ balanceEther }}</p>
+    <p>{{ greet }}</p>
+
+  </div>
 
   <div class="flex p-12">
     <input
@@ -18,37 +26,27 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, watch, computed } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import useWallet from "./store/wallet";
 import useContract from "./store/contract";
+import NETWORK from "./constants";
 
 export default defineComponent({
   name: "App",
   components: { LayoutHeader },
   setup() {
-    const { connectWallet, signer } = useWallet();
+    const { balanceEther, changedChainId } = useWallet();
     const { greet, getGreeting, setGreeting, initContract } = useContract();
 
     const greetInput = ref("");
-    const balance = ref("");
-
-    onMounted(async () => {
-      // await connectWallet();
-      if (signer.value) {
-        const balanceBN = await signer.value?.getBalance();
-        balance.value = utils.formatEther(balanceBN);
-        // initContract(signer.value);
-      }
-      // await getGreeting();
-    });
 
     return {
       greet,
-      balance,
       greetInput,
       setGreeting,
+      changedChainName: computed(() => NETWORK(changedChainId.value)?.name),
+      balanceEther,
     };
   },
 });

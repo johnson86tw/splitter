@@ -7,6 +7,7 @@ The contract is for hackathon team to evenly split prize from sponsors.
 
 ## frontend
 ### vue3 with metamask
+- https://limaois.me/archives/293
 - https://github.com/SmallRuralDog/web3modal-vue
 - https://github.com/chnejohnson/vue-tailwind-ethereum-template
 - https://github.com/samatechtw/vue3-eth

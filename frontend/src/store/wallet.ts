@@ -1,49 +1,130 @@
 import { ref, onMounted, computed, markRaw } from "vue";
 import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@ethersproject/providers";
-import { ethers, providers } from "ethers";
-
-interface MetaMaskProvider {
-  isMetaMask: boolean;
-  request: (request: { method: string; params?: any[] | undefined }) => Promise<any>;
-}
+import { BigNumber, ethers, utils } from "ethers";
 
 declare global {
   interface Window {
-    ethereum?: MetaMaskProvider;
+    ethereum: MetaMaskProvider;
   }
 }
 
+let initailized = false;
+
+// states
 const provider = ref<JsonRpcProvider | Web3Provider>();
 const signer = ref<JsonRpcSigner>();
 const userAddress = ref("");
 const network = ref<Network>();
+const balance = ref<BigNumber>();
 
-const isConnected = ref(false);
+// @todo how about add this state?
+const errorMsg = ref<string>();
 
+// events
+const chainChangedEvent = ref<number>();
+const accountsChangedEvent = ref<Array<string>>();
+
+// execute every time while component using
 export default function useWallet() {
+  // init useWallet
+  if (!initailized) {
+    window.ethereum.on("chainChanged", chainId => {
+      console.log("chain changed");
+      _handleChainChanged(chainId);
+    });
+
+    // note: it will emit when metamask locking or unlocking
+    window.ethereum.on("accountsChanged", accounts => {
+      console.log("accounts changed");
+      _handleAccountsChanged(accounts);
+    });
+
+    // note: it will emit while changing into unavailable localhost network
+    window.ethereum.on("disconnect", error => {
+      _handleDisconnect(error);
+    });
+
+    if (isConnected()) {
+      console.log("is conneted to MetaMask");
+      connectWallet();
+    }
+    initailized = true;
+  }
+
+  function isConnected() {
+    return window.ethereum && window.ethereum.isConnected();
+  }
+
+  // should get the eth balance with specific chainId and account
   async function connectWallet() {
     if (window.ethereum && window.ethereum.isMetaMask) {
       const _provider = new ethers.providers.Web3Provider(window.ethereum);
       const _signer = _provider.getSigner();
 
-      await window.ethereum.request({ method: "eth_requestAccounts" });
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+      } catch (e) {
+        throw new Error("fail to request MetaMask");
+      }
 
-      isConnected.value = true;
-      network.value = await _provider.getNetwork();
-      userAddress.value = await _signer.getAddress();
+      try {
+        network.value = await _provider.getNetwork();
+        userAddress.value = await _signer.getAddress();
+        balance.value = await _signer.getBalance();
+      } catch (e) {
+        throw new Error("fail to connect wallet");
+      }
 
       provider.value = markRaw(_provider);
       signer.value = markRaw(_signer);
     } else {
-      console.error("Please install MetaMask!");
+      throw new Error("Please install MetaMask!");
     }
   }
+  // event handler
+  // provider should reload for new chainId
+  function _handleChainChanged(chainId: number) {
+    chainChangedEvent.value = chainId;
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  }
+
+  // should re-connect wallet
+  function _handleAccountsChanged(accounts: Array<string>) {
+    accountsChangedEvent.value = accounts;
+    connectWallet();
+  }
+
+  function _handleDisconnect(error: ProviderRpcError) {
+    throw new Error(error.message);
+  }
+
+  // computed
+  const balanceEther = computed(() => {
+    if (balance.value) {
+      return utils.formatEther(balance.value);
+    }
+    return "0.0";
+  });
+
+  const changedChainId = computed(() => {
+    if (chainChangedEvent.value) {
+      return parseInt(chainChangedEvent.value.toString(), 16);
+    }
+    return 0;
+  });
 
   return {
+    isConnected,
     connectWallet,
     userAddress,
     provider,
     signer,
     chainId: computed(() => network.value?.chainId),
+    balance,
+    chainChangedEvent,
+    balanceEther,
+    changedChainId,
   };
 }

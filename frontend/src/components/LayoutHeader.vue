@@ -15,7 +15,7 @@
           </a>
         </div>
         <div class="ml-10 space-x-4 flex">
-          <div class="uppercase"> {{chain }} </div>
+          <div class="uppercase">{{ chain }}</div>
           <div v-if="userAddress">{{ userAddress }}</div>
           <div
             v-else-if="!isSupportedNetwork"
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, watch, ref } from "vue";
 import { ExclamationIcon } from "heroicons-vue3/solid";
 import useWallet from "../store/wallet";
 import NETWORK from "../constants";
@@ -47,7 +47,7 @@ export default defineComponent({
   name: "LayoutHeader",
   components: { ExclamationIcon },
   setup() {
-    const { userAddress, connectWallet, chainId } = useWallet();
+    const { userAddress, connectWallet, chainId, isConnected } = useWallet();
 
     const isSupportedNetwork = ref(true);
 
@@ -56,6 +56,7 @@ export default defineComponent({
       isSupportedNetwork,
       chain: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
       connectWallet,
+      isConnected,
     };
   },
 });
