@@ -17,6 +17,9 @@ const userAddress = ref("");
 const network = ref<Network>();
 const balance = ref<BigNumber>();
 
+// chain IDs supported by this app
+const supportedChainIds = [1, 4]; // mainnet and rinkeby
+
 // @todo how about add this state?
 const errorMsg = ref<string>();
 
@@ -78,6 +81,10 @@ export default function useWallet() {
 
       try {
         network.value = await _provider.getNetwork();
+
+        // check network is supported
+        if (!supportedChainIds.includes(network.value.chainId)) return;
+
         userAddress.value = await _signer.getAddress();
         balance.value = await _signer.getBalance();
       } catch (e) {
@@ -126,8 +133,12 @@ export default function useWallet() {
     return 0;
   });
 
+  // assume valid if we have no network information
+  const isSupportedNetwork = computed(() => (network.value ? supportedChainIds.includes(network.value.chainId) : true));
+
   return {
     isConnected,
+    isSupportedNetwork,
     connectWallet,
     userAddress,
     provider,

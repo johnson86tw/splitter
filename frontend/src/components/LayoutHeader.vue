@@ -15,14 +15,16 @@
           </a>
         </div>
         <div class="ml-10 space-x-4 flex">
-          <div class="uppercase">{{ chain }}</div>
-          <div v-if="userAddress">{{ userAddress }}</div>
           <div
-            v-else-if="!isSupportedNetwork"
+            v-if="!isSupportedNetwork"
             class="flex items-center"
           >
             <ExclamationIcon class="h-5 w-5 text-yellow-500 mr-2" />
-            <div class="text-gray-500">Unsupported network</div>
+            <div class="text-gray-500"> <span class="uppercase">{{ chainName }}</span> is unsupported network</div>
+          </div>
+          <div v-else-if="userAddress">
+            <span class="uppercase mr-2">{{ chainName }}</span>
+            <span>{{ userAddress }}</span>
           </div>
           <button
             v-else
@@ -47,14 +49,18 @@ export default defineComponent({
   name: "LayoutHeader",
   components: { ExclamationIcon },
   setup() {
-    const { userAddress, connectWallet, chainId, isConnected } = useWallet();
-
-    const isSupportedNetwork = ref(true);
+    const {
+      userAddress,
+      connectWallet,
+      chainId,
+      isConnected,
+      isSupportedNetwork,
+    } = useWallet();
 
     return {
       userAddress,
       isSupportedNetwork,
-      chain: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
+      chainName: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
       connectWallet,
       isConnected,
     };
