@@ -9,7 +9,7 @@ export default defineComponent({
   name: "App",
   components: { LayoutHeader },
   setup() {
-    const { etherBalance, changedChainId } = useWallet();
+    const { etherBalance, changedChainId, connectError } = useWallet();
     const { greet, getGreeting, setGreeting, initContract } = useContract();
 
     const greetInput = ref("");
@@ -20,6 +20,7 @@ export default defineComponent({
       setGreeting,
       changedChainName: computed(() => NETWORK(changedChainId.value)?.name),
       etherBalance,
+      connectError,
     };
   },
 });
@@ -31,7 +32,8 @@ export default defineComponent({
     <p
       class="text-red-600"
       v-if="changedChainName"
-    > Warning: chain changed into {{ changedChainName }}, start reloading the page...</p>
+    > Warning: chain is changed into {{ changedChainName }}</p>
+    <p v-if="connectError">{{ connectError }}</p>
 
     <p>ETH: {{ etherBalance }}</p>
     <p>{{ greet }}</p>

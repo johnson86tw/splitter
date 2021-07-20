@@ -4,8 +4,21 @@ import { BigNumber, ethers, utils } from "ethers";
 
 declare global {
   interface Window {
-    ethereum: MetaMaskProvider;
+    ethereum?: MetaMaskProvider; // must use "?" for browser without metamask
   }
+}
+
+interface MetaMaskProvider {
+  isMetaMask: boolean;
+  isConnected: () => boolean;
+  request: (request: { method: string; params?: any[] | undefined }) => Promise<any>;
+  on: (event: string, callback: (param: any) => void) => void;
+}
+
+interface ProviderRpcError extends Error {
+  message: string;
+  code: number;
+  data?: unknown;
 }
 
 let initailized = false;
@@ -19,9 +32,10 @@ const balance = ref<BigNumber>();
 
 // chain IDs supported by this app
 const supportedChainIds = [1, 4]; // mainnet and rinkeby
+const isSetupWallet = ref(false);
 
 // @todo how about add this state?
-const errorMsg = ref<string>();
+const connectError = ref<string>();
 
 // events
 const chainChangedEvent = ref<number>();
@@ -33,12 +47,14 @@ function clearState() {
   userAddress.value = "";
   network.value = undefined;
   balance.value = undefined;
+
+  isSetupWallet.value = false;
 }
 
 // execute every time while component using
 export default function useWallet() {
-  // init useWallet
-  if (!initailized) {
+  // init useWallet just once while creating this app
+  if (!initailized && window.ethereum && window.ethereum.isMetaMask) {
     window.ethereum.on("chainChanged", chainId => {
       console.log("chain changed");
       _handleChainChanged(chainId);
@@ -55,6 +71,8 @@ export default function useWallet() {
       _handleDisconnect(error);
     });
 
+    // @dev auto connect if user have been connected to the site,
+    // but how to handle async/await error?
     if (isConnected()) {
       console.log("is conneted to MetaMask");
       connectWallet();
@@ -68,6 +86,8 @@ export default function useWallet() {
 
   // should get the eth balance with specific chainId and account
   async function connectWallet() {
+    connectError.value = "";
+
     if (window.ethereum && window.ethereum.isMetaMask) {
       const _provider = new ethers.providers.Web3Provider(window.ethereum);
       const _signer = _provider.getSigner();
@@ -88,27 +108,35 @@ export default function useWallet() {
         userAddress.value = await _signer.getAddress();
         balance.value = await _signer.getBalance();
       } catch (e) {
+        // clearState is important here, let us check if the wallet is set up in component.
+        // otherwise, it's hard to detect error in connectWallet.
         clearState();
         throw new Error("fail to connect wallet");
       }
 
       provider.value = markRaw(_provider);
       signer.value = markRaw(_signer);
+      isSetupWallet.value = true;
     } else {
-      throw new Error("Please install MetaMask!");
+      connectError.value = "Please install MetaMask!";
     }
   }
   // event handler
   // provider should reload for new chainId
   function _handleChainChanged(chainId: number) {
     chainChangedEvent.value = chainId;
+    clearState();
+    connectWallet();
+
+    // clear event state in 2s
     setTimeout(() => {
-      window.location.reload();
+      chainChangedEvent.value = undefined;
     }, 2000);
   }
 
   // should re-connect wallet
   function _handleAccountsChanged(accounts: Array<string>) {
+    console.log(accounts[0]);
     accountsChangedEvent.value = accounts;
     connectWallet();
   }
@@ -138,6 +166,7 @@ export default function useWallet() {
 
   return {
     isConnected,
+    isSetupWallet,
     isSupportedNetwork,
     connectWallet,
     userAddress,
@@ -148,5 +177,6 @@ export default function useWallet() {
     chainChangedEvent,
     etherBalance,
     changedChainId,
+    connectError,
   };
 }
