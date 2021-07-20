@@ -31,8 +31,8 @@ const network = ref<Network>();
 const balance = ref<BigNumber>();
 
 // chain IDs supported by this app
-const supportedChainIds = [1, 4]; // mainnet and rinkeby
-const isSetupWallet = ref(false);
+const supportedChainIds = [4, 31337]; // mainnet and rinkeby
+const hasSetupWallet = ref(false);
 
 // @todo how about add this state?
 const connectError = ref<string>();
@@ -48,7 +48,7 @@ function clearState() {
   network.value = undefined;
   balance.value = undefined;
 
-  isSetupWallet.value = false;
+  hasSetupWallet.value = false;
 }
 
 // execute every time while component using
@@ -118,10 +118,14 @@ export default function useMetaMask() {
 
       provider.value = markRaw(_provider);
       signer.value = markRaw(_signer);
-      isSetupWallet.value = true;
+      hasSetupWallet.value = true;
     } else {
       connectError.value = "Please install MetaMask!";
     }
+  }
+
+  async function getBalance() {
+    balance.value = await signer.value?.getBalance();
   }
   // event handler
   // provider should reload for new chainId
@@ -168,7 +172,7 @@ export default function useMetaMask() {
 
   return {
     isConnected,
-    isSetupWallet,
+    hasSetupWallet,
     isSupportedNetwork,
     connectWallet,
     userAddress,
@@ -180,5 +184,6 @@ export default function useMetaMask() {
     etherBalance,
     changedChainId,
     connectError,
+    getBalance,
   };
 }

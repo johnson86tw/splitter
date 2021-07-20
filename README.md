@@ -8,6 +8,7 @@ The contract is for hackathon team to evenly split prize from sponsors.
 - yarn workspace
 
 ## References
+This project is heavily inspired by the following awesome projects.
 
 ### contracts
 - https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/finance/PaymentSplitter.sol

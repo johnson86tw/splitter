@@ -14,7 +14,7 @@ export default defineComponent({
       chainId,
       isConnected,
       isSupportedNetwork,
-      isSetupWallet,
+      hasSetupWallet,
     } = useMetaMask();
 
     return {
@@ -23,7 +23,7 @@ export default defineComponent({
       chainName: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
       connectWallet,
       isConnected,
-      isSetupWallet,
+      hasSetupWallet,
     };
   },
 });
@@ -53,7 +53,7 @@ export default defineComponent({
             <ExclamationIcon class="h-5 w-5 text-yellow-500 mr-2" />
             <div class="text-gray-500"> <span class="uppercase">{{ chainName }}</span> is unsupported network</div>
           </div>
-          <div v-else-if="isConnected() && isSetupWallet">
+          <div v-else-if="isConnected() && hasSetupWallet">
             <span class="uppercase mr-2">{{ chainName }}</span>
             <span>{{ userAddress }}</span>
           </div>

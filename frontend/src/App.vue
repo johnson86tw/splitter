@@ -1,8 +1,8 @@
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, watch, onMounted } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import useMetaMask from "./composables/metamask";
-import useContract from "./composables/contract";
+import useGreeterContract from "./composables/greeter";
 import NETWORK from "./constants";
 
 export default defineComponent({
@@ -10,17 +10,18 @@ export default defineComponent({
   components: { LayoutHeader },
   setup() {
     const { etherBalance, changedChainId, connectError } = useMetaMask();
-    const { greet, getGreeting, setGreeting, initContract } = useContract();
+    const { setGreeting, greet, errMsg } = useGreeterContract();
 
     const greetInput = ref("");
 
     return {
+      errMsg,
       greet,
       greetInput,
-      setGreeting,
       changedChainName: computed(() => NETWORK(changedChainId.value)?.name),
       etherBalance,
       connectError,
+      setGreeting,
     };
   },
 });
@@ -36,12 +37,13 @@ export default defineComponent({
     <p v-if="connectError">{{ connectError }}</p>
 
     <p>ETH: {{ etherBalance }}</p>
-    <p>{{ greet }}</p>
+    <p>Greet: {{ greet }}</p>
 
   </div>
 
   <div class="flex p-12">
     <input
+      @keyup.enter="setGreeting(greetInput)"
       v-model="greetInput"
       type="text"
       class="input w-12"
@@ -50,6 +52,14 @@ export default defineComponent({
       @click="setGreeting(greetInput)"
       class="btn"
     >setGreeting</button>
+  </div>
+
+  <div
+    class="p-10"
+    v-if="errMsg"
+  >
+    <p>Contract Error Message</p>
+    <p class="text-red-600"> {{ errMsg }} </p>
   </div>
 
 </template>
