@@ -1,7 +1,7 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
 import { ExclamationIcon } from "heroicons-vue3/solid";
-import useWallet from "../store/wallet";
+import useMetaMask from "../composables/metamask";
 import NETWORK from "../constants";
 
 export default defineComponent({
@@ -15,7 +15,7 @@ export default defineComponent({
       isConnected,
       isSupportedNetwork,
       isSetupWallet,
-    } = useWallet();
+    } = useMetaMask();
 
     return {
       userAddress,

@@ -52,8 +52,8 @@ function clearState() {
 }
 
 // execute every time while component using
-export default function useWallet() {
-  // init useWallet just once while creating this app
+export default function useMetaMask() {
+  // init useMetaMask just once while creating this app
   if (!initailized && window.ethereum && window.ethereum.isMetaMask) {
     window.ethereum.on("chainChanged", chainId => {
       console.log("chain changed");

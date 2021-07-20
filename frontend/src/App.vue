@@ -1,15 +1,15 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
-import useWallet from "./store/wallet";
-import useContract from "./store/contract";
+import useMetaMask from "./composables/metamask";
+import useContract from "./composables/contract";
 import NETWORK from "./constants";
 
 export default defineComponent({
   name: "App",
   components: { LayoutHeader },
   setup() {
-    const { etherBalance, changedChainId, connectError } = useWallet();
+    const { etherBalance, changedChainId, connectError } = useMetaMask();
     const { greet, getGreeting, setGreeting, initContract } = useContract();
 
     const greetInput = ref("");
