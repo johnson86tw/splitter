@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, watch, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { ExclamationIcon } from "heroicons-vue3/solid";
 import useWallet from "../store/wallet";
 import NETWORK from "../constants";

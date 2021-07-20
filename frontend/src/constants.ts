@@ -178,6 +178,6 @@ export const NETWORKS: Readonly<Record<Network, INetwork>> = {
 export default function NETWORK(chainId?: number) {
   const key = (Object.keys(NETWORKS) as Array<Network>).find((key: Network) => NETWORKS[key].chainId === chainId);
 
-  if (!key) return undefined;
+  if (!key) return null;
   return NETWORKS[key];
 }

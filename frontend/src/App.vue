@@ -6,7 +6,7 @@
       v-if="changedChainName"
     > Warning: chain changed into {{ changedChainName }}, start reloading the page...</p>
 
-    <p>ETH: {{ balanceEther }}</p>
+    <p>ETH: {{ etherBalance }}</p>
     <p>{{ greet }}</p>
 
   </div>
@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch, computed } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import useWallet from "./store/wallet";
 import useContract from "./store/contract";
@@ -36,7 +36,7 @@ export default defineComponent({
   name: "App",
   components: { LayoutHeader },
   setup() {
-    const { balanceEther, changedChainId } = useWallet();
+    const { etherBalance, changedChainId } = useWallet();
     const { greet, getGreeting, setGreeting, initContract } = useContract();
 
     const greetInput = ref("");
@@ -46,7 +46,7 @@ export default defineComponent({
       greetInput,
       setGreeting,
       changedChainName: computed(() => NETWORK(changedChainId.value)?.name),
-      balanceEther,
+      etherBalance,
     };
   },
 });

@@ -1,4 +1,4 @@
-import { ref, onMounted, computed, markRaw } from "vue";
+import { ref, computed, markRaw } from "vue";
 import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@ethersproject/providers";
 import { BigNumber, ethers, utils } from "ethers";
 
@@ -23,6 +23,14 @@ const errorMsg = ref<string>();
 // events
 const chainChangedEvent = ref<number>();
 const accountsChangedEvent = ref<Array<string>>();
+
+function clearState() {
+  provider.value = undefined;
+  signer.value = undefined;
+  userAddress.value = "";
+  network.value = undefined;
+  balance.value = undefined;
+}
 
 // execute every time while component using
 export default function useWallet() {
@@ -64,6 +72,7 @@ export default function useWallet() {
       try {
         await window.ethereum.request({ method: "eth_requestAccounts" });
       } catch (e) {
+        clearState();
         throw new Error("fail to request MetaMask");
       }
 
@@ -72,6 +81,7 @@ export default function useWallet() {
         userAddress.value = await _signer.getAddress();
         balance.value = await _signer.getBalance();
       } catch (e) {
+        clearState();
         throw new Error("fail to connect wallet");
       }
 
@@ -97,11 +107,12 @@ export default function useWallet() {
   }
 
   function _handleDisconnect(error: ProviderRpcError) {
+    clearState();
     throw new Error(error.message);
   }
 
   // computed
-  const balanceEther = computed(() => {
+  const etherBalance = computed(() => {
     if (balance.value) {
       return utils.formatEther(balance.value);
     }
@@ -124,7 +135,7 @@ export default function useWallet() {
     chainId: computed(() => network.value?.chainId),
     balance,
     chainChangedEvent,
-    balanceEther,
+    etherBalance,
     changedChainId,
   };
 }
