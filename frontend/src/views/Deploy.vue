@@ -3,7 +3,6 @@ import { defineComponent, onMounted, ref, watch } from "vue";
 import { ContractFactory } from "ethers";
 import useMetaMask from "../composables/metamask";
 import useGreeter from "../composables/greeter";
-import useGreeterContract from "../composables/greeter";
 import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
 import { GreeterFactory } from "@price-splitter/contracts/typechain/GreeterFactory";
 
@@ -52,7 +51,7 @@ export default defineComponent({
 
 <template>
   <div class="text-center">
-    <p>deploy your own contract</p>
+    <p>deploy your own Greeter contract</p>
     <p v-if="contractAddress">Success!</p>
     <p>{{ contractAddress }}</p>
   </div>
