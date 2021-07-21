@@ -32,6 +32,7 @@ export default defineComponent({
       errMsg.value = "";
       try {
         greeter = (await greeterFactory.deploy(param1.value)) as Greeter;
+        // @todo check greeter.deployed()
       } catch (e) {
         errMsg.value = e.message;
       }

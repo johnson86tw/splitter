@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { JsonRpcSigner } from "../utils/ethers";
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const contractAddressRinkeby = "0xBdeC61D40CEA359f92BaC3AEE54F3148e05Ec88B";
 import contractData from "@price-splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
 import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
@@ -27,6 +28,7 @@ export default function useGreeterContract() {
       clearState();
 
       if (value) {
+        // @todo error when network is not localhost
         console.log("createContract with new signer");
         createContract(value);
         await getGreeting();
@@ -35,9 +37,10 @@ export default function useGreeterContract() {
     initialized = true;
   }
 
+  // @todo only for hardhat network
   // reactive with useMetaMask
   function createContract(signer: JsonRpcSigner) {
-    const _contract = new ethers.Contract(contractAddress, contractData.abi, signer) as Greeter;
+    const _contract = new ethers.Contract(contractAddressRinkeby, contractData.abi, signer) as Greeter;
     greeter.value = markRaw(_contract);
   }
 
@@ -54,6 +57,7 @@ export default function useGreeterContract() {
     if (!greeter.value) return;
     try {
       const tx = await greeter.value.setGreeting(greet);
+      // @todo add tx pending state
       await tx.wait();
       await getGreeting();
       await getBalance();
