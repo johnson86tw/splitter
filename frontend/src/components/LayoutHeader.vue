@@ -4,7 +4,10 @@ import { ExclamationIcon } from "heroicons-vue3/solid";
 import useMetaMask from "../composables/metamask";
 import NETWORK from "../constants";
 
-const navigation = [{ name: "Deploy", href: "/deploy" }];
+const navigation = [
+  { name: "Deploy", href: "/deploy" },
+  { name: "Contract", href: "/" },
+];
 
 export default defineComponent({
   name: "LayoutHeader",
@@ -40,26 +43,29 @@ export default defineComponent({
     >
       <div class="w-full py-6 flex items-center justify-between border-b border-gray-300 lg:border-none">
         <div class="flex items-center">
-          <router-link to="/">
-            <img
-              class="h-10 w-auto"
-              src="../assets/logo.png"
-              alt="logo"
-            />
-          </router-link>
+          <div class="mr-10">
+            <router-link to="/">
+              <img
+                class="h-10 min-w-10"
+                src="../assets/logo.png"
+                alt="logo"
+              />
+            </router-link>
+          </div>
+          <div>
+            <router-link
+              v-for="link in navigation"
+              :key="link.name"
+              :to="link.href"
+              active-class="font-bold"
+              exact
+              class="mr-5 font-medium text-gray-500 hover:text-gray-900"
+            >
+              {{ link.name }}
+            </router-link>
+          </div>
         </div>
-        <div class="">
-          <router-link
-            v-for="link in navigation"
-            :key="link.name"
-            :to="link.href"
-            active-class="font-bold"
-            exact
-            class="font-medium text-gray-500 hover:text-gray-900"
-          >
-            {{ link.name }}
-          </router-link>
-        </div>
+
         <div class="ml-10 space-x-4 flex">
           <div
             v-if="!isSupportedNetwork"
