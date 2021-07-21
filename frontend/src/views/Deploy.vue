@@ -1,13 +1,17 @@
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   setup() {
+    const param1 = ref("");
+
     const deploy = () => {
-      console.log("click deploy");
+      console.log("click deploy", param1.value);
+      param1.value = "";
     };
     return {
       deploy,
+      param1,
     };
   },
 });
@@ -23,21 +27,22 @@ export default defineComponent({
     <div class="w-11/12 p-12 bg-white sm:w-8/12 md:w-1/2 lg:w-5/12">
 
       <div class="flex justify-between gap-3">
-        <span class="w-1/2">
+        <span class="w-full">
           <label
-            for="param_1"
+            for="Greeting"
             class="block text-xs font-semibold text-gray-600 uppercase"
-          >param_1</label>
+          >Greeting</label>
           <input
-            id="param_1"
+            v-model="param1"
+            id="Greeting"
             type="text"
-            name="param_1"
-            placeholder="John"
+            name="Greeting"
+            placeholder="Hello World"
             class="block w-full p-3 mt-2 text-gray-700 bg-gray-100 appearance-none focus:outline-none focus:bg-gray-300 focus:shadow-inner"
             required
           />
         </span>
-        <span class="w-1/2">
+        <!-- <span class="w-1/2">
           <label
             for="param_2"
             class="block text-xs font-semibold text-gray-600 uppercase"
@@ -50,7 +55,7 @@ export default defineComponent({
             class="block w-full p-3 mt-2 text-gray-700 bg-gray-100 appearance-none focus:outline-none focus:bg-gray-300 focus:shadow-inner"
             required
           />
-        </span>
+        </span> -->
       </div>
       <!-- <label
           for="email"
