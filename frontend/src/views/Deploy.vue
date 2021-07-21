@@ -5,6 +5,7 @@ import useMetaMask from "../composables/metamask";
 import useGreeter from "../composables/greeter";
 import useGreeterContract from "../composables/greeter";
 import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
+import { GreeterFactory } from "@price-splitter/contracts/typechain/GreeterFactory";
 
 export default defineComponent({
   setup() {
@@ -16,7 +17,7 @@ export default defineComponent({
     const errMsg = ref("");
 
     let greeter: Greeter;
-    let greeterFactory: ContractFactory;
+    let greeterFactory: GreeterFactory;
 
     watch(signer, () => {
       if (signer.value) {
@@ -24,7 +25,7 @@ export default defineComponent({
           contractData.abi,
           contractData.bytecode,
           signer.value
-        );
+        ) as GreeterFactory;
       }
     });
 
