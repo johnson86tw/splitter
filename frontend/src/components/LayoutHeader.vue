@@ -5,8 +5,8 @@ import useMetaMask from "../composables/metamask";
 import NETWORK from "../constants";
 
 const navigation = [
-  { name: "Deploy", href: "/deploy" },
   { name: "Contract", href: "/" },
+  { name: "Deploy", href: "/deploy" },
 ];
 
 export default defineComponent({
@@ -41,7 +41,7 @@ export default defineComponent({
       class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       aria-label="Top"
     >
-      <div class="w-full py-6 flex items-center justify-between border-b border-gray-300 lg:border-none">
+      <div class="w-full py-4 flex items-center justify-between border-b border-gray-300">
         <div class="flex items-center">
           <div class="mr-10">
             <router-link to="/">

@@ -1,17 +1,48 @@
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
+import { ContractFactory } from "ethers";
+import useMetaMask from "../composables/metamask";
+import useGreeter from "../composables/greeter";
+import useGreeterContract from "../composables/greeter";
+import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
 
 export default defineComponent({
   setup() {
-    const param1 = ref("");
+    const { signer } = useMetaMask();
+    const { contractData } = useGreeter();
 
-    const deploy = () => {
-      console.log("click deploy", param1.value);
+    const param1 = ref("");
+    const contractAddress = ref("");
+    const errMsg = ref("");
+
+    let greeter: Greeter;
+    let greeterFactory: ContractFactory;
+
+    watch(signer, () => {
+      if (signer.value) {
+        greeterFactory = new ContractFactory(
+          contractData.abi,
+          contractData.bytecode,
+          signer.value
+        );
+      }
+    });
+
+    const deploy = async () => {
+      errMsg.value = "";
+      try {
+        greeter = (await greeterFactory.deploy(param1.value)) as Greeter;
+      } catch (e) {
+        errMsg.value = e.message;
+      }
+      contractAddress.value = greeter.address;
       param1.value = "";
     };
     return {
       deploy,
       param1,
+      contractAddress,
+      errMsg,
     };
   },
 });
@@ -21,6 +52,8 @@ export default defineComponent({
 <template>
   <div class="text-center">
     <p>deploy your own contract</p>
+    <p v-if="contractAddress">Success!</p>
+    <p>{{ contractAddress }}</p>
   </div>
 
   <div class="grid place-items-center">
@@ -102,7 +135,10 @@ export default defineComponent({
       >
         Deploy
       </button>
+    </div>
 
+    <div class="text-red-600">
+      {{ errMsg }}
     </div>
   </div>
 </template>

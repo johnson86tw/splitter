@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { JsonRpcSigner } from "../utils/ethers";
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-import contractABI from "@price-splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
+import contractData from "@price-splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
 import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
 
@@ -37,7 +37,7 @@ export default function useGreeterContract() {
 
   // reactive with useMetaMask
   function createContract(signer: JsonRpcSigner) {
-    const _contract = new ethers.Contract(contractAddress, contractABI.abi, signer) as Greeter;
+    const _contract = new ethers.Contract(contractAddress, contractData.abi, signer) as Greeter;
     greeter.value = markRaw(_contract);
   }
 
@@ -66,6 +66,7 @@ export default function useGreeterContract() {
     errMsg,
     greet,
     greeter,
+    contractData,
     createContract,
     getGreeting,
     setGreeting,
