@@ -1,33 +1,37 @@
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { computed, defineComponent, watch } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import useMetaMask from "./composables/metamask";
-import useGreeterContract from "./composables/greeter";
 import NETWORK from "./constants";
 
 export default defineComponent({
   name: "App",
   components: { LayoutHeader },
   setup() {
-    const { etherBalance, changedChainId, connectError } = useMetaMask();
-    const { setGreeting, greet, errMsg } = useGreeterContract();
+    const { isSupportedNetwork, supportedChainIds } = useMetaMask();
 
-    const greetInput = ref("");
+    const supportedChainName = computed(() => {
+      let names: string[] = [];
+      supportedChainIds.forEach((id) => {
+        names.push(NETWORK(id)?.name!);
+      });
+      return names.join(", ");
+    });
 
-    return {
-      errMsg,
-      greet,
-      greetInput,
-      changedChainName: computed(() => NETWORK(changedChainId.value)?.name),
-      etherBalance,
-      connectError,
-      setGreeting,
-    };
+    return { isSupportedNetwork, supportedChainName };
   },
 });
 </script>
 
 <template>
   <layout-header />
-  <router-view></router-view>
+  <div v-if="isSupportedNetwork">
+    <router-view></router-view>
+  </div>
+  <div
+    v-else
+    class="text-center text-xl text-red-500 p-4"
+  >
+    <p>You are connected to the wrong chain. Please switch to {{ supportedChainName }}.</p>
+  </div>
 </template>
