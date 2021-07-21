@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import useMetaMask from "./composables/metamask";
 import useGreeterContract from "./composables/greeter";
@@ -29,37 +29,5 @@ export default defineComponent({
 
 <template>
   <layout-header />
-  <div class="text-center">
-    <p
-      class="text-red-600"
-      v-if="changedChainName"
-    > Warning: chain is changed into {{ changedChainName }}</p>
-    <p v-if="connectError">{{ connectError }}</p>
-
-    <p>ETH: {{ etherBalance }}</p>
-    <p>Greet: {{ greet }}</p>
-
-  </div>
-
-  <div class="flex p-12">
-    <input
-      @keyup.enter="setGreeting(greetInput)"
-      v-model="greetInput"
-      type="text"
-      class="input w-12"
-    >
-    <button
-      @click="setGreeting(greetInput)"
-      class="btn"
-    >setGreeting</button>
-  </div>
-
-  <div
-    class="p-10"
-    v-if="errMsg"
-  >
-    <p>Contract Error Message</p>
-    <p class="text-red-600"> {{ errMsg }} </p>
-  </div>
-
+  <router-view></router-view>
 </template>

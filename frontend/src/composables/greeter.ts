@@ -7,6 +7,8 @@ import contractABI from "@price-splitter/contracts/artifacts/contracts/Greeter.s
 import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
 
+let initialized = false;
+
 const greeter = ref<Greeter>();
 
 const greet = ref("");
@@ -20,18 +22,20 @@ function clearState() {
 }
 
 export default function useGreeterContract() {
-  // @todo add initialized for once to prevent double watch signer
+  if (!initialized) {
+    watch(signer, async value => {
+      clearState();
+
+      if (value) {
+        console.log("createContract with new signer");
+        createContract(value);
+        await getGreeting();
+      }
+    });
+    initialized = true;
+  }
+
   // reactive with useMetaMask
-  watch(signer, async value => {
-    clearState();
-
-    if (value) {
-      console.log("createContract with new signer");
-      createContract(value);
-      await getGreeting();
-    }
-  });
-
   function createContract(signer: JsonRpcSigner) {
     const _contract = new ethers.Contract(contractAddress, contractABI.abi, signer) as Greeter;
     greeter.value = markRaw(_contract);
