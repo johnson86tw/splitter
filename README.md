@@ -1,5 +1,4 @@
-# Prize Splitter
-The contract is for hackathon team to evenly split prize from sponsors.
+# Splitter
 
 ## Tech-stack
 - vite
@@ -11,12 +10,13 @@ The contract is for hackathon team to evenly split prize from sponsors.
 This project is heavily inspired by the following awesome projects.
 
 ### contracts
-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/finance/PaymentSplitter.sol
-- https://github.com/gitcoinco/matching_contracts
+- splits: https://github.com/wminshew/splits
+- PaymentSplitter: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/finance/PaymentSplitter.sol
+- matching_contracts: https://github.com/gitcoinco/matching_contracts
 
 ### frontend
 #### vue3 with metamask
-- vue-composable https://github.com/pikax/vue-composable/blob/master/packages/vue-composable/src/web/webSocket.ts
+- vue-composable: https://github.com/pikax/vue-composable/blob/master/packages/vue-composable/src/web/webSocket.ts
 - useDapp: https://limaois.me/archives/293
 - web3model-vue: https://github.com/SmallRuralDog/web3modal-vue
 - vue-tailwind-ethereum-template: https://github.com/chnejohnson/vue-tailwind-ethereum-template
