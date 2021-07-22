@@ -25,7 +25,8 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="text-center">
+  <div class="text-center text-gray-600">
+    <p class="text-2xl">Greeter</p>
     <p>{{ connectError }}</p>
 
     <p>ETH: {{ etherBalance }}</p>

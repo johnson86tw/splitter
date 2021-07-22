@@ -6,10 +6,12 @@ import contractData from "@splitter/contracts/artifacts/contracts/Greeter.sol/Gr
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
 import NETWORK from "../constants";
+import { isAddress } from "ethers/lib/utils";
 
 const greeterAddress: Readonly<Record<string, string>> = {
   localhost: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
   rinkeby: "0xBdeC61D40CEA359f92BaC3AEE54F3148e05Ec88B",
+  goerli: "0xa1c2109014EB3093cdcE1896e1c2A2cB082Ea97a",
 };
 
 const greeter = ref<Greeter>();
@@ -48,6 +50,16 @@ export default function useGreeterContract() {
     }
   }
 
+  function connectContractAt(address: string) {
+    let contract;
+    if (!isAddress(address)) throw new Error("address is invalid");
+    if (hasSetupWallet.value && signer.value && chainId.value) {
+      // @issue: throw Error can't be handled when address is not valid.
+      contract = new ethers.Contract(address, contractData.abi, signer.value) as Greeter;
+    }
+    return contract;
+  }
+
   async function getGreeting() {
     if (!greeter.value) return;
     try {
@@ -77,6 +89,7 @@ export default function useGreeterContract() {
     contractData,
     greeterAddress: computed(() => greeter.value?.address),
     createContract,
+    connectContractAt,
     getGreeting,
     setGreeting,
   };

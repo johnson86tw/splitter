@@ -32,7 +32,7 @@ const network = ref<Network>();
 const balance = ref<BigNumber>();
 
 // chain IDs supported by this app
-const supportedChainIds = isDev ? [4, 31337] : [4]; // rinkeby
+const supportedChainIds = isDev ? [4, 5, 31337] : [4, 5]; // rinkeby, goerli
 
 // watch this so that you can detect signer and chainId changed
 const hasSetupWallet = ref(false);

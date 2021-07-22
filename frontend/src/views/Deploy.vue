@@ -50,8 +50,8 @@ export default defineComponent({
 
 
 <template>
-  <div class="text-center">
-    <p>deploy your own Greeter contract</p>
+  <div class="text-center text-gray-600">
+    <p class="text-xl">Deploy your own Greeter contract</p>
     <p v-if="contractAddress">Success!</p>
     <p>{{ contractAddress }}</p>
   </div>
