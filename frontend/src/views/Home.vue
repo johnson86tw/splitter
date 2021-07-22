@@ -42,7 +42,7 @@ export default defineComponent({
     <p class="text-red-600">{{ connectError }}</p>
     <p class="text-2xl">Greeter</p>
     <p>ETH: {{ etherBalance }}</p>
-    <p>Greet: {{ greet }}</p>
+    <p>Greeting: {{ greet }}</p>
 
   </div>
 

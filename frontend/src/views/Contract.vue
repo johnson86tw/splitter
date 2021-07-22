@@ -5,7 +5,7 @@ import useGreeterContract from "../composables/greeter";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 
 export default defineComponent({
-  name: "Home",
+  name: "Contract",
   setup() {
     const { etherBalance, connectError, getBalance } = useMetaMask();
     const { connectContractAt } = useGreeterContract();
