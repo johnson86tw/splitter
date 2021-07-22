@@ -14,6 +14,7 @@
     "deploy:local": "yarn workspace @splitter/contracts run deploy:local",
     "dev": "yarn workspace @splitter/frontend run dev",
     "build:contracts": "yarn workspace @splitter/contracts run build",
-    "build:vue": "yarn workspace @splitter/frontend run build"
+    "build:vue": "yarn workspace @splitter/frontend run build",
+    "build": "yarn build:contracts && yarn build:vue"
   }
 }
