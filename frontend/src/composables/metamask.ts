@@ -38,7 +38,7 @@ const hasSetupWallet = ref(false);
 // @todo how about add this state?
 const connectError = ref<string>();
 
-// events
+// @todo remove chainChangedEvent
 const chainChangedEvent = ref<number>();
 const accountsChangedEvent = ref<Array<string>>();
 
@@ -92,6 +92,9 @@ export default function useMetaMask() {
     connectError.value = "";
 
     if (window.ethereum && window.ethereum.isMetaMask) {
+      hasSetupWallet.value = false;
+      console.log("connecting wallet...");
+
       const _provider = new ethers.providers.Web3Provider(window.ethereum);
       const _signer = _provider.getSigner();
 
@@ -102,11 +105,19 @@ export default function useMetaMask() {
         throw new Error("fail to request MetaMask");
       }
 
+      // get provider and signer first
+      provider.value = markRaw(_provider);
+      signer.value = markRaw(_signer);
+
       try {
+        // and then get network
         network.value = await _provider.getNetwork();
 
         // check network is supported
-        if (!supportedChainIds.includes(network.value.chainId)) return;
+        if (!supportedChainIds.includes(network.value.chainId)) {
+          console.log("unsupported network");
+          return;
+        }
 
         userAddress.value = await _signer.getAddress();
         balance.value = await _signer.getBalance();
@@ -117,9 +128,8 @@ export default function useMetaMask() {
         throw new Error("fail to connect wallet");
       }
 
-      provider.value = markRaw(_provider);
-      signer.value = markRaw(_signer);
       hasSetupWallet.value = true;
+      console.log("has set up wallet with signer and network: ", await signer.value.getAddress(), network.value.name);
     } else {
       connectError.value = "Please install MetaMask!";
     }

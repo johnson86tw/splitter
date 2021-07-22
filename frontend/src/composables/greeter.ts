@@ -2,8 +2,6 @@ import { markRaw, watch, ref } from "vue";
 import { ethers } from "ethers";
 import { JsonRpcSigner } from "../utils/ethers";
 
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const contractAddressRinkeby = "0xBdeC61D40CEA359f92BaC3AEE54F3148e05Ec88B";
 import contractData from "@splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
@@ -14,14 +12,12 @@ const greeterAddress: Readonly<Record<string, string>> = {
   rinkeby: "0xBdeC61D40CEA359f92BaC3AEE54F3148e05Ec88B",
 };
 
-let initialized = false;
-
 const greeter = ref<Greeter>();
 
 const greet = ref("");
 const errMsg = ref("");
 
-const { getBalance, signer, supportedChainIds, chainId } = useMetaMask();
+const { getBalance, hasSetupWallet, signer, supportedChainIds, chainId } = useMetaMask();
 
 function clearState() {
   greet.value = "";
@@ -29,21 +25,18 @@ function clearState() {
 }
 
 export default function useGreeterContract() {
-  if (!initialized) {
-    watch(signer, async value => {
-      clearState();
+  watch(hasSetupWallet, async hasSetupWallet => {
+    clearState();
 
-      if (value && chainId.value) {
-        // @todo error when network is not localhost
-        console.log("createContract with new signer");
-        createContract(value, chainId.value);
+    if (hasSetupWallet && signer.value && chainId.value) {
+      if (supportedChainIds.includes(chainId.value)) {
+        console.log("createContract when setting up new wallet");
+        createContract(signer.value, chainId.value);
         await getGreeting();
       }
-    });
-    initialized = true;
-  }
+    }
+  });
 
-  // @todo only for hardhat network
   // reactive with useMetaMask
   function createContract(signer: JsonRpcSigner, chainId: number) {
     if (supportedChainIds.includes(chainId)) {
