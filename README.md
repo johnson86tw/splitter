@@ -1,4 +1,9 @@
 # Splitter
+Splitter is built on top of PaymentSplitter from Openzeppelin. People can deploy their own Splitter contract in order to split payment from a third party to members added in this contract with specific shares.
+
+For example of some use cases,
+- a hackathon team want to split prizes from sponsors to the team members,
+- or a team registed as a Gitcoin Grant want to split funds from contributors to the team members.
 
 ## Tech-stack
 - vite
