@@ -1,12 +1,13 @@
 <script lang="ts">
 import { computed, defineComponent, watch } from "vue";
+import LayoutFooter from "./components/LayoutFooter.vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import useMetaMask from "./composables/metamask";
 import NETWORK from "./constants";
 
 export default defineComponent({
   name: "App",
-  components: { LayoutHeader },
+  components: { LayoutHeader, LayoutFooter },
   setup() {
     const { isSupportedNetwork, supportedChainIds } = useMetaMask();
 
@@ -34,4 +35,5 @@ export default defineComponent({
   >
     <p>You are connected to the wrong chain. Please switch to {{ supportedChainName }}.</p>
   </div>
+  <layout-footer />
 </template>
