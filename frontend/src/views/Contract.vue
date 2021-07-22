@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import useMetaMask from "../composables/metamask";
 import useGreeterContract from "../composables/greeter";
 
@@ -7,9 +7,16 @@ export default defineComponent({
   name: "Home",
   setup() {
     const { etherBalance, connectError } = useMetaMask();
-    const { setGreeting, greet, errMsg } = useGreeterContract();
+    const { setGreeting, greet, errMsg, greeterAddress } = useGreeterContract();
 
     const greetInput = ref("");
+    const displayGreeterAddress = computed(() =>
+      greeterAddress.value
+        ? greeterAddress.value.slice(0, 6) +
+          "..." +
+          greeterAddress.value.slice(-4)
+        : ""
+    );
 
     return {
       errMsg,
@@ -17,6 +24,7 @@ export default defineComponent({
       greetInput,
       etherBalance,
       connectError,
+      displayGreeterAddress,
       setGreeting,
     };
   },
@@ -29,13 +37,10 @@ export default defineComponent({
     <p>{{ connectError }}</p>
 
     <p>ETH: {{ etherBalance }}</p>
-    <p>Greeting: {{ greet }}</p>
-
   </div>
 
   <div class="flex justify-center">
     <div class="p-12 sm:w-8/12 md:w-1/2 lg:w-5/12">
-
       <label
         for="ContractAddress"
         class="block mt-2 text-xs font-semibold text-gray-600 uppercase"
@@ -50,15 +55,26 @@ export default defineComponent({
           class="w-full p-3 mt-2 mr-2 text-gray-700 bg-gray-200 appearance-none focus:outline-none focus:bg-gray-300 focus:shadow-inner"
           required
         />
-
         <button class="btn mt-2">Connect</button>
       </div>
-
     </div>
   </div>
 
+  <div
+    class="p-10"
+    v-if="errMsg"
+  >
+    <p>Contract Error Message</p>
+    <p class="text-red-600"> {{ errMsg }} </p>
+  </div>
+
   <div class="grid place-items-center">
-    <div class="w-11/12 p-12 bg-white sm:w-8/12 md:w-1/2 lg:w-5/12">
+    <div class="w-full border shadow p-8 bg-white sm:w-8/12 md:w-1/2 lg:w-5/12">
+      <div class="text-center p-2">
+        {{ displayGreeterAddress }}
+        <p>Greeting: {{ greet }}</p>
+      </div>
+
       <div class="flex justify-between gap-3">
         <span class="w-full">
           <!-- Greeting -->
@@ -84,12 +100,4 @@ export default defineComponent({
       >setGreeting</button>
     </div>
   </div>
-  <div
-    class="p-10"
-    v-if="errMsg"
-  >
-    <p>Contract Error Message</p>
-    <p class="text-red-600"> {{ errMsg }} </p>
-  </div>
-
 </template>

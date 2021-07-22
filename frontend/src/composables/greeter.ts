@@ -1,4 +1,4 @@
-import { markRaw, watch, ref } from "vue";
+import { markRaw, watch, ref, computed } from "vue";
 import { ethers } from "ethers";
 import { JsonRpcSigner } from "../utils/ethers";
 
@@ -75,6 +75,7 @@ export default function useGreeterContract() {
     greet,
     greeter,
     contractData,
+    greeterAddress: computed(() => greeter.value?.address),
     createContract,
     getGreeting,
     setGreeting,
