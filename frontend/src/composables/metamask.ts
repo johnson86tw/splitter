@@ -1,6 +1,7 @@
 import { ref, computed, markRaw } from "vue";
 import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@ethersproject/providers";
 import { BigNumber, ethers, utils } from "ethers";
+const isDev = import.meta.env.DEV;
 
 declare global {
   interface Window {
@@ -31,7 +32,7 @@ const network = ref<Network>();
 const balance = ref<BigNumber>();
 
 // chain IDs supported by this app
-const supportedChainIds = [4, 31337]; // mainnet and rinkeby
+const supportedChainIds = isDev ? [4, 31337] : [4]; // rinkeby
 const hasSetupWallet = ref(false);
 
 // @todo how about add this state?
