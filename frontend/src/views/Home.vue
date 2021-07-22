@@ -7,7 +7,7 @@ import NETWORK from "../constants";
 export default defineComponent({
   name: "Home",
   setup() {
-    const { etherBalance, changedChainId, connectError } = useMetaMask();
+    const { etherBalance, connectError } = useMetaMask();
     const { setGreeting, greet, errMsg } = useGreeterContract();
 
     const greetInput = ref("");
@@ -16,7 +16,6 @@ export default defineComponent({
       errMsg,
       greet,
       greetInput,
-      changedChainName: computed(() => NETWORK(changedChainId.value)?.name),
       etherBalance,
       connectError,
       setGreeting,
@@ -27,10 +26,6 @@ export default defineComponent({
 
 <template>
   <div class="text-center">
-    <p
-      class="text-red-600"
-      v-if="changedChainName"
-    > Warning: chain is changed into {{ changedChainName }}</p>
     <p v-if="connectError">{{ connectError }}</p>
 
     <p>ETH: {{ etherBalance }}</p>

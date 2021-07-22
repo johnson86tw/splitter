@@ -33,14 +33,12 @@ const balance = ref<BigNumber>();
 
 // chain IDs supported by this app
 const supportedChainIds = isDev ? [4, 31337] : [4]; // rinkeby
+
+// watch this so that you can detect signer and chainId changed
 const hasSetupWallet = ref(false);
 
 // @todo how about add this state?
 const connectError = ref<string>();
-
-// @todo remove chainChangedEvent
-const chainChangedEvent = ref<number>();
-const accountsChangedEvent = ref<Array<string>>();
 
 function clearState() {
   provider.value = undefined;
@@ -141,20 +139,13 @@ export default function useMetaMask() {
   // event handler
   // provider should reload for new chainId
   function _handleChainChanged(chainId: number) {
-    chainChangedEvent.value = chainId;
     clearState();
     connectWallet();
-
-    // clear event state in 2s
-    setTimeout(() => {
-      chainChangedEvent.value = undefined;
-    }, 2000);
   }
 
   // should re-connect wallet
   function _handleAccountsChanged(accounts: Array<string>) {
-    console.log(accounts[0]);
-    accountsChangedEvent.value = accounts;
+    clearState();
     connectWallet();
   }
 
@@ -171,13 +162,6 @@ export default function useMetaMask() {
     return "0.0";
   });
 
-  const changedChainId = computed(() => {
-    if (chainChangedEvent.value) {
-      return parseInt(chainChangedEvent.value.toString(), 16);
-    }
-    return 0;
-  });
-
   // assume valid if we have no network information
   const isSupportedNetwork = computed(() => (network.value ? supportedChainIds.includes(network.value.chainId) : true));
 
@@ -192,9 +176,7 @@ export default function useMetaMask() {
     signer,
     chainId: computed(() => network.value?.chainId),
     balance,
-    chainChangedEvent,
     etherBalance,
-    changedChainId,
     connectError,
     getBalance,
   };
