@@ -35,7 +35,7 @@ This project is heavily inspired by the following awesome projects.
 ref: https://classic.yarnpkg.com/en/docs/workspaces/
 
 #### add dependencies
-- `yarn workspace @prize-splitter/frontend add <package> --dev`
+- `yarn workspace @splitter/frontend add <package> --dev`
 
 #### initial set up
 - `npx hardhat`

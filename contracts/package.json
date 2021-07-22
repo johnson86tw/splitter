@@ -1,11 +1,12 @@
 {
-  "name": "@price-splitter/contracts",
+  "name": "@splitter/contracts",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "test": "npx hardhat test",
     "node": "npx hardhat node",
-    "deploy:local": "npx hardhat run --network localhost scripts/deploy.js"
+    "deploy:local": "npx hardhat run --network localhost scripts/deploy.js",
+    "build": "npx hardhat compile"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",

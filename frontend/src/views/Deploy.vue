@@ -3,8 +3,8 @@ import { defineComponent, onMounted, ref, watch } from "vue";
 import { ContractFactory } from "ethers";
 import useMetaMask from "../composables/metamask";
 import useGreeter from "../composables/greeter";
-import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
-import { GreeterFactory } from "@price-splitter/contracts/typechain/GreeterFactory";
+import { Greeter } from "@splitter/contracts/typechain/Greeter";
+import { GreeterFactory } from "@splitter/contracts/typechain/GreeterFactory";
 
 export default defineComponent({
   setup() {

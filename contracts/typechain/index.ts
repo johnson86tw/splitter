@@ -3,5 +3,7 @@
 /* eslint-disable */
 export { GreeterFactory } from "./GreeterFactory";
 export type { Greeter } from "./Greeter";
-export { PriceSplitterFactory } from "./PriceSplitterFactory";
-export type { PriceSplitter } from "./PriceSplitter";
+export { PaymentSplitterFactory } from "./PaymentSplitterFactory";
+export type { PaymentSplitter } from "./PaymentSplitter";
+export { SplitterFactory } from "./SplitterFactory";
+export type { Splitter } from "./Splitter";

@@ -4,8 +4,8 @@ import { JsonRpcSigner } from "../utils/ethers";
 
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const contractAddressRinkeby = "0xBdeC61D40CEA359f92BaC3AEE54F3148e05Ec88B";
-import contractData from "@price-splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
-import { Greeter } from "@price-splitter/contracts/typechain/Greeter";
+import contractData from "@splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
+import { Greeter } from "@splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
 
 let initialized = false;
