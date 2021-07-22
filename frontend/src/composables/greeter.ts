@@ -7,6 +7,12 @@ const contractAddressRinkeby = "0xBdeC61D40CEA359f92BaC3AEE54F3148e05Ec88B";
 import contractData from "@splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
+import NETWORK from "../constants";
+
+const greeterAddress: Readonly<Record<string, string>> = {
+  localhost: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  rinkeby: "0xBdeC61D40CEA359f92BaC3AEE54F3148e05Ec88B",
+};
 
 let initialized = false;
 
@@ -15,7 +21,7 @@ const greeter = ref<Greeter>();
 const greet = ref("");
 const errMsg = ref("");
 
-const { getBalance, signer } = useMetaMask();
+const { getBalance, signer, supportedChainIds, chainId } = useMetaMask();
 
 function clearState() {
   greet.value = "";
@@ -27,10 +33,10 @@ export default function useGreeterContract() {
     watch(signer, async value => {
       clearState();
 
-      if (value) {
+      if (value && chainId.value) {
         // @todo error when network is not localhost
         console.log("createContract with new signer");
-        createContract(value);
+        createContract(value, chainId.value);
         await getGreeting();
       }
     });
@@ -39,9 +45,14 @@ export default function useGreeterContract() {
 
   // @todo only for hardhat network
   // reactive with useMetaMask
-  function createContract(signer: JsonRpcSigner) {
-    const _contract = new ethers.Contract(contractAddressRinkeby, contractData.abi, signer) as Greeter;
-    greeter.value = markRaw(_contract);
+  function createContract(signer: JsonRpcSigner, chainId: number) {
+    if (supportedChainIds.includes(chainId)) {
+      const contractAddress = greeterAddress[NETWORK(chainId)!.name];
+      const _contract = new ethers.Contract(contractAddress, contractData.abi, signer) as Greeter;
+      greeter.value = markRaw(_contract);
+    } else {
+      throw new Error("createContract: unsupported chainId");
+    }
   }
 
   async function getGreeting() {
