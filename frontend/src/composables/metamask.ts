@@ -166,11 +166,9 @@ export default function useMetaMask() {
   const isSupportedNetwork = computed(() => (network.value ? supportedChainIds.includes(network.value.chainId) : true));
 
   return {
-    isConnected,
     hasSetupWallet,
     isSupportedNetwork,
     supportedChainIds,
-    connectWallet,
     userAddress,
     provider,
     signer,
@@ -178,6 +176,8 @@ export default function useMetaMask() {
     balance,
     etherBalance,
     connectError,
+    connectWallet,
     getBalance,
+    isConnected,
   };
 }

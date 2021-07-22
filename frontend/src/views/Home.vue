@@ -26,7 +26,7 @@ export default defineComponent({
 
 <template>
   <div class="text-center">
-    <p v-if="connectError">{{ connectError }}</p>
+    <p>{{ connectError }}</p>
 
     <p>ETH: {{ etherBalance }}</p>
     <p>Greet: {{ greet }}</p>

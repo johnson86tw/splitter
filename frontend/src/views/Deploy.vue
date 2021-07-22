@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import { ContractFactory } from "ethers";
 import useMetaMask from "../composables/metamask";
 import useGreeter from "../composables/greeter";
@@ -14,36 +14,35 @@ export default defineComponent({
     const param1 = ref("");
     const contractAddress = ref("");
     const errMsg = ref("");
+    const txPending = ref(false);
 
-    let greeter: Greeter;
-    let greeterFactory: GreeterFactory;
+    const deploy = async () => {
+      errMsg.value = "";
 
-    watch(signer, () => {
-      if (signer.value) {
-        greeterFactory = new ContractFactory(
+      try {
+        txPending.value = true;
+        const greeterFactory = new ContractFactory(
           contractData.abi,
           contractData.bytecode,
           signer.value
         ) as GreeterFactory;
-      }
-    });
+        const greeter = (await greeterFactory.deploy(param1.value)) as Greeter;
+        await greeter.deployed();
 
-    const deploy = async () => {
-      errMsg.value = "";
-      try {
-        greeter = (await greeterFactory.deploy(param1.value)) as Greeter;
-        // @todo check greeter.deployed()
+        contractAddress.value = greeter.address;
+        param1.value = "";
       } catch (e) {
         errMsg.value = e.message;
+      } finally {
+        txPending.value = false;
       }
-      contractAddress.value = greeter.address;
-      param1.value = "";
     };
     return {
-      deploy,
       param1,
       contractAddress,
       errMsg,
+      txPending,
+      deploy,
     };
   },
 });
@@ -58,8 +57,10 @@ export default defineComponent({
   </div>
 
   <div class="grid place-items-center">
-    <div class="w-11/12 p-12 bg-white sm:w-8/12 md:w-1/2 lg:w-5/12">
-
+    <form
+      action="#"
+      class="w-11/12 p-12 bg-white sm:w-8/12 md:w-1/2 lg:w-5/12"
+    >
       <div class="flex justify-between gap-3">
         <span class="w-full">
           <label
@@ -73,7 +74,6 @@ export default defineComponent({
             name="Greeting"
             placeholder="Hello World"
             class="block w-full p-3 mt-2 text-gray-700 bg-gray-100 appearance-none focus:outline-none focus:bg-gray-300 focus:shadow-inner"
-            required
           />
         </span>
         <!-- <span class="w-1/2">
@@ -133,10 +133,11 @@ export default defineComponent({
       <button
         @click="deploy"
         class="btn w-full my-4"
+        :disabled="txPending"
       >
-        Deploy
+        {{txPending? "pending": "Deploy"}}
       </button>
-    </div>
+    </form>
 
     <div class="text-red-600">
       {{ errMsg }}
