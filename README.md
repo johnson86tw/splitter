@@ -1,5 +1,5 @@
 # Splitter
-Splitter is built on top of PaymentSplitter from Openzeppelin. People can deploy their own Splitter contract in order to split payment from a third party to members added in this contract with specific shares.
+Splitter is built on top of PaymentSplitter from Openzeppelin. People can deploy their own Splitter contract in order to split payment from a third party to the members added in this contract with specific shares.
 
 For example of some use cases,
 - a hackathon team want to split prizes from sponsors to the team members,
@@ -10,6 +10,26 @@ For example of some use cases,
 - hardhat
 - typescript
 - yarn workspace
+
+## Development
+In the project root `./splitter`
+
+1. Install workspaces dependencies
+```
+yarn
+```
+2. Compile contracts and typechain
+```
+yarn build:contracts
+```
+3. Open a terminal and run hardhat network on http://localhost:8545 with chainID 31337
+```
+yarn start:node
+```
+4. Open another terminal and run frontend dev
+```
+yarn dev
+```
 
 ## References
 This project is heavily inspired by the following awesome projects.
@@ -31,17 +51,13 @@ This project is heavily inspired by the following awesome projects.
 - docs: https://docs.metamask.io/guide/getting-started.html#basic-considerations
 - detect-provider: https://github.com/MetaMask/detect-provider/blob/main/src/index.ts
 
-### monorepo architecture
-#### yarn workspaces
-- `yarn install` for install all dependencies
-- `yarn test:contracts` for testing contract
-- `yarn dev:vue` for running vite localhost
+### Monorepo Architecture
+#### Yarn workspaces
+- https://classic.yarnpkg.com/en/docs/workspaces/
 
-ref: https://classic.yarnpkg.com/en/docs/workspaces/
-
-#### add dependencies
+#### Add dependencies
 - `yarn workspace @splitter/frontend add <package> --dev`
 
-#### initial set up
+#### Project's initial set up
 - `npx hardhat`
 - `yarn create vite`
