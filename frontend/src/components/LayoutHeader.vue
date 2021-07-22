@@ -1,6 +1,5 @@
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
-import { ExclamationIcon } from "heroicons-vue3/solid";
+import { computed, defineComponent } from "vue";
 import useMetaMask from "../composables/metamask";
 import NETWORK from "../constants";
 
@@ -11,7 +10,6 @@ const navigation = [
 
 export default defineComponent({
   name: "LayoutHeader",
-  components: { ExclamationIcon },
   setup() {
     const {
       userAddress,
@@ -77,7 +75,6 @@ export default defineComponent({
             v-if="!isSupportedNetwork"
             class="flex items-center"
           >
-            <ExclamationIcon class="h-5 w-5 text-yellow-500 mr-2" />
             <div class="text-gray-500"> <span class="uppercase">{{ chainName }}</span> is unsupported network</div>
           </div>
           <div
