@@ -74,10 +74,10 @@ export default function useMetaMask() {
 
     // @dev auto connect if user have been connected to the site,
     // but how to handle async/await error?
-    if (isConnected()) {
-      console.log("is conneted to MetaMask");
-      connectWallet();
-    }
+    // if (isConnected()) {
+    //   console.log("is conneted to MetaMask");
+    //   connectWallet();
+    // }
     initailized = true;
   }
 
@@ -100,7 +100,8 @@ export default function useMetaMask() {
         await window.ethereum.request({ method: "eth_requestAccounts" });
       } catch (e) {
         clearState();
-        throw new Error("fail to request MetaMask");
+        connectError.value = "fail to request MetaMask";
+        return;
       }
 
       // get provider and signer first
@@ -123,7 +124,8 @@ export default function useMetaMask() {
         // clearState is important here, let us check if the wallet is set up in component.
         // otherwise, it's hard to detect error in connectWallet.
         clearState();
-        throw new Error("fail to connect wallet");
+        connectError.value = "fail to connect wallet";
+        return;
       }
 
       hasSetupWallet.value = true;
