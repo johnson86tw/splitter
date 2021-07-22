@@ -94,7 +94,7 @@ export default defineComponent({
           >Connect Wallet</button>
         </div>
       </div>
-      <div class="py-4 flex flex-wrap justify-center space-x-6 lg:hidden">
+      <div class="py-4 flex flex-wrap justify-center space-x-6">
       </div>
     </nav>
   </header>
