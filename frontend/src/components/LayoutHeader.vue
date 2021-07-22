@@ -5,8 +5,8 @@ import useMetaMask from "../composables/metamask";
 import NETWORK from "../constants";
 
 const navigation = [
-  { name: "Contract", href: "/" },
   { name: "Deploy", href: "/deploy" },
+  { name: "Contract", href: "/contract" },
 ];
 
 export default defineComponent({
