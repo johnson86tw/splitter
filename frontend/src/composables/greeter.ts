@@ -62,6 +62,7 @@ export default function useGreeterContract() {
 
   async function getGreeting() {
     if (!greeter.value) return;
+    errMsg.value = "";
     try {
       greet.value = await greeter.value.greet();
     } catch (e) {
@@ -71,6 +72,7 @@ export default function useGreeterContract() {
 
   async function setGreeting(greet: string) {
     if (!greeter.value) return;
+    errMsg.value = "";
     try {
       const tx = await greeter.value.setGreeting(greet);
       // @todo add tx pending state

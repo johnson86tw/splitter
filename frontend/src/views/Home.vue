@@ -1,8 +1,7 @@
 <script lang="ts">
-import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import { defineComponent, ref } from "vue";
 import useMetaMask from "../composables/metamask";
 import useGreeterContract from "../composables/greeter";
-import NETWORK from "../constants";
 
 export default defineComponent({
   name: "Home",
@@ -11,6 +10,19 @@ export default defineComponent({
     const { setGreeting, greet, errMsg } = useGreeterContract();
 
     const greetInput = ref("");
+    const txPending = ref(false);
+
+    const setGreetingBtn = async () => {
+      try {
+        txPending.value = true;
+        await setGreeting(greetInput.value);
+        greetInput.value = "";
+      } catch (e) {
+        console.log(e);
+      } finally {
+        txPending.value = false;
+      }
+    };
 
     return {
       errMsg,
@@ -18,7 +30,8 @@ export default defineComponent({
       greetInput,
       etherBalance,
       connectError,
-      setGreeting,
+      txPending,
+      setGreetingBtn,
     };
   },
 });
@@ -26,9 +39,8 @@ export default defineComponent({
 
 <template>
   <div class="text-center text-gray-600">
+    <p class="text-red-600">{{ connectError }}</p>
     <p class="text-2xl">Greeter</p>
-    <p>{{ connectError }}</p>
-
     <p>ETH: {{ etherBalance }}</p>
     <p>Greet: {{ greet }}</p>
 
@@ -46,7 +58,7 @@ export default defineComponent({
             id="Greeting"
             name="Greeting"
             placeholder="Hello World"
-            @keyup.enter="setGreeting(greetInput)"
+            @keyup.enter="setGreetingBtn()"
             v-model="greetInput"
             type="text"
             class="block w-full p-3 mt-2 text-gray-700 bg-gray-100 appearance-none focus:outline-none focus:bg-gray-300 focus:shadow-inner"
@@ -55,9 +67,10 @@ export default defineComponent({
         </span>
       </div>
       <button
-        @click="setGreeting(greetInput)"
+        @click="setGreetingBtn()"
         class="btn w-full my-4"
-      >setGreeting</button>
+        :disabled="txPending"
+      >{{ txPending ? "pending" : "setGreeting" }}</button>
     </div>
   </div>
   <div
