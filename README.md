@@ -49,6 +49,7 @@ This project is heavily inspired by the following awesome projects.
 
 #### metamask
 - docs: https://docs.metamask.io/guide/getting-started.html#basic-considerations
+- json-rpc-api https://metamask.github.io/api-playground/api-documentation/#wallet_addEthereumChain
 - detect-provider: https://github.com/MetaMask/detect-provider/blob/main/src/index.ts
 
 ### Monorepo Architecture
