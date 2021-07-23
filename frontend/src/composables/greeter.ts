@@ -18,7 +18,7 @@ const greeterAddress: Readonly<Record<string, string>> = {
 };
 
 const greeter = ref<Greeter>();
-const greeting = ref<string>();
+const greeting = ref("");
 
 function clearState() {
   greeter.value = undefined;
@@ -32,8 +32,9 @@ watch(hasSetupWallet, async hasSetupWallet => {
     if (supportedChainIds.includes(chainId.value)) {
       console.log("createContract when setting up new wallet");
       createContract(signer.value, chainId.value);
-      const { getGreeting } = useGetGreeting();
-      getGreeting(greeter.value!);
+      const { getGreeting, greeting: g } = useGetGreeting();
+      await getGreeting(greeter.value!);
+      greeting.value = g.value;
     }
   }
 });
@@ -73,11 +74,18 @@ export function useGreeterContract() {
 // ============================ Contract Methods ============================
 
 export function useGetGreeting() {
+  const greeting = ref("");
   const isLoading = ref(false);
   const errMsg = ref("");
 
   const getGreeting = async (greeter: Greeter) => {
     errMsg.value = "";
+
+    if (!greeter) {
+      errMsg.value = "getGreeting: contract doesn't set up";
+      return;
+    }
+
     try {
       isLoading.value = true;
       greeting.value = await greeter.greet();
@@ -88,7 +96,7 @@ export function useGetGreeting() {
     }
   };
 
-  return { isLoading, errMsg, getGreeting };
+  return { greeting, isLoading, errMsg, getGreeting };
 }
 
 export function useSetGreeting() {
@@ -98,6 +106,12 @@ export function useSetGreeting() {
 
   const setGreeting = async (greeter: Greeter, greeting: string) => {
     errMsg.value = "";
+
+    if (!greeter) {
+      errMsg.value = "setGreeting: contract doesn't set up";
+      return;
+    }
+
     try {
       isLoading.value = true;
       const tx = await greeter.setGreeting(greeting);
@@ -110,9 +124,6 @@ export function useSetGreeting() {
     } finally {
       isLoading.value = false;
     }
-
-    const { getGreeting } = useGetGreeting();
-    getGreeting(greeter);
     getBalance();
   };
 

@@ -1,25 +1,32 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import useMetaMask from "../composables/metamask";
-import { useGreeterContract, useSetGreeting } from "../composables/greeter";
+import {
+  useGetGreeting,
+  useGreeterContract,
+  useSetGreeting,
+} from "../composables/greeter";
 
 export default defineComponent({
   name: "Home",
   setup() {
     const { etherBalance, connectError } = useMetaMask();
-    const { greeter, greeting } = useGreeterContract();
+    const { greeter, greeting: greetingStore } = useGreeterContract();
     const { setGreeting, errMsg, isPending } = useSetGreeting();
+    const { getGreeting, greeting } = useGetGreeting();
 
     const greetInput = ref("");
 
-    const setGreetingBtn = () => {
-      setGreeting(greeter.value!, greetInput.value);
+    const setGreetingBtn = async () => {
+      await setGreeting(greeter.value!, greetInput.value);
       greetInput.value = "";
+      await getGreeting(greeter.value!);
+      greetingStore.value = greeting.value;
     };
 
     return {
       errMsg,
-      greeting,
+      greeting: greetingStore,
       greetInput,
       etherBalance,
       connectError,
@@ -66,12 +73,6 @@ export default defineComponent({
       >{{ isPending ? "pending" : "setGreeting" }}</button>
     </div>
   </div>
-  <div
-    class="p-10"
-    v-if="errMsg"
-  >
-    <p>Contract Error Message</p>
-    <p class="text-red-600"> {{ errMsg }} </p>
-  </div>
+  <p class="p-10 text-center text-red-600"> {{ errMsg }} </p>
 
 </template>

@@ -1,7 +1,11 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import useMetaMask from "../composables/metamask";
-import { useGreeterContract } from "../composables/greeter";
+import {
+  useGetGreeting,
+  useGreeterContract,
+  useSetGreeting,
+} from "../composables/greeter";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 
 export default defineComponent({
@@ -9,53 +13,40 @@ export default defineComponent({
   setup() {
     const { etherBalance, connectError, getBalance } = useMetaMask();
     const { connectContractAt } = useGreeterContract();
+    const { greeting, getGreeting } = useGetGreeting();
+    const {
+      setGreeting,
+      errMsg: setGreetingErr,
+      isPending: setGreetingPending,
+    } = useSetGreeting();
 
-    const greetingInput = ref("");
     const greeter = ref<Greeter>();
-    const greeting = ref<string>();
-    const errMsg = ref("");
-    const txPending = ref(false);
 
-    const addressAt = ref("");
-    const connect = async () => {
+    const addressInput = ref("");
+    const errMsg = ref("");
+    const deployPending = ref(false);
+
+    const connectContractBtn = async () => {
       errMsg.value = "";
 
       try {
-        const _greeter = connectContractAt(addressAt.value);
+        const _greeter = connectContractAt(addressInput.value);
         greeter.value = await _greeter?.deployed();
-        txPending.value = true;
-        greeting.value = await greeter.value?.greet();
+        deployPending.value = true;
+        getGreeting(greeter.value!);
       } catch (e) {
         errMsg.value = e.message;
       } finally {
-        txPending.value = false;
+        deployPending.value = false;
       }
     };
 
-    async function getGreeting() {
-      errMsg.value = "";
-      try {
-        greeting.value = await greeter.value?.greet();
-      } catch (e) {
-        errMsg.value = e.message;
-      }
-    }
-
-    async function setGreeting(greet: string) {
-      errMsg.value = "";
-      try {
-        txPending.value = true;
-        const tx = await greeter.value?.setGreeting(greet);
-        // @todo add tx pending state
-        await tx?.wait();
-        await getGreeting();
-        await getBalance();
-        greetingInput.value = "";
-      } catch (e) {
-        errMsg.value = e.message;
-      } finally {
-        txPending.value = false;
-      }
+    const greetingInput = ref("");
+    async function setGreetingBtn() {
+      await setGreeting(greeter.value!, greetingInput.value);
+      greetingInput.value = "";
+      getGreeting(greeter.value!);
+      getBalance();
     }
 
     const greeterAddress = computed(() =>
@@ -75,13 +66,15 @@ export default defineComponent({
       connectError,
       greetingInput,
       displayGreeterAddress,
-      addressAt,
+      addressInput,
       greeter,
       greeting,
       errMsg,
-      txPending,
-      setGreeting,
-      connect,
+      setGreetingErr,
+      deployPending,
+      setGreetingPending,
+      setGreetingBtn,
+      connectContractBtn,
     };
   },
 });
@@ -102,7 +95,7 @@ export default defineComponent({
       >Contract Address</label>
       <div class="flex justify-between">
         <input
-          v-model="addressAt"
+          v-model="addressInput"
           id="ContractAddress"
           type="ContractAddress"
           name="ContractAddress"
@@ -112,19 +105,13 @@ export default defineComponent({
           required
         />
         <button
-          @click="connect"
+          @click="connectContractBtn()"
           class="btn mt-2"
         >Connect</button>
       </div>
     </div>
   </div>
-
-  <div
-    v-if="errMsg"
-    class="p-4 text-center"
-  >
-    <p class="text-red-600"> Error: {{ errMsg }} </p>
-  </div>
+  <p class="p-4 text-center text-red-600"> {{ errMsg }} </p>
 
   <div
     v-if="greeter"
@@ -155,10 +142,12 @@ export default defineComponent({
         </span>
       </div>
       <button
-        @click="setGreeting(greetingInput)"
+        @click="setGreetingBtn()"
         class="btn w-full my-4"
-        :disabled="txPending"
-      >{{ txPending ? "pending" : "setGreeting" }}</button>
+        :disabled="setGreetingPending"
+      >{{ setGreetingPending ? "pending" : "setGreeting" }}</button>
     </div>
+
+    <p class="p-4 text-center text-red-600"> {{ setGreetingErr }} </p>
   </div>
 </template>
