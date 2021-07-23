@@ -1,36 +1,29 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import useMetaMask from "../composables/metamask";
-import useGreeterContract from "../composables/greeter";
+import { useGreeterContract, useSetGreeting } from "../composables/greeter";
 
 export default defineComponent({
   name: "Home",
   setup() {
     const { etherBalance, connectError } = useMetaMask();
-    const { setGreeting, greet, errMsg } = useGreeterContract();
+    const { greeter, greeting } = useGreeterContract();
+    const { setGreeting, errMsg, isPending } = useSetGreeting();
 
     const greetInput = ref("");
-    const txPending = ref(false);
 
-    const setGreetingBtn = async () => {
-      try {
-        txPending.value = true;
-        await setGreeting(greetInput.value);
-        greetInput.value = "";
-      } catch (e) {
-        console.log(e);
-      } finally {
-        txPending.value = false;
-      }
+    const setGreetingBtn = () => {
+      setGreeting(greeter.value!, greetInput.value);
+      greetInput.value = "";
     };
 
     return {
       errMsg,
-      greet,
+      greeting,
       greetInput,
       etherBalance,
       connectError,
-      txPending,
+      isPending,
       setGreetingBtn,
     };
   },
@@ -42,7 +35,7 @@ export default defineComponent({
     <p class="text-red-600">{{ connectError }}</p>
     <p class="text-2xl">Greeter</p>
     <p>ETH: {{ etherBalance }}</p>
-    <p>Greeting: {{ greet }}</p>
+    <p>Greeting: {{ greeting }}</p>
 
   </div>
 
@@ -69,8 +62,8 @@ export default defineComponent({
       <button
         @click="setGreetingBtn()"
         class="btn w-full my-4"
-        :disabled="txPending"
-      >{{ txPending ? "pending" : "setGreeting" }}</button>
+        :disabled="isPending"
+      >{{ isPending ? "pending" : "setGreeting" }}</button>
     </div>
   </div>
   <div

@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import useMetaMask from "../composables/metamask";
-import useGreeterContract from "../composables/greeter";
+import { useGreeterContract } from "../composables/greeter";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 
 export default defineComponent({

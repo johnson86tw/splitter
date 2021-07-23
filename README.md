@@ -14,6 +14,8 @@ For example of some use cases,
 ## Development
 In the project root `./splitter`
 
+<!-- @todo add deploy:local -->
+
 1. Install workspaces dependencies
 ```
 yarn
@@ -30,7 +32,6 @@ yarn start:node
 ```
 yarn dev
 ```
-
 ## References
 This project is heavily inspired by the following awesome projects.
 

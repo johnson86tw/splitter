@@ -2,14 +2,14 @@
 import { defineComponent, onMounted, ref } from "vue";
 import { ContractFactory } from "ethers";
 import useMetaMask from "../composables/metamask";
-import useGreeter from "../composables/greeter";
+import { useGreeterContract } from "../composables/greeter";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 import { GreeterFactory } from "@splitter/contracts/typechain/GreeterFactory";
 
 export default defineComponent({
   setup() {
     const { signer } = useMetaMask();
-    const { contractData } = useGreeter();
+    const { contractData } = useGreeterContract();
 
     const param1 = ref("");
     const contractAddress = ref("");

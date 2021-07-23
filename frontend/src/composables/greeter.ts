@@ -18,13 +18,11 @@ const greeterAddress: Readonly<Record<string, string>> = {
 };
 
 const greeter = ref<Greeter>();
-
-const greet = ref("");
-const errMsg = ref("");
+const greeting = ref<string>();
 
 function clearState() {
-  greet.value = "";
-  errMsg.value = "";
+  greeter.value = undefined;
+  greeting.value = "";
 }
 
 watch(hasSetupWallet, async hasSetupWallet => {
@@ -34,7 +32,8 @@ watch(hasSetupWallet, async hasSetupWallet => {
     if (supportedChainIds.includes(chainId.value)) {
       console.log("createContract when setting up new wallet");
       createContract(signer.value, chainId.value);
-      await getGreeting();
+      const { getGreeting } = useGetGreeting();
+      getGreeting(greeter.value!);
     }
   }
 });
@@ -60,40 +59,62 @@ function connectContractAt(address: string) {
   return contract;
 }
 
-async function getGreeting() {
-  if (!greeter.value) return;
-  errMsg.value = "";
-  try {
-    greet.value = await greeter.value.greet();
-  } catch (e) {
-    errMsg.value = e.message;
-  }
-}
-
-async function setGreeting(greet: string) {
-  if (!greeter.value) return;
-  errMsg.value = "";
-  try {
-    const tx = await greeter.value.setGreeting(greet);
-    // @todo add tx pending state
-    await tx.wait();
-    await getGreeting();
-    await getBalance();
-  } catch (e) {
-    errMsg.value = e.message;
-  }
-}
-
-export default function useGreeterContract() {
+export function useGreeterContract() {
   return {
-    errMsg,
-    greet,
     greeter,
+    greeting,
     contractData,
     greeterAddress: computed(() => greeter.value?.address),
     createContract,
     connectContractAt,
-    getGreeting,
-    setGreeting,
   };
+}
+
+// ============================ Contract Methods ============================
+
+export function useGetGreeting() {
+  const isLoading = ref(false);
+  const errMsg = ref("");
+
+  const getGreeting = async (greeter: Greeter) => {
+    errMsg.value = "";
+    try {
+      isLoading.value = true;
+      greeting.value = await greeter.greet();
+    } catch (e) {
+      errMsg.value = e;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  return { isLoading, errMsg, getGreeting };
+}
+
+export function useSetGreeting() {
+  const isLoading = ref(false);
+  const isPending = ref(false);
+  const errMsg = ref("");
+
+  const setGreeting = async (greeter: Greeter, greeting: string) => {
+    errMsg.value = "";
+    try {
+      isLoading.value = true;
+      const tx = await greeter.setGreeting(greeting);
+
+      isPending.value = true;
+      await tx.wait();
+      isPending.value = false;
+    } catch (e) {
+      errMsg.value = e;
+    } finally {
+      isLoading.value = false;
+    }
+
+    const { getGreeting } = useGetGreeting();
+    getGreeting(greeter);
+    getBalance();
+  };
+
+  return { isLoading, isPending, errMsg, setGreeting };
 }
