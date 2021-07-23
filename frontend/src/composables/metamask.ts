@@ -35,7 +35,6 @@ const balance = ref<BigNumber>();
 // watch this so that you can detect signer and chainId changed
 const hasSetupWallet = ref(false);
 
-// @todo how about add this state?
 const connectError = ref<string>();
 
 function clearState() {
@@ -50,32 +49,28 @@ function clearState() {
 
 // execute every time while component using
 export default function useMetaMask() {
+  // @todo this will setup even though user don't want to use metamask
   // init useMetaMask just once while creating this app
   if (!initailized && window.ethereum && window.ethereum.isMetaMask) {
     window.ethereum.on("chainChanged", chainId => {
       console.log("chain changed");
-      _handleChainChanged(chainId);
+      clearState();
+      connectWallet();
     });
 
     // note: it will emit when metamask locking or unlocking
     window.ethereum.on("accountsChanged", accounts => {
       console.log("accounts changed");
-      _handleAccountsChanged(accounts);
+      clearState();
+      connectWallet();
     });
 
     // note: it will emit while changing into unavailable localhost network
     window.ethereum.on("disconnect", error => {
-      _handleDisconnect(error);
+      console.log("disconnect");
+      clearState();
+      connectError.value = "disconnect";
     });
-
-    // @todo "on" getting metamask tx receipt
-
-    // @dev auto connect if user have been connected to the site,
-    // but how to handle async/await error?
-    // if (isConnected()) {
-    //   console.log("is conneted to MetaMask");
-    //   connectWallet();
-    // }
     initailized = true;
   }
 
@@ -95,6 +90,10 @@ export default function useMetaMask() {
       const _signer = _provider.getSigner();
 
       try {
+        // @todo add time restriction
+        // @todo connect wallet loading
+        // @bug when change from rinkeby to hardhat which is not set up, it will
+        // stuck on this code, and when you change back to rinkeby, then it have error of fail to connect wallet below...weird...
         await window.ethereum.request({ method: "eth_requestAccounts" });
       } catch (e) {
         clearState();
@@ -135,23 +134,6 @@ export default function useMetaMask() {
 
   async function getBalance() {
     balance.value = await signer.value?.getBalance();
-  }
-  // event handler
-  // provider should reload for new chainId
-  function _handleChainChanged(chainId: number) {
-    clearState();
-    connectWallet();
-  }
-
-  // should re-connect wallet
-  function _handleAccountsChanged(accounts: Array<string>) {
-    clearState();
-    connectWallet();
-  }
-
-  function _handleDisconnect(error: ProviderRpcError) {
-    clearState();
-    throw new Error(error.message);
   }
 
   // computed

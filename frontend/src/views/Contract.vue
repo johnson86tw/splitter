@@ -89,9 +89,8 @@ export default defineComponent({
 
 <template>
   <div class="text-center text-warm-gray-600">
+    <p class="text-red-600">{{ connectError }}</p>
     <p class="text-xl">Connect to your own Greeter contract</p>
-    <p>{{ connectError }}</p>
-
     <p>ETH: {{ etherBalance }}</p>
   </div>
 
