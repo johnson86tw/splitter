@@ -1,7 +1,8 @@
 import { ref, computed, markRaw } from "vue";
 import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@ethersproject/providers";
 import { BigNumber, ethers, utils } from "ethers";
-const isDev = import.meta.env.DEV;
+import useConfig from "@/config";
+const { supportedChainIds } = useConfig();
 
 declare global {
   interface Window {
@@ -30,9 +31,6 @@ const signer = ref<JsonRpcSigner>();
 const userAddress = ref("");
 const network = ref<Network>();
 const balance = ref<BigNumber>();
-
-// chain IDs supported by this app
-const supportedChainIds = isDev ? [4, 5, 31337] : [4, 5]; // rinkeby, goerli
 
 // watch this so that you can detect signer and chainId changed
 const hasSetupWallet = ref(false);
