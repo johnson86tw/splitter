@@ -14,8 +14,6 @@ For example of some use cases,
 ## Development
 In the project root `./splitter`
 
-<!-- @todo add deploy:local -->
-
 1. Install workspaces dependencies
 ```
 yarn
@@ -24,14 +22,22 @@ yarn
 ```
 yarn build:contracts
 ```
-3. Open a terminal and run hardhat network on http://localhost:8545 with chainID 31337
+3. Run hardhat network on http://localhost:8545 with chainID 31337
 ```
 yarn start:node
 ```
-4. Open another terminal and run frontend dev
+
+4. Run frontend dev
 ```
 yarn dev
 ```
+
+5. Deploy default contract to hardhat network
+```
+yarn deploy:local
+```
+
+
 ## References
 This project is heavily inspired by the following awesome projects.
 
