@@ -3,13 +3,15 @@ import { computed, defineComponent, watch } from "vue";
 import LayoutFooter from "./components/LayoutFooter.vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import useMetaMask from "./composables/metamask";
+import useConfig from "./config";
 import NETWORK from "./constants";
 
 export default defineComponent({
   name: "App",
   components: { LayoutHeader, LayoutFooter },
   setup() {
-    const { isSupportedNetwork, supportedChainIds } = useMetaMask();
+    const { isSupportedNetwork } = useMetaMask();
+    const { supportedChainIds } = useConfig();
 
     const supportedChainName = computed(() => {
       let names: string[] = [];

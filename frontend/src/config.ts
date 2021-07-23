@@ -6,7 +6,6 @@ const isDev = import.meta.env.DEV;
 const supportedChainIds = isDev ? [4, 5, 31337] : [4, 5]; // rinkeby, goerli
 
 export default function useConfig() {
-  console.log("useConfig");
   return {
     isDev,
     supportedChainIds,

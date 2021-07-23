@@ -168,7 +168,6 @@ export default function useMetaMask() {
   return {
     hasSetupWallet,
     isSupportedNetwork,
-    supportedChainIds,
     userAddress,
     provider,
     signer,

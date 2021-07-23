@@ -1,12 +1,15 @@
 import { markRaw, watch, ref, computed } from "vue";
 import { ethers } from "ethers";
 import { JsonRpcSigner } from "../utils/ethers";
-
 import contractData from "@splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
 import NETWORK from "../constants";
 import { isAddress } from "ethers/lib/utils";
+import useConfig from "@/config";
+
+const { supportedChainIds } = useConfig();
+const { getBalance, hasSetupWallet, signer, chainId } = useMetaMask();
 
 const greeterAddress: Readonly<Record<string, string>> = {
   localhost: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
@@ -18,8 +21,6 @@ const greeter = ref<Greeter>();
 
 const greet = ref("");
 const errMsg = ref("");
-
-const { getBalance, hasSetupWallet, signer, supportedChainIds, chainId } = useMetaMask();
 
 function clearState() {
   greet.value = "";
