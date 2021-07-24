@@ -9,7 +9,7 @@
     "contracts"
   ],
   "scripts": {
-    "test:contracts": "yarn workspace @splitter/contracts run test",
+    "test": "yarn workspace @splitter/contracts run test",
     "start:node": "yarn workspace @splitter/contracts run node",
     "deploy:local": "yarn workspace @splitter/contracts run deploy:local",
     "dev": "yarn workspace @splitter/frontend run dev",

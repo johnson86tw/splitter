@@ -23,11 +23,15 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface SplitterInterface extends ethers.utils.Interface {
   functions: {
     "addPayee(address,uint256)": FunctionFragment;
+    "finalize()": FunctionFragment;
     "isPayee(address)": FunctionFragment;
+    "owner()": FunctionFragment;
     "payee(uint256)": FunctionFragment;
     "release(address)": FunctionFragment;
     "released(address)": FunctionFragment;
     "shares(address)": FunctionFragment;
+    "state()": FunctionFragment;
+    "totalPayees()": FunctionFragment;
     "totalReleased()": FunctionFragment;
     "totalShares()": FunctionFragment;
   };
@@ -36,11 +40,18 @@ interface SplitterInterface extends ethers.utils.Interface {
     functionFragment: "addPayee",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "finalize", values?: undefined): string;
   encodeFunctionData(functionFragment: "isPayee", values: [string]): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "payee", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "release", values: [string]): string;
   encodeFunctionData(functionFragment: "released", values: [string]): string;
   encodeFunctionData(functionFragment: "shares", values: [string]): string;
+  encodeFunctionData(functionFragment: "state", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "totalPayees",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "totalReleased",
     values?: undefined
@@ -51,11 +62,18 @@ interface SplitterInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "addPayee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isPayee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "payee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "release", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "released", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "shares", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalPayees",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "totalReleased",
     data: BytesLike
@@ -66,11 +84,13 @@ interface SplitterInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "Finalized()": EventFragment;
     "PayeeAdded(address,uint256)": EventFragment;
     "PaymentReceived(address,uint256)": EventFragment;
     "PaymentReleased(address,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Finalized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PayeeAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PaymentReceived"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PaymentReleased"): EventFragment;
@@ -102,6 +122,10 @@ export class Splitter extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    finalize(overrides?: Overrides): Promise<ContractTransaction>;
+
+    "finalize()"(overrides?: Overrides): Promise<ContractTransaction>;
+
     isPayee(
       account: string,
       overrides?: CallOverrides
@@ -114,6 +138,14 @@ export class Splitter extends Contract {
       overrides?: CallOverrides
     ): Promise<{
       0: boolean;
+    }>;
+
+    owner(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "owner()"(overrides?: CallOverrides): Promise<{
+      0: string;
     }>;
 
     payee(
@@ -165,6 +197,22 @@ export class Splitter extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<{
+      0: BigNumber;
+    }>;
+
+    state(overrides?: CallOverrides): Promise<{
+      0: number;
+    }>;
+
+    "state()"(overrides?: CallOverrides): Promise<{
+      0: number;
+    }>;
+
+    totalPayees(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
+
+    "totalPayees()"(overrides?: CallOverrides): Promise<{
       0: BigNumber;
     }>;
 
@@ -197,12 +245,20 @@ export class Splitter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  finalize(overrides?: Overrides): Promise<ContractTransaction>;
+
+  "finalize()"(overrides?: Overrides): Promise<ContractTransaction>;
+
   isPayee(account: string, overrides?: CallOverrides): Promise<boolean>;
 
   "isPayee(address)"(
     account: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  "owner()"(overrides?: CallOverrides): Promise<string>;
 
   payee(index: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -232,6 +288,14 @@ export class Splitter extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  state(overrides?: CallOverrides): Promise<number>;
+
+  "state()"(overrides?: CallOverrides): Promise<number>;
+
+  totalPayees(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "totalPayees()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   totalReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
   "totalReleased()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -253,12 +317,20 @@ export class Splitter extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    finalize(overrides?: CallOverrides): Promise<void>;
+
+    "finalize()"(overrides?: CallOverrides): Promise<void>;
+
     isPayee(account: string, overrides?: CallOverrides): Promise<boolean>;
 
     "isPayee(address)"(
       account: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    "owner()"(overrides?: CallOverrides): Promise<string>;
 
     payee(index: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -288,6 +360,14 @@ export class Splitter extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    state(overrides?: CallOverrides): Promise<number>;
+
+    "state()"(overrides?: CallOverrides): Promise<number>;
+
+    totalPayees(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "totalPayees()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     totalReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
     "totalReleased()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -298,6 +378,8 @@ export class Splitter extends Contract {
   };
 
   filters: {
+    Finalized(): EventFilter;
+
     PayeeAdded(account: null, shares: null): EventFilter;
 
     PaymentReceived(from: null, amount: null): EventFilter;
@@ -318,12 +400,20 @@ export class Splitter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    finalize(overrides?: Overrides): Promise<BigNumber>;
+
+    "finalize()"(overrides?: Overrides): Promise<BigNumber>;
+
     isPayee(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     "isPayee(address)"(
       account: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     payee(index: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -353,6 +443,14 @@ export class Splitter extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    state(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "state()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalPayees(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "totalPayees()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     totalReleased(overrides?: CallOverrides): Promise<BigNumber>;
 
     "totalReleased()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -375,6 +473,10 @@ export class Splitter extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    finalize(overrides?: Overrides): Promise<PopulatedTransaction>;
+
+    "finalize()"(overrides?: Overrides): Promise<PopulatedTransaction>;
+
     isPayee(
       account: string,
       overrides?: CallOverrides
@@ -384,6 +486,10 @@ export class Splitter extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     payee(
       index: BigNumberish,
@@ -424,6 +530,14 @@ export class Splitter extends Contract {
       account: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    state(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "state()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalPayees(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "totalPayees()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalReleased(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
