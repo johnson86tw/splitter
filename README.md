@@ -6,10 +6,11 @@ For example of some use cases,
 - or a team registed as a Gitcoin Grant want to split funds from contributors to the team members.
 
 ## Rules of the Contract
-- Deployer can decide the owner, payees, and the shares.
-- Owner can add payee.
-- Owner can finalize the state of the contract.
-- When it comes to be finalized, the number of the payees is fixed, no one can add another payee.
+- Deployer can decide the owner, initial payees, and the shares.
+- Only Owner can add payee, and set the shares.
+- Only Owner can finalize the state of the contract.
+- When it comes to be finalized, owner cannot add another payee, so that the number of the payees and the shares is fixed.
+- Only finalized, payees can release their payment.
 
 ## Tech-stack
 - vite

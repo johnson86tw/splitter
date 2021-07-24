@@ -11,6 +11,8 @@ let splitter: Splitter;
 
 let signers: SignerWithAddress[];
 
+const getBalance = async (address: string) => await provider.getBalance(address);
+
 before(async () => {
   splitterFactory = (await ethers.getContractFactory("Splitter")) as SplitterFactory;
 });
@@ -32,24 +34,61 @@ describe("Splitter", () => {
     expect(event[0].args!["amount"]).to.equal(10000);
   });
 
-  it("should release, and split balance evenly", async () => {
-    await splitter.addPayee(signers[2].address, 1);
+  it("should release, and split balance by shares", async () => {
+    const A = signers[1].address;
+    const B = signers[2].address;
+
+    await splitter.addPayee(B, 3);
+
+    // send 1 ETH into contract
     await signers[0].sendTransaction({ to: splitter.address, value: parseEther("1") });
     expect(await provider.getBalance(splitter.address)).to.equal(parseEther("1"));
 
-    const signer1Contract = splitter.connect(signers[1]);
+    await splitter.finalize();
 
-    const signer1Before = await provider.getBalance(signers[1].address);
-    const tx = await signer1Contract.release(signers[1].address);
+    const signer1Contract = splitter.connect(signers[1]);
+    const before = await getBalance(A);
+    // release A: 1 * (1/4) = 0.25
+    const tx = await signer1Contract.release(A);
     const receipt = await tx.wait();
 
-    expect(
-      (await provider.getBalance(signers[1].address)).sub(signer1Before).add(receipt.gasUsed.mul(tx.gasPrice!)),
-    ).to.equal(parseEther("0.5"));
+    expect((await provider.getBalance(A)).sub(before).add(receipt.gasUsed.mul(tx.gasPrice!))).to.equal(
+      parseEther("0.25"),
+    );
 
-    // signer0 help release for signer2
-    await splitter.release(signers[2].address);
+    // release B: 1 * (3/4) = 0.75
+    await splitter.release(B);
+    expect(await getBalance(B)).to.equal(parseEther("10000.75"));
+  });
 
-    expect(await provider.getBalance(signers[2].address)).to.equal(parseEther("10000.5"));
+  it("should not add a new payee when state is finalized", async () => {
+    const A = signers[3].address;
+    const B = signers[4].address;
+    const C = signers[5].address;
+    const deployer = signers[0].address;
+
+    expect(await getBalance(A)).to.equal(parseEther("10000"));
+    expect(await getBalance(B)).to.equal(parseEther("10000"));
+    expect(await getBalance(C)).to.equal(parseEther("10000"));
+
+    // deploy new contract with initial shares
+    splitter = await splitterFactory.deploy(deployer, [A, B], [1, 1]);
+
+    // send 100 into contract
+    await signers[0].sendTransaction({ to: splitter.address, value: parseEther("100") });
+    expect(await getBalance(splitter.address)).to.equal(parseEther("100"));
+
+    await splitter.finalize();
+
+    // release B at first
+    await splitter.release(B);
+    expect(await getBalance(B)).to.equal(parseEther("10050"));
+
+    // C added with shares 2
+    await expect(splitter.addPayee(C, 2)).revertedWith("Splitter: not in required state");
+
+    // release A, C
+    await splitter.release(A);
+    expect(await getBalance(A)).to.equal(parseEther("10050"));
   });
 });

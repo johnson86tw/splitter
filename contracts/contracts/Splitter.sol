@@ -48,4 +48,20 @@ contract Splitter is PaymentSplitter {
         state = State.Finalized;
         emit Finalized();
     }
+
+    // override: only Finalized state can release
+    function release(address payable account) public override requireState(State.Finalized) {
+        require(_shares[account] > 0, "Splitter: account has no shares");
+
+        uint256 totalReceived = address(this).balance + _totalReleased;
+        uint256 payment = (totalReceived * _shares[account]) / _totalShares - _released[account];
+
+        require(payment != 0, "Splitter: account is not due payment");
+
+        _released[account] = _released[account] + payment;
+        _totalReleased = _totalReleased + payment;
+
+        Address.sendValue(account, payment);
+        emit PaymentReleased(account, payment);
+    }
 }

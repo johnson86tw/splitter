@@ -24,11 +24,11 @@ contract PaymentSplitter is Context {
     event PaymentReleased(address to, uint256 amount);
     event PaymentReceived(address from, uint256 amount);
 
-    uint256 private _totalShares;
-    uint256 private _totalReleased;
+    uint256 internal _totalShares;
+    uint256 internal _totalReleased;
 
     mapping(address => uint256) internal _shares;
-    mapping(address => uint256) private _released;
+    mapping(address => uint256) internal _released;
     address[] internal _payees;
 
     /**
