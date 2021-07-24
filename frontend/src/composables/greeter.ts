@@ -25,6 +25,7 @@ function clearState() {
   greeting.value = "";
 }
 
+// if reset wallet, recreate the Greeter contract
 watch(hasSetupWallet, async hasSetupWallet => {
   clearState();
 
@@ -72,6 +73,8 @@ export function useGreeterContract() {
 }
 
 // ============================ Contract Methods ============================
+
+// note: what if combine useGetGreeting and useSetGreeting as useGreeting?
 
 export function useGetGreeting() {
   const greeting = ref("");
