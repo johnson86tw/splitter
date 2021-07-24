@@ -5,6 +5,11 @@ For example of some use cases,
 - a hackathon team want to split prizes from sponsors to the team members,
 - or a team registed as a Gitcoin Grant want to split funds from contributors to the team members.
 
+## Rules of the Contract
+- Owner can add payee
+- Owner can finalize the state of the contract
+- When it comes to be finalized, the number of the payees is fixed, no one can add payee.
+
 ## Tech-stack
 - vite
 - hardhat
