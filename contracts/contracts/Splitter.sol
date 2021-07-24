@@ -1,17 +1,16 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "./PaymentSplitter.sol";
 
 contract Splitter is PaymentSplitter {
     address public immutable owner;
 
     enum State {
-        Waiting,
+        Opening,
         Finalized
     }
-    State public state = State.Waiting;
+    State public state = State.Opening;
 
     event Finalized();
 
@@ -41,11 +40,11 @@ contract Splitter is PaymentSplitter {
         return _shares[account] > 0;
     }
 
-    function addPayee(address account, uint256 shares_) public onlyOwner requireState(State.Waiting) {
+    function addPayee(address account, uint256 shares_) public onlyOwner requireState(State.Opening) {
         _addPayee(account, shares_);
     }
 
-    function finalize() public onlyOwner requireState(State.Waiting) {
+    function finalize() public onlyOwner requireState(State.Opening) {
         state = State.Finalized;
         emit Finalized();
     }
