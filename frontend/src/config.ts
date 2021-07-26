@@ -1,5 +1,3 @@
-import { ref } from "vue";
-
 const isDev = import.meta.env.DEV;
 
 // chain IDs supported by this app
