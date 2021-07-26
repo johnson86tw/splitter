@@ -16,8 +16,6 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="text-center text-gray-600">
-    <p class="text-red-600">{{ connectError }}</p>
-    <p>ETH: {{ etherBalance }}</p>
-  </div>
+  <p class="text-center text-red-600">{{ connectError }}</p>
+
 </template>

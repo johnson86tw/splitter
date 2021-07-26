@@ -9,12 +9,13 @@ export default defineComponent({
   name: "LayoutHeader",
   setup() {
     const {
-      userAddress,
-      connectWallet,
       chainId,
-      isConnected,
+      userAddress,
       isSupportedNetwork,
       hasSetupWallet,
+      etherBalance,
+      connectWallet,
+      isConnected,
     } = useMetaMask();
 
     const displayUserAddress = computed(() => {
@@ -24,13 +25,14 @@ export default defineComponent({
     });
 
     return {
+      displayBalance: computed(() => Number(etherBalance.value).toFixed(3)),
       displayUserAddress,
       isSupportedNetwork,
       chainName: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
-      connectWallet,
-      isConnected,
       hasSetupWallet,
       navigation,
+      connectWallet,
+      isConnected,
     };
   },
 });
@@ -39,7 +41,7 @@ export default defineComponent({
 <template>
   <header class="bg-white">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="py-4 px-56 flex items-center justify-between">
+      <div class="py-4 flex items-center justify-between border-b border-solid">
         <div class="flex space-x-4 items-center">
           <div class="">
             <router-link to="/">
@@ -68,14 +70,18 @@ export default defineComponent({
             v-if="!isSupportedNetwork"
             class="flex items-center"
           >
-            <div class="text-gray-500"> <span class="uppercase">{{ chainName }}</span> is unsupported network</div>
+            <div class="text-gray-500"> <span class="capitalize">{{ chainName }}</span> is unsupported network</div>
           </div>
           <div
             v-else-if="isConnected() && hasSetupWallet"
             class="flex items-center"
           >
-            <div class="uppercase mr-4 py-3 px-4 rounded inline-block bg-light-blue-100 text-gray-600">{{ chainName }}</div>
-            <div class="py-3 px-4 rounded inline-block bg-gray-100 text-gray-600">{{ displayUserAddress }}</div>
+            <!-- Account -->
+            <div class="capitalize mr-4 py-2 px-4 rounded-2xl inline-block bg-light-blue-100 text-gray-600">{{ chainName }}</div>
+            <div class="py-1 px-2 flex items-center rounded-2xl border border-solid">
+              <div class="px-1 mr-1"> {{ displayBalance }} ETH </div>
+              <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">{{ displayUserAddress }}</div>
+            </div>
           </div>
           <button
             v-else
