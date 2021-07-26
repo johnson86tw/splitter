@@ -1,6 +1,6 @@
 import { markRaw, watch, ref, computed } from "vue";
 import { ethers } from "ethers";
-import { JsonRpcSigner } from "../utils/ethers";
+import { JsonRpcSigner } from "@ethersproject/providers";
 import contractData from "@splitter/contracts/artifacts/contracts/Greeter.sol/Greeter.json";
 import { Greeter } from "@splitter/contracts/typechain/Greeter";
 import useMetaMask from "./metamask";
