@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import useMetaMask from "../composables/metamask";
+import useNotify from "../composables/notify";
 import { useRouter, useRoute } from "vue-router";
 import { isAddress } from "@ethersproject/address";
 
@@ -9,8 +10,9 @@ export default defineComponent({
   setup() {
     const { etherBalance, connectError } = useMetaMask();
     const router = useRouter();
+    const { notify } = useNotify();
 
-    const addressInput = ref("");
+    const addressInput = ref("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512");
     const inputError = ref("");
 
     const searchHandler = () => {
@@ -22,10 +24,11 @@ export default defineComponent({
       }
     };
 
-    const createModal = ref(false);
+    const createSplitterModal = ref(false);
 
-    const createHandler = () => {
-      createModal.value = true;
+    const createSplitterHandler = () => {
+      createSplitterModal.value = true;
+      notify("hello");
     };
 
     return {
@@ -33,9 +36,9 @@ export default defineComponent({
       etherBalance,
       connectError,
       inputError,
-      createModal,
+      createSplitterModal,
       searchHandler,
-      createHandler,
+      createSplitterHandler,
     };
   },
 });
@@ -60,12 +63,12 @@ export default defineComponent({
 
   <div class="text-center p-6">
     <button
-      @click="createHandler"
+      @click="createSplitterHandler"
       class="btn"
     >Create Splitter</button>
     <modal
-      :modalOpen="createModal"
-      @modalClose="createModal = false"
+      :modalOpen="createSplitterModal"
+      @modalClose="createSplitterModal = false"
     >
       <hr>
       <div class="">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
@@ -75,7 +78,7 @@ export default defineComponent({
           Agree
         </button>
         <button
-          @click="createModal = false"
+          @click="createSplitterModal = false"
           class="bg-transparent hover:bg-gray-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
         >
           Close
@@ -96,7 +99,7 @@ export default defineComponent({
 
             <div class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:text-blue-600  hover:bg-blue-100">
               <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
-              <div class="flex-grow font-medium px-2">0xe7f1...512</div>
+              <div class="flex-grow font-medium px-2">0xe7f...512</div>
               <div class="text-sm text-gray-500 tracking-wide">delete</div>
             </div>
           </div>

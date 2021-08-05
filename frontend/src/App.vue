@@ -5,6 +5,7 @@ import LayoutHeader from "./components/LayoutHeader.vue";
 import useMetaMask from "./composables/metamask";
 import useConfig from "./config";
 import NETWORK from "./constants";
+import useNotify from "./composables/notify";
 
 export default defineComponent({
   name: "App",
@@ -12,6 +13,7 @@ export default defineComponent({
   setup() {
     const { isSupportedNetwork } = useMetaMask();
     const { supportedChainIds } = useConfig();
+    const { isNotifying, msg } = useNotify();
 
     const supportedChainName = computed(() => {
       let names: string[] = [];
@@ -21,7 +23,7 @@ export default defineComponent({
       return names.join(", ");
     });
 
-    return { isSupportedNetwork, supportedChainName };
+    return { isSupportedNetwork, supportedChainName, isNotifying, msg };
   },
 });
 </script>
@@ -38,4 +40,9 @@ export default defineComponent({
     <p>You are connected to the wrong chain. Please switch to {{ supportedChainName }}.</p>
   </div>
   <layout-footer />
+
+  <notification
+    v-if="isNotifying"
+    :message="msg"
+  />
 </template>

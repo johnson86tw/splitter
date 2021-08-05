@@ -1,11 +1,12 @@
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref, watch } from "vue";
+import { defineComponent, watch } from "vue";
 
 export default defineComponent({
   emits: ["modalClose"],
   props: {
     modalOpen: {
       type: Boolean,
+      required: true,
     },
   },
   setup(props, { emit }) {
