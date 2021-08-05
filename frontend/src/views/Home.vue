@@ -22,12 +22,20 @@ export default defineComponent({
       }
     };
 
+    const createModal = ref(false);
+
+    const createHandler = () => {
+      createModal.value = true;
+    };
+
     return {
       addressInput,
       etherBalance,
       connectError,
       inputError,
+      createModal,
       searchHandler,
+      createHandler,
     };
   },
 });
@@ -51,7 +59,29 @@ export default defineComponent({
   <p class="text-center text-red-600">{{ inputError }}</p>
 
   <div class="text-center p-6">
-    <button class="btn">Create Splitter</button>
+    <button
+      @click="createHandler"
+      class="btn"
+    >Create Splitter</button>
+    <modal
+      :modalOpen="createModal"
+      @modalClose="createModal = false"
+    >
+      <hr>
+      <div class="">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+      <hr>
+      <div class="ml-auto">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Agree
+        </button>
+        <button
+          @click="createModal = false"
+          class="bg-transparent hover:bg-gray-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        >
+          Close
+        </button>
+      </div>
+    </modal>
   </div>
 
   <div class="w-full max-w-screen-xl mx-auto px-6">

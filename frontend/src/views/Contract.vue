@@ -1,14 +1,24 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import Modal from "../components/Modal.vue";
 
 export default defineComponent({
+  components: { Modal },
   name: "Contract",
   setup() {
     const route = useRoute();
     const contractAddr = route.params.address;
+    const settingModal = ref(false);
+    const settingHandler = () => {
+      settingModal.value = true;
+    };
 
-    return { contractAddr: computed(() => contractAddr) };
+    return {
+      settingModal,
+      contractAddr: computed(() => contractAddr),
+      settingHandler,
+    };
   },
 });
 </script>
@@ -62,9 +72,32 @@ export default defineComponent({
               <div class="text-lg font-bold px-2">Owner</div>
               <div class="text-lg flex-grow text-gray-500">0xe7f1...512</div>
               <!-- only owner -->
-              <button class="text-sm text-gray-500 tracking-wide px-4 py-1 rounded inline-block bg-blue-100 text-gray-600 text-xl cursor-pointer hover:bg-blue-200 focus:outline-none disabled:cursor-default disabled:opacity-70 disabled:bg-blue-100">
+              <button
+                @click="settingHandler"
+                class="text-sm text-gray-500 tracking-wide px-4 py-1 rounded inline-block bg-blue-100 text-gray-600 text-xl cursor-pointer hover:bg-blue-200 focus:outline-none disabled:cursor-default disabled:opacity-70 disabled:bg-blue-100"
+              >
                 Setting
               </button>
+              <!-- Setting Modal -->
+              <modal
+                :modalOpen="settingModal"
+                @modalClose="settingModal = false"
+              >
+                <hr>
+                <div class="">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+                <hr>
+                <div class="ml-auto">
+                  <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Agree
+                  </button>
+                  <button
+                    @click="settingModal = false"
+                    class="bg-transparent hover:bg-gray-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                  >
+                    Close
+                  </button>
+                </div>
+              </modal>
             </div>
 
             <div class="flex justify-start items-center px-2 py-2 my-2">
