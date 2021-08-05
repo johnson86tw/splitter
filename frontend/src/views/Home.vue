@@ -45,9 +45,33 @@ export default defineComponent({
     >
     <button
       @click="searchHandler"
-      class="bg-blue-600 text-white text-base font-semibold rounded-md shadow-md hover:bg-indigo-600 p-3"
+      class="btn"
     >Search</button>
   </div>
   <p class="text-center text-red-600">{{ inputError }}</p>
 
+  <div class="text-center p-6">
+    <button class="btn">Create Splitter</button>
+  </div>
+
+  <div class="w-full max-w-screen-xl mx-auto px-6">
+    <div class="flex justify-center p-2 px-3">
+      <div class="w-full max-w-md">
+        <div class="bg-white shadow rounded-lg px-3 py-2 mb-4">
+          <div class="py-3 text-md">
+
+            <div class="flex justify-start px-2 py-2 my-2">
+              <div class="text-lg flex-grow font-bold px-2">Search History</div>
+            </div>
+
+            <div class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:text-blue-600  hover:bg-blue-100">
+              <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
+              <div class="flex-grow font-medium px-2">0xe7f1...512</div>
+              <div class="text-sm text-gray-500 tracking-wide">delete</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
