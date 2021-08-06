@@ -1,14 +1,17 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import Address from "../components/Address.vue";
 import Modal from "../components/Modal.vue";
+import useSplitter from "../composables/splitter";
 
 export default defineComponent({
   components: { Modal, Address },
   name: "Contract",
   setup() {
     const route = useRoute();
+    const { state } = useSplitter();
+
     const contractAddr = route.params.address;
     const settingModal = ref(false);
     const settingHandler = () => {
@@ -16,6 +19,7 @@ export default defineComponent({
     };
 
     return {
+      state,
       settingModal,
       contractAddr: computed(() => contractAddr),
       settingHandler,
@@ -47,26 +51,15 @@ export default defineComponent({
       <div class="flex w-full max-w-md">
         <div class="w-1/2 rounded shadow p-5 mr-2">
           <p class="text-lg font-bold">Total Received</p>
-          <p class="text-xl text-gray-500">3000.0234 ETH</p>
+          <p class="text-xl text-gray-500">{{ state.totalReceived }} ETH</p>
         </div>
         <div class="w-1/2 rounded shadow p-5 ml-2">
           <p class="text-lg font-bold">State</p>
-          <p class="text-xl text-gray-500">Finalized</p>
+          <p class="text-xl text-gray-500">{{ state.state }}</p>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- <div class="w-full max-w-screen-xl mx-auto px-6">
-    <div class="flex justify-center p-2 px-3">
-      <div class="flex w-full max-w-md">
-        <div class="w-full rounded shadow p-5">
-          <span class="text-lg font-bold mr-2">Owner</span>
-          <span>0xe7f1...512</span>
-        </div>
-      </div>
-    </div>
-  </div> -->
 
   <div class="w-full max-w-screen-xl mx-auto px-6">
     <div class="flex justify-center p-2 px-3">
@@ -75,10 +68,13 @@ export default defineComponent({
           <div class="py-3">
             <div class="flex justify-start items-center px-2 py-2 my-2">
               <div class="text-lg font-bold px-2">Owner</div>
-              <div class="text-lg flex-grow text-gray-500">0xe7f1...512</div>
+              <div class="text-lg flex-grow text-gray-500">
+                <Address :address="state.owner" />
+              </div>
               <!-- only owner -->
               <tune @click="settingHandler" />
-              <!-- Setting Modal -->
+
+              <!-- ======================= Start of Setting Modal ======================= -->
               <modal
                 :modalOpen="settingModal"
                 @modalClose="settingModal = false"
@@ -147,18 +143,25 @@ export default defineComponent({
                   </div>
                 </div>
               </modal>
+              <!-- ======================= End of Setting Modal ======================= -->
             </div>
 
             <div class="flex justify-start items-center px-2 py-2 my-2">
               <div class="text-lg flex-grow font-bold px-2">Payees</div>
-              <div class="text-lg text-gray-500 tracking-wide">Total: 4</div>
+              <div class="text-lg text-gray-500 tracking-wide">Total: {{ state.totalPayees }}</div>
             </div>
 
-            <div class="flex justify-start rounded-md px-2 py-2 my-2">
+            <div
+              v-for="payee in state.payees"
+              :key="payee.address"
+              class="flex justify-start rounded-md px-2 py-2 my-2"
+            >
               <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
-              <div class="flex-grow font-medium px-2">0xe7f1...512</div>
-              <div class="text-sm text-gray-500 tracking-wide mr-6">30%</div>
-              <div class="text-sm text-gray-500 tracking-wide">0.2455 ETH</div>
+              <div class="flex-grow font-medium px-2">
+                <Address :address="payee.address" />
+              </div>
+              <div class="text-sm text-gray-500 tracking-wide mr-6"> {{ payee.share }} %</div>
+              <div class="text-sm text-gray-500 tracking-wide">{{ payee.available }} ETH</div>
             </div>
           </div>
           <!-- only payees -->

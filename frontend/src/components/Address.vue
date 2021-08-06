@@ -53,31 +53,32 @@ export default defineComponent({
   <span class="cursor-pointer hover:text-blue-400">
     {{ displayAddress }}
   </span>
+  <div class="relative inline-block">
+    <Copy
+      @click="copy"
+      class="w-4 mx-1 inline-block"
+    >
+    </Copy>
 
-  <Copy
-    @click="copy"
-    class="w-4 mx-1 inline-block"
-  >
-  </Copy>
-
-  <div
-    v-if="isCopied"
-    class="fixed inline-block mx-2 w-16"
-  >
-    <div class="relative right-9 bottom-7 bg-blue-200 text-gray-600 text-sm rounded py-1 px-3">
-      copied
-      <svg
-        class="absolute text-blue-200 h-2 left-0 ml-3 top-full"
-        x="0px"
-        y="0px"
-        viewBox="0 0 255 255"
-        xml:space="preserve"
-      >
-        <polygon
-          class="fill-current"
-          points="0,0 127.5,127.5 255,0"
-        />
-      </svg>
+    <div
+      v-if="isCopied"
+      class="absolute bottom-7 -left-3 mx-2 w-16"
+    >
+      <div class="bg-blue-200 text-gray-600 text-sm rounded py-1 px-3">
+        copied
+        <svg
+          class="absolute text-blue-200 h-2 left-0 ml-3 top-full"
+          x="0px"
+          y="0px"
+          viewBox="0 0 255 255"
+          xml:space="preserve"
+        >
+          <polygon
+            class="fill-current"
+            points="0,0 127.5,127.5 255,0"
+          />
+        </svg>
+      </div>
     </div>
   </div>
 
