@@ -3,13 +3,15 @@ import { computed, defineComponent } from "vue";
 import LayoutFooter from "./components/LayoutFooter.vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
 import Notification from "./components/Notification.vue";
+import Loader from "./components/Loader.vue";
+
 import useMetaMask from "./composables/metamask";
 import useConfig from "./config";
 import NETWORK from "./constants";
 
 export default defineComponent({
   name: "App",
-  components: { LayoutHeader, LayoutFooter, Notification },
+  components: { LayoutHeader, LayoutFooter, Notification, Loader },
   setup() {
     const { isSupportedNetwork } = useMetaMask();
     const { supportedChainIds } = useConfig();
@@ -41,4 +43,5 @@ export default defineComponent({
   <layout-footer />
 
   <notification />
+  <loader />
 </template>

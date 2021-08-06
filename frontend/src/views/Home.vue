@@ -12,7 +12,6 @@ export default defineComponent({
   setup() {
     const { etherBalance, connectError } = useMetaMask();
     const router = useRouter();
-    const { notify } = useNotify();
 
     const addressInput = ref("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512");
     const inputError = ref("");
@@ -30,7 +29,6 @@ export default defineComponent({
 
     const createSplitterHandler = () => {
       createSplitterModal.value = true;
-      notify("hello");
     };
 
     return {
