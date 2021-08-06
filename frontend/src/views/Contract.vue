@@ -1,10 +1,11 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import Address from "../components/Address.vue";
 import Modal from "../components/Modal.vue";
 
 export default defineComponent({
-  components: { Modal },
+  components: { Modal, Address },
   name: "Contract",
   setup() {
     const route = useRoute();
@@ -24,13 +25,17 @@ export default defineComponent({
 </script>
 
 <template>
-
   <div class="w-full max-w-screen-xl mx-auto px-6">
     <div class="flex justify-center p-2 px-3">
       <div class="w-full max-w-md">
         <div class="p-5">
           <p class="text-lg text-center font-bold">Contract Address</p>
-          <p class="text-center text-gray-500">{{ contractAddr }}</p>
+          <p class="text-center text-gray-500">
+            <Address
+              :address="contractAddr"
+              :short="false"
+            />
+          </p>
         </div>
         <button class="btn w-full">Send Ether</button>
       </div>

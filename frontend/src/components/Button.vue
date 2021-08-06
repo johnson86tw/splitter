@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="bg-rose-600 ..."
+    class="btn"
     disabled
   >
     <svg

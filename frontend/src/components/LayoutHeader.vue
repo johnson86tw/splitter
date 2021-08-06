@@ -2,10 +2,12 @@
 import { computed, defineComponent } from "vue";
 import useMetaMask from "../composables/metamask";
 import NETWORK from "../constants";
+import Address from "./Address.vue";
 
 const navigation: { name: string; href: string }[] = [];
 
 export default defineComponent({
+  components: { Address },
   name: "LayoutHeader",
   setup() {
     const {
@@ -18,15 +20,9 @@ export default defineComponent({
       isConnected,
     } = useMetaMask();
 
-    const displayUserAddress = computed(() => {
-      return (
-        userAddress.value.slice(0, 6) + "..." + userAddress.value.slice(-4)
-      );
-    });
-
     return {
+      userAddress,
       displayBalance: computed(() => Number(etherBalance.value).toFixed(3)),
-      displayUserAddress,
       isSupportedNetwork,
       chainName: computed(() => NETWORK(chainId.value)?.name), // note: must use computed
       hasSetupWallet,
@@ -81,7 +77,9 @@ export default defineComponent({
               <div class="capitalize mr-4 py-2 px-4 rounded-2xl inline-block bg-light-blue-100 text-gray-600">{{ chainName }}</div>
               <div class="py-1 px-2 flex items-center rounded-2xl border border-solid">
                 <div class="px-1 mr-1"> {{ displayBalance }} ETH </div>
-                <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">{{ displayUserAddress }}</div>
+                <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">
+                  <Address :address="userAddress" />
+                </div>
               </div>
             </div>
             <button

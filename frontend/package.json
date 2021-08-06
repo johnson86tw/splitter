@@ -11,6 +11,7 @@
     "@splitter/contracts": "0.0.1",
     "ethers": "^5.4.1",
     "vue": "^3.0.5",
+    "vue-clipboard3": "^1.0.1",
     "vue-router": "4"
   },
   "devDependencies": {
