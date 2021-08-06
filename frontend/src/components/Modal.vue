@@ -39,10 +39,9 @@ export default defineComponent({
         <div class="bg-white rounded-lg w-1/2">
           <div class="flex flex-col items-start p-4">
             <div class="flex items-center w-full">
-              <div class="text-gray-900 font-medium text-lg">My modal title</div>
               <svg
                 @click="closeModal"
-                class="ml-auto fill-current text-gray-700 w-6 h-6 cursor-pointer"
+                class="ml-auto fill-current text-gray-700 w-6 h-6 cursor-pointer hover:text-gray-500"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 18 18"
               >
