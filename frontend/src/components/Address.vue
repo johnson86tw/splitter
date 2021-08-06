@@ -10,19 +10,17 @@ export default defineComponent({
     },
     short: {
       type: Boolean,
-      default() {
-        return true;
-      },
+      default: true,
     },
   },
-  setup(props) {
+  setup({ address, short }) {
     const { toClipboard } = useClipboard();
 
     const isCopied = ref(false);
 
     const copy = async () => {
       try {
-        await toClipboard(props.address);
+        await toClipboard(address);
         isCopied.value = true;
         setTimeout(() => {
           isCopied.value = false;
@@ -33,10 +31,10 @@ export default defineComponent({
     };
 
     const displayAddress = computed(() => {
-      if (props.short) {
-        return props.address.slice(0, 6) + "..." + props.address.slice(-4);
+      if (short) {
+        return address.slice(0, 6) + "..." + address.slice(-4);
       }
-      return props.address;
+      return address;
     });
 
     return {
