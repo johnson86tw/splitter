@@ -3,6 +3,7 @@ import artifact from "@splitter/contracts/artifacts/contracts/Splitter.sol/Split
 import { Splitter } from "@splitter/contracts/typechain/Splitter";
 import { BigNumber, ethers } from "ethers";
 import useConfig from "@/config";
+import { formatEther } from "ethers/lib/utils";
 
 const { rpcURL } = useConfig();
 
@@ -13,14 +14,16 @@ const splitterAddress: Readonly<Record<string, string>> = {
 type Payee = {
   address: string;
   share: number;
-  available: number;
+  available: string;
 };
+
+const displayEther = (bn: BigNumber) => (+formatEther(bn)).toFixed(3);
 
 export default function useSplitter() {
   const state = reactive({
     address: "",
     owner: "",
-    totalReceived: 0,
+    totalReceived: "0",
     state: "",
     totalPayees: 0,
     totalShares: 1,
@@ -38,8 +41,8 @@ export default function useSplitter() {
     const stateNum = await splitter.state();
 
     const balance = await provider.getBalance(address);
-    const totalRelease = await splitter.totalReleased();
-    const totalReceived = balance.add(totalRelease);
+    const totalReleased = await splitter.totalReleased();
+    const totalReceived = balance.add(totalReleased);
 
     for (let i = 0; i < totalPayees.toNumber(); i++) {
       const address = await splitter.payee(BigNumber.from(i));
@@ -49,7 +52,7 @@ export default function useSplitter() {
       const payee: Payee = {
         address,
         share: share.toNumber(),
-        available: available.toNumber(),
+        available: (+formatEther(available)).toFixed(3),
       };
 
       state.payees.push(payee);
@@ -59,7 +62,7 @@ export default function useSplitter() {
     state.owner = owner;
     state.totalPayees = totalPayees.toNumber();
     state.totalShares = totalShares.toNumber();
-    state.totalReceived = totalRelease.toNumber();
+    state.totalReceived = displayEther(totalReceived);
     switch (stateNum) {
       case 0:
         state.state = "Opening";

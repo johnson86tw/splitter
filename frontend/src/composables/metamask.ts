@@ -2,6 +2,7 @@ import { ref, computed, markRaw } from "vue";
 import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@ethersproject/providers";
 import { BigNumber, ethers, utils } from "ethers";
 import useConfig from "@/config";
+import { parseEther } from "ethers/lib/utils";
 const { supportedChainIds } = useConfig();
 
 declare global {
@@ -144,6 +145,25 @@ export default function useMetaMask() {
     return "0.0";
   });
 
+  function sendEther(to: string, amount: number) {
+    console.log(to, amount);
+    if (hasSetupWallet.value) {
+      window
+        .ethereum!.request({
+          method: "eth_sendTransaction",
+          params: [
+            {
+              from: userAddress.value,
+              to,
+              value: parseEther(amount.toString()).toHexString(),
+            },
+          ],
+        })
+        .then(txHash => console.log(txHash))
+        .catch(error => console.error);
+    }
+  }
+
   // assume valid if we have no network information
   const isSupportedNetwork = computed(() => (network.value ? supportedChainIds.includes(network.value.chainId) : true));
 
@@ -160,5 +180,6 @@ export default function useMetaMask() {
     connectWallet,
     getBalance,
     isConnected,
+    sendEther,
   };
 }
