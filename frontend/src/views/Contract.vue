@@ -106,7 +106,7 @@ export default defineComponent({
                         <div class="w-full">
                           <div class="flex">
                             <div class="flex items-center mr-3">
-                              <p class="text-2xl text-blue-300">&bull;</p>
+                              <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                             </div>
                             <div class="w-4/6 flex items-center">
                               <p class="">Kevin Durant</p>
@@ -122,7 +122,7 @@ export default defineComponent({
                           </div>
                           <div class="flex">
                             <div class="flex items-center mr-3">
-                              <p class="text-2xl text-blue-300">&bull;</p>
+                              <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                             </div>
                             <div class="w-4/6 flex items-center">
                               <p class="">Kevin Durant</p>

@@ -101,7 +101,7 @@ export default defineComponent({
               <div class="w-full">
                 <div class="flex">
                   <div class="flex items-center mr-3">
-                    <p class="text-2xl text-blue-300">&bull;</p>
+                    <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                   </div>
                   <div class="w-4/6 flex items-center">
                     <p class="">Kevin Durant</p>
@@ -117,7 +117,7 @@ export default defineComponent({
                 </div>
                 <div class="flex">
                   <div class="flex items-center mr-3">
-                    <p class="text-2xl text-blue-300">&bull;</p>
+                    <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                   </div>
                   <div class="w-4/6 flex items-center">
                     <p class="">Kevin Durant</p>
@@ -154,7 +154,9 @@ export default defineComponent({
             </div>
             <div class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:text-blue-600  hover:bg-blue-100">
               <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
-              <div class="flex-grow font-medium px-2">0xe7f...512</div>
+              <div class="flex-grow font-medium px-2">
+                <Address address="0xe7f1725e7734ce288f8367e1bb143e90bb3f0512" />
+              </div>
               <div class="text-sm text-gray-500 tracking-wide">
                 <delete />
               </div>
