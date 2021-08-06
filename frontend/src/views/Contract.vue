@@ -1,5 +1,5 @@
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import Address from "../components/Address.vue";
 import Modal from "../components/Modal.vue";
@@ -10,13 +10,17 @@ export default defineComponent({
   name: "Contract",
   setup() {
     const route = useRoute();
-    const { state } = useSplitter();
+    const { state, fetch } = useSplitter();
 
-    const contractAddr = route.params.address;
+    const contractAddr = route.params.address as string;
     const settingModal = ref(false);
     const settingHandler = () => {
       settingModal.value = true;
     };
+
+    onMounted(async () => {
+      await fetch(contractAddr);
+    });
 
     return {
       state,
@@ -160,7 +164,7 @@ export default defineComponent({
               <div class="flex-grow font-medium px-2">
                 <Address :address="payee.address" />
               </div>
-              <div class="text-sm text-gray-500 tracking-wide mr-6"> {{ payee.share }} %</div>
+              <div class="text-sm text-gray-500 tracking-wide mr-6"> {{ payee.share / state.totalShares * 100 }} %</div>
               <div class="text-sm text-gray-500 tracking-wide">{{ payee.available }} ETH</div>
             </div>
           </div>
