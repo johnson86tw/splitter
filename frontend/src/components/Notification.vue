@@ -1,22 +1,44 @@
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, reactive } from "vue";
+
+// @todo: notify list
+const state = reactive({
+  isNotifying: false,
+  message: "",
+});
+
+export function useNotify() {
+  const notify = (msg: string, duration: number = 3000) => {
+    if (state.isNotifying) return;
+    state.message = msg;
+    state.isNotifying = true;
+
+    setTimeout(() => {
+      state.isNotifying = false;
+    }, duration);
+  };
+
+  return {
+    state,
+    notify,
+  };
+}
 
 export default defineComponent({
-  props: {
-    message: {
-      type: String,
-      required: true,
-    },
+  setup() {
+    const { state } = useNotify();
+    return { state };
   },
-  setup() {},
 });
 </script>
 
 
 <template>
-  <teleport to="body">
-    <div class="fixed right-0 bottom-0">
-
+  <teleport to="html">
+    <div
+      v-if="state.isNotifying"
+      class="fixed right-0 bottom-0"
+    >
       <!-- Toast Notification Success-->
       <div class="flex items-center bg-green-500 border-l-4 border-green-700 py-2 px-3 shadow-md mb-2">
         <div class="text-green-500 rounded-full bg-white mr-3">
@@ -35,7 +57,7 @@ export default defineComponent({
           </svg>
         </div>
         <div class="text-white max-w-xs ">
-          {{ message }}
+          {{ state.message }}
         </div>
       </div>
 

@@ -1,19 +1,18 @@
 <script lang="ts">
-import { computed, defineComponent, watch } from "vue";
+import { computed, defineComponent } from "vue";
 import LayoutFooter from "./components/LayoutFooter.vue";
 import LayoutHeader from "./components/LayoutHeader.vue";
+import Notification from "./components/Notification.vue";
 import useMetaMask from "./composables/metamask";
 import useConfig from "./config";
 import NETWORK from "./constants";
-import useNotify from "./composables/notify";
 
 export default defineComponent({
   name: "App",
-  components: { LayoutHeader, LayoutFooter },
+  components: { LayoutHeader, LayoutFooter, Notification },
   setup() {
     const { isSupportedNetwork } = useMetaMask();
     const { supportedChainIds } = useConfig();
-    const { isNotifying, msg } = useNotify();
 
     const supportedChainName = computed(() => {
       let names: string[] = [];
@@ -23,7 +22,7 @@ export default defineComponent({
       return names.join(", ");
     });
 
-    return { isSupportedNetwork, supportedChainName, isNotifying, msg };
+    return { isSupportedNetwork, supportedChainName };
   },
 });
 </script>
@@ -41,8 +40,5 @@ export default defineComponent({
   </div>
   <layout-footer />
 
-  <notification
-    v-if="isNotifying"
-    :message="msg"
-  />
+  <notification />
 </template>

@@ -1,11 +1,13 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import useMetaMask from "../composables/metamask";
-import useNotify from "../composables/notify";
+import { useNotify } from "../components/Notification.vue";
 import { useRouter, useRoute } from "vue-router";
 import { isAddress } from "@ethersproject/address";
+import Delete from "../components/icons/Delete.vue";
 
 export default defineComponent({
+  components: { Delete },
   name: "Home",
   setup() {
     const { etherBalance, connectError } = useMetaMask();
@@ -100,7 +102,9 @@ export default defineComponent({
             <div class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:text-blue-600  hover:bg-blue-100">
               <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
               <div class="flex-grow font-medium px-2">0xe7f...512</div>
-              <div class="text-sm text-gray-500 tracking-wide">delete</div>
+              <div class="text-sm text-gray-500 tracking-wide">
+                <delete />
+              </div>
             </div>
           </div>
         </div>
