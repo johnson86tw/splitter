@@ -1,10 +1,17 @@
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import Address from "../components/Address.vue";
 import Modal from "../components/Modal.vue";
 import useMetaMask from "../composables/metamask";
 import useSplitter from "../composables/splitter";
+
+enum Role {
+  Owner,
+  Payee,
+  OwnerAndPayee,
+  Others,
+}
 
 export default defineComponent({
   components: { Modal, Address },
@@ -12,12 +19,35 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const { state, fetch } = useSplitter();
-    const { sendEther } = useMetaMask();
+    const { sendEther, hasSetupWallet, userAddress } = useMetaMask();
+
+    // role
+    const role = ref<Role>(Role.Others);
+    const updateRole = () => {
+      role.value = Role.Others;
+
+      for (let i = 0; i < state.payees.length; i++) {
+        if (state.payees[i].address === userAddress.value) {
+          if (state.owner === userAddress.value) {
+            role.value = Role.OwnerAndPayee;
+          } else {
+            role.value = Role.Payee;
+          }
+        } else if (state.owner === userAddress.value) {
+          role.value = Role.Owner;
+        }
+      }
+    };
 
     // fetch data
     const contractAddr = route.params.address as string;
     onMounted(async () => {
       await fetch(contractAddr);
+      updateRole();
+    });
+
+    watch(hasSetupWallet, (value) => {
+      updateRole();
     });
 
     // send ether feature
@@ -39,12 +69,15 @@ export default defineComponent({
     };
 
     return {
+      role,
+      Role,
       state,
       settingModal,
       sendEtherModal,
       contractAddr: computed(() => contractAddr),
       sendAmount,
       dropdown,
+
       dropdownHandler,
       settingHandler,
       sendEtherHandler,
@@ -58,8 +91,22 @@ export default defineComponent({
   <div class="w-full max-w-screen-xl mx-auto px-6">
     <div class="flex justify-center p-2 px-3">
       <div class="w-full max-w-md">
+        <!-- role -->
+        <p
+          v-if="role === Role.Owner"
+          class="text-3xl text-gray-500 text-center"
+        >Owner</p>
+        <p
+          v-else-if="role === Role.Payee"
+          class="text-3xl text-gray-500 text-center"
+        >Payee</p>
+        <p
+          v-else-if="role === Role.OwnerAndPayee"
+          class="text-3xl text-gray-500 text-center"
+        >Owner & Payee</p>
+
         <div class="p-5">
-          <p class="text-lg text-center font-bold">Contract Address</p>
+          <p class="text-lg text-center font-medium">Contract Address</p>
           <p class="text-center text-gray-500">
             <Address
               :address="contractAddr"
@@ -101,7 +148,10 @@ export default defineComponent({
                 <Address :address="state.owner" />
               </div>
               <!-- only owner -->
-              <tune @click="settingHandler" />
+              <tune
+                v-if="role === Role.Owner"
+                @click="settingHandler"
+              />
             </div>
             <div class="flex justify-start items-center px-2 py-2 my-2">
               <div class="text-lg flex-grow font-bold px-2">Payees</div>
@@ -121,7 +171,10 @@ export default defineComponent({
             </div>
           </div>
           <!-- only payees -->
-          <button class="btn w-full">Withdraw</button>
+          <button
+            v-if="role === Role.Payee || role === Role.OwnerAndPayee"
+            class="btn w-full"
+          >Withdraw</button>
         </div>
       </div>
     </div>
