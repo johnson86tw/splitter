@@ -145,22 +145,20 @@ export default function useMetaMask() {
     return "0.0";
   });
 
-  function sendEther(to: string, amount: number) {
-    console.log(to, amount);
+  async function sendEther(to: string, amount: number) {
     if (hasSetupWallet.value) {
-      window
-        .ethereum!.request({
-          method: "eth_sendTransaction",
-          params: [
-            {
-              from: userAddress.value,
-              to,
-              value: parseEther(amount.toString()).toHexString(),
-            },
-          ],
-        })
-        .then(txHash => console.log(txHash))
-        .catch(error => console.error);
+      await window.ethereum!.request({
+        method: "eth_sendTransaction",
+        params: [
+          {
+            from: userAddress.value,
+            to,
+            value: parseEther(amount.toString()).toHexString(),
+          },
+        ],
+      });
+    } else {
+      throw new Error("wallet hasn't connected");
     }
   }
 

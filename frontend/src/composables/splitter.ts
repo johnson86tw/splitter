@@ -30,9 +30,23 @@ export default function useSplitter() {
     payees: <Payee[]>[],
   });
 
+  function clearState() {
+    state.address = "";
+    state.owner = "";
+    state.totalReceived = "0";
+    state.state = "";
+    state.totalPayees = 0;
+    state.totalShares = 1;
+    state.payees = <Payee[]>[];
+  }
+
   async function fetch(address: string) {
-    const provider = new ethers.providers.JsonRpcProvider(rpcURL);
+    clearState();
+
+    const provider = new ethers.providers.JsonRpcProvider(rpcURL.value);
     const splitter = new ethers.Contract(address, artifact.abi, provider) as Splitter;
+
+    await splitter.deployed();
 
     const owner = await splitter.owner();
     const totalPayees = await splitter.totalPayees();
@@ -44,6 +58,7 @@ export default function useSplitter() {
     const totalReleased = await splitter.totalReleased();
     const totalReceived = balance.add(totalReleased);
 
+    let payees = <Payee[]>[];
     for (let i = 0; i < totalPayees.toNumber(); i++) {
       const address = await splitter.payee(BigNumber.from(i));
       const share = await splitter.shares(address);
@@ -55,9 +70,10 @@ export default function useSplitter() {
         available: (+formatEther(available)).toFixed(3),
       };
 
-      state.payees.push(payee);
+      payees.push(payee);
     }
 
+    state.payees = payees;
     state.address = address;
     state.owner = owner;
     state.totalPayees = totalPayees.toNumber();

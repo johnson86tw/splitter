@@ -5,6 +5,9 @@ import Address from "../components/Address.vue";
 import Modal from "../components/Modal.vue";
 import useMetaMask from "../composables/metamask";
 import useSplitter from "../composables/splitter";
+import useConfig from "../config";
+import { useLoader } from "../components/Loader.vue";
+import { useNotify } from "../components/Notification.vue";
 
 enum Role {
   Owner,
@@ -20,6 +23,9 @@ export default defineComponent({
     const route = useRoute();
     const { state, fetch } = useSplitter();
     const { sendEther, hasSetupWallet, userAddress } = useMetaMask();
+    const { appChainId } = useConfig();
+    const { isLoading } = useLoader();
+    const { notify } = useNotify();
 
     // role
     const role = ref<Role>(Role.Others);
@@ -38,21 +44,47 @@ export default defineComponent({
         }
       }
     };
-
-    // fetch data
-    const contractAddr = route.params.address as string;
-    onMounted(async () => {
-      await fetch(contractAddr);
+    watch(hasSetupWallet, () => {
       updateRole();
     });
 
-    watch(hasSetupWallet, (value) => {
+    // fetch data
+    const contractAddr = route.params.address as string;
+    const fetchError = ref("");
+    const formatError = (e: Error) => {
+      return e.message.substring(0, e.message.indexOf("("));
+    };
+    onMounted(async () => {
+      try {
+        isLoading.value = true;
+        await fetch(contractAddr);
+      } catch (e) {
+        console.error(e);
+        fetchError.value = formatError(e);
+      } finally {
+        isLoading.value = false;
+      }
+      updateRole();
+    });
+
+    watch(appChainId, async () => {
+      try {
+        isLoading.value = true;
+        fetchError.value = "";
+        await fetch(contractAddr);
+      } catch (e) {
+        console.error(e);
+        fetchError.value = formatError(e);
+      } finally {
+        isLoading.value = false;
+      }
       updateRole();
     });
 
     // send ether feature
     const sendEtherModal = ref(false);
     const sendEtherHandler = () => {
+      sendError.value = "";
       sendEtherModal.value = true;
     };
     const sendAmount = ref(0);
@@ -60,6 +92,18 @@ export default defineComponent({
     const dropdown = ref(false);
     const dropdownHandler = () => {
       dropdown.value = !dropdown.value;
+    };
+
+    const sendError = ref("");
+    const sendTxHandler = async () => {
+      try {
+        await sendEther(contractAddr, sendAmount.value);
+        sendEtherModal.value = false;
+        notify("transaction pending...");
+      } catch (e) {
+        console.error(e);
+        sendError.value = e.message;
+      }
     };
 
     // owner setting feature
@@ -77,11 +121,12 @@ export default defineComponent({
       contractAddr: computed(() => contractAddr),
       sendAmount,
       dropdown,
-
+      fetchError,
+      sendError,
       dropdownHandler,
       settingHandler,
       sendEtherHandler,
-      sendEther,
+      sendTxHandler,
     };
   },
 });
@@ -90,20 +135,23 @@ export default defineComponent({
 <template>
   <div class="w-full max-w-screen-xl mx-auto px-6">
     <div class="flex justify-center p-2 px-3">
-      <div class="w-full max-w-md">
+      <div class="w-full max-w-md text-center">
         <!-- role -->
         <p
           v-if="role === Role.Owner"
-          class="text-3xl text-gray-500 text-center"
+          class="text-3xl text-gray-500"
         >Owner</p>
         <p
           v-else-if="role === Role.Payee"
-          class="text-3xl text-gray-500 text-center"
+          class="text-3xl text-gray-500"
         >Payee</p>
         <p
           v-else-if="role === Role.OwnerAndPayee"
-          class="text-3xl text-gray-500 text-center"
+          class="text-3xl text-gray-500"
         >Owner & Payee</p>
+
+        <!-- fetch error -->
+        <p class="text-red-600">{{ fetchError }}</p>
 
         <div class="p-5">
           <p class="text-lg text-center font-medium">Contract Address</p>
@@ -117,6 +165,7 @@ export default defineComponent({
         <button
           @click="sendEtherHandler"
           class="btn w-full"
+          :disabled="fetchError ? true : false"
         >Send Ether</button>
       </div>
     </div>
@@ -185,7 +234,7 @@ export default defineComponent({
     :modalOpen="sendEtherModal"
     @modalClose="sendEtherModal = false"
   >
-    <div class="max-w-sm mx-auto py-6 flex items-center">
+    <div class="max-w-sm mx-auto py-2 flex items-center">
       <input
         v-model="sendAmount"
         type="number"
@@ -239,9 +288,13 @@ export default defineComponent({
         </div>
       </div>
     </div>
+    <!-- send Error -->
+    <div class="w-full py-2">
+      <p class="text-red-600 text-center">{{ sendError }}</p>
+    </div>
 
     <button
-      @click="sendEther(contractAddr, sendAmount)"
+      @click="sendTxHandler"
       class="btn w-full"
     >Send</button>
   </Modal>
