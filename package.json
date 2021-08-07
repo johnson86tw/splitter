@@ -9,6 +9,7 @@
     "contracts"
   ],
   "scripts": {
+    "hardhat": "yarn workspace @splitter/contracts run hardhat",
     "test": "yarn workspace @splitter/contracts run test",
     "start:node": "yarn workspace @splitter/contracts run node",
     "deploy:local": "yarn workspace @splitter/contracts run deploy:local",

@@ -1,5 +1,12 @@
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from "vue";
+import {
+  computed,
+  defineComponent,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from "vue";
 import { useRoute } from "vue-router";
 import Address from "../components/Address.vue";
 import Modal from "../components/Modal.vue";
@@ -8,7 +15,7 @@ import useSplitter from "../composables/splitter";
 import useConfig from "../config";
 import { useLoader } from "../components/Loader.vue";
 import { useNotify } from "../components/Notification.vue";
-import { Transaction } from "@ethersproject/transactions";
+import { formatEther } from "@ethersproject/units";
 
 enum Role {
   Owner,
@@ -71,17 +78,30 @@ export default defineComponent({
         isLoading.value = false;
       }
     };
-    onMounted(() => {
-      fetchData();
-    });
     watch(appChainId, () => {
       fetchData();
       updateRole();
     });
-    provider.value.on("pending", async (tx) => {
-      await tx.wait();
-      fetch(contractAddr);
-      notify("transaction confirmed");
+    onMounted(async () => {
+      await fetchData();
+
+      // provider.value.on("pending", async (tx) => {
+      //   await tx.wait();
+      //   fetch(contractAddr);
+      //   notify("transaction confirmed");
+      // });
+      let initListener = false;
+      state.splitter?.on("PaymentReceived", (to, amount) => {
+        if (!initListener) {
+          initListener = true;
+          return;
+        }
+        notify(`received ${formatEther(amount)} ETH from ${to}`);
+        fetch(contractAddr);
+      });
+    });
+    onUnmounted(() => {
+      state.splitter?.off("PaymentReceived");
     });
 
     // send ether feature

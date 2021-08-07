@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
+    "hardhat": "npx hardhat",
     "test": "npx hardhat test",
     "node": "npx hardhat node",
     "deploy:local": "npx hardhat run --network localhost scripts/deploy.js",

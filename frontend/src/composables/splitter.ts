@@ -1,4 +1,4 @@
-import { reactive, ref } from "vue";
+import { markRaw, reactive, ref } from "vue";
 import artifact from "@splitter/contracts/artifacts/contracts/Splitter.sol/Splitter.json";
 import { Splitter } from "@splitter/contracts/typechain/Splitter";
 import { BigNumber, ethers } from "ethers";
@@ -21,6 +21,7 @@ const displayEther = (bn: BigNumber) => (+formatEther(bn)).toFixed(3);
 
 export default function useSplitter() {
   const state = reactive({
+    splitter: <Splitter | null>null,
     address: "",
     owner: "",
     totalReceived: "0",
@@ -71,6 +72,7 @@ export default function useSplitter() {
       payees.push(payee);
     }
 
+    state.splitter = markRaw(splitter);
     state.payees = payees;
     state.address = address;
     state.owner = owner;
