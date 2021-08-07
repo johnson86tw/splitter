@@ -5,15 +5,25 @@ import { defineComponent, reactive } from "vue";
 const state = reactive({
   isNotifying: false,
   message: "",
+  timeout: 0,
 });
+
+const clearState = () => {
+  state.isNotifying = false;
+  state.message = "";
+  state.timeout = 0;
+};
 
 export function useNotify() {
   const notify = (msg: string, duration: number = 3000) => {
-    if (state.isNotifying) return;
+    if (state.isNotifying) {
+      clearTimeout(state.timeout);
+      clearState();
+    }
     state.message = msg;
     state.isNotifying = true;
 
-    setTimeout(() => {
+    state.timeout = setTimeout(() => {
       state.isNotifying = false;
     }, duration);
   };

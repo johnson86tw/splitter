@@ -3,7 +3,7 @@ import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@etherspr
 import { BigNumber, ethers, utils } from "ethers";
 import useConfig from "@/config";
 import { parseEther } from "ethers/lib/utils";
-const { supportedChainIds } = useConfig();
+const { supportedChainIds, rpcURL } = useConfig();
 
 declare global {
   interface Window {
@@ -26,8 +26,10 @@ interface ProviderRpcError extends Error {
 
 let initailized = false;
 
+const defaultProvider = markRaw(new ethers.providers.JsonRpcProvider(rpcURL.value));
+
 // states
-const provider = ref<JsonRpcProvider | Web3Provider>();
+const provider = ref<JsonRpcProvider | Web3Provider>(defaultProvider);
 const signer = ref<JsonRpcSigner>();
 const userAddress = ref("");
 const network = ref<Network>();
@@ -39,7 +41,7 @@ const hasSetupWallet = ref(false);
 const connectError = ref<string>();
 
 function clearState() {
-  provider.value = undefined;
+  provider.value = defaultProvider;
   signer.value = undefined;
   userAddress.value = "";
   network.value = undefined;

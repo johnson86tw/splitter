@@ -8,6 +8,7 @@ import useSplitter from "../composables/splitter";
 import useConfig from "../config";
 import { useLoader } from "../components/Loader.vue";
 import { useNotify } from "../components/Notification.vue";
+import { Transaction } from "@ethersproject/transactions";
 
 enum Role {
   Owner,
@@ -22,7 +23,7 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const { state, fetch } = useSplitter();
-    const { sendEther, hasSetupWallet, userAddress } = useMetaMask();
+    const { provider, sendEther, hasSetupWallet, userAddress } = useMetaMask();
     const { appChainId } = useConfig();
     const { isLoading } = useLoader();
     const { notify } = useNotify();
@@ -47,6 +48,9 @@ export default defineComponent({
     watch(hasSetupWallet, () => {
       updateRole();
     });
+    watch(state, () => {
+      updateRole();
+    });
 
     // fetch data
     const contractAddr = route.params.address as string;
@@ -64,9 +68,7 @@ export default defineComponent({
       } finally {
         isLoading.value = false;
       }
-      updateRole();
     });
-
     watch(appChainId, async () => {
       try {
         isLoading.value = true;
@@ -79,6 +81,12 @@ export default defineComponent({
         isLoading.value = false;
       }
       updateRole();
+    });
+    provider.value.on("pending", async (tx) => {
+      console.log(tx);
+      await tx.wait();
+      fetch(contractAddr);
+      notify("transaction confirmed");
     });
 
     // send ether feature
