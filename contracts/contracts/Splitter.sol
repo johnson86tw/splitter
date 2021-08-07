@@ -44,6 +44,12 @@ contract Splitter is PaymentSplitter {
         _addPayee(account, shares_);
     }
 
+    function addPayees(address[] memory payees, uint256[] memory shares_) public onlyOwner requireState(State.Opening) {
+        for (uint256 i = 0; i < payees.length; i++) {
+            _addPayee(payees[i], shares_[i]);
+        }
+    }
+
     function finalize() public onlyOwner requireState(State.Opening) {
         state = State.Finalized;
         emit Finalized();
