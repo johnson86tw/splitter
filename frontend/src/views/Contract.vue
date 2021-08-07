@@ -52,9 +52,19 @@ export default defineComponent({
         }
       }
     };
-    watch(hasSetupWallet, () => {
+    watch(hasSetupWallet, (value) => {
       updateRole();
+
+      if (value) {
+        // listen user's transaction
+        provider.value.on("pending", async (tx) => {
+          await tx.wait();
+          fetch(contractAddr);
+          notify("transaction confirmed");
+        });
+      }
     });
+    // @todo check if payee added can update role
     watch(state, () => {
       updateRole();
     });
@@ -85,11 +95,7 @@ export default defineComponent({
     onMounted(async () => {
       await fetchData();
 
-      // provider.value.on("pending", async (tx) => {
-      //   await tx.wait();
-      //   fetch(contractAddr);
-      //   notify("transaction confirmed");
-      // });
+      // listen contract event
       let initListener = false;
       state.splitter?.on("PaymentReceived", (to, amount) => {
         if (!initListener) {
@@ -101,7 +107,8 @@ export default defineComponent({
       });
     });
     onUnmounted(() => {
-      state.splitter?.off("PaymentReceived");
+      state.splitter?.removeAllListeners();
+      provider.value.removeAllListeners();
     });
 
     // send ether feature
