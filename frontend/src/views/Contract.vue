@@ -22,7 +22,7 @@ export default defineComponent({
   name: "Contract",
   setup() {
     const route = useRoute();
-    const { state, fetch } = useSplitter();
+    const { state, fetch, clearState } = useSplitter();
     const { provider, sendEther, hasSetupWallet, userAddress } = useMetaMask();
     const { appChainId } = useConfig();
     const { isLoading } = useLoader();
@@ -58,32 +58,27 @@ export default defineComponent({
     const formatError = (e: Error) => {
       return e.message.substring(0, e.message.indexOf("("));
     };
-    onMounted(async () => {
+    const fetchData = async () => {
+      fetchError.value = "";
       try {
         isLoading.value = true;
         await fetch(contractAddr);
       } catch (e) {
         console.error(e);
         fetchError.value = formatError(e);
+        clearState();
       } finally {
         isLoading.value = false;
       }
+    };
+    onMounted(() => {
+      fetchData();
     });
-    watch(appChainId, async () => {
-      try {
-        isLoading.value = true;
-        fetchError.value = "";
-        await fetch(contractAddr);
-      } catch (e) {
-        console.error(e);
-        fetchError.value = formatError(e);
-      } finally {
-        isLoading.value = false;
-      }
+    watch(appChainId, () => {
+      fetchData();
       updateRole();
     });
     provider.value.on("pending", async (tx) => {
-      console.log(tx);
       await tx.wait();
       fetch(contractAddr);
       notify("transaction confirmed");

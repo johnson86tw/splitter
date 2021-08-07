@@ -41,8 +41,6 @@ export default function useSplitter() {
   }
 
   async function fetch(address: string) {
-    clearState();
-
     const provider = new ethers.providers.JsonRpcProvider(rpcURL.value);
     const splitter = new ethers.Contract(address, artifact.abi, provider) as Splitter;
 
@@ -92,5 +90,6 @@ export default function useSplitter() {
   return {
     state,
     fetch,
+    clearState,
   };
 }
