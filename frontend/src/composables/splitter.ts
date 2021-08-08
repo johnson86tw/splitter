@@ -10,6 +10,7 @@ const { rpcURL } = useConfig();
 
 const splitterAddress: Readonly<Record<string, string>> = {
   localhost: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+  goerli: "0x8846C8134Ea3b5ab9e6641837c0B40b51FA4A338",
 };
 
 type Payee = {
@@ -33,6 +34,7 @@ export default function useSplitter() {
   });
 
   function clearState() {
+    state.splitter = null;
     state.address = "";
     state.owner = "";
     state.totalReceived = "0";

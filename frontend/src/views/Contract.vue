@@ -34,7 +34,7 @@ export default defineComponent({
     const { state, fetch, clearState, addPayees } = useSplitter();
     const { signer, provider, sendEther, hasSetupWallet, userAddress } =
       useMetaMask();
-    const { appChainId } = useConfig();
+    const { appChainId, isDev } = useConfig();
     const { isLoading } = useLoader();
     const { notify } = useNotify();
 
@@ -58,22 +58,17 @@ export default defineComponent({
         }
       }
     };
-    watch(hasSetupWallet, (value) => {
+    watch(hasSetupWallet, async (value) => {
+      if (isDev) console.log("watching hasSetupWallet");
       updateRole();
-
-      if (value) {
-        // listen user's transaction
-        provider.value.on("pending", async (tx) => {
-          await tx.wait();
-          fetch(contractAddr);
-          notify("transaction confirmed");
-        });
-      }
     });
     // @todo check if payee added can update role
-    watch(state, () => {
-      updateRole();
-    });
+    watch(
+      () => ({ ...state }), // deep watch
+      async (val, oldVal) => {
+        updateRole();
+      }
+    );
 
     // fetch data
     const contractAddr = route.params.address as string;
@@ -93,39 +88,52 @@ export default defineComponent({
         isLoading.value = false;
       }
     };
-    watch(appChainId, () => {
-      fetchData();
+
+    // feature: Event Listener
+    const addEventListener = async () => {
+      if (state.splitter) {
+        // hardhat network problem
+        let initPaymentReceived = appChainId.value === 31337 ? false : true;
+        let initPayeeAdded = appChainId.value === 31337 ? false : true;
+
+        state.splitter?.on("PaymentReceived", (to, amount) => {
+          if (!initPaymentReceived) {
+            initPaymentReceived = true;
+            return;
+          }
+          notify(`received ${formatEther(amount)} ETH from ${to}`);
+          fetch(contractAddr);
+        });
+
+        state.splitter?.on("PayeeAdded", (account, share) => {
+          if (!initPayeeAdded) {
+            initPayeeAdded = true;
+            return;
+          }
+          notify(`payee added: ${account} with share ${share}`);
+          fetch(contractAddr);
+        });
+
+        if (isDev) {
+          const network = await state.splitter?.provider.getNetwork();
+          console.log(`start listening Event at chainId: `, network?.chainId);
+        }
+      }
+    };
+
+    watch(appChainId, async () => {
+      if (isDev) console.log("watching appChainId...");
+      await fetchData();
       updateRole();
+      addEventListener();
     });
     onMounted(async () => {
       await fetchData();
-
-      // feature: listener
-      console.log("start listening Event...");
-      let initPaymentReceived = false;
-      state.splitter?.on("PaymentReceived", (to, amount) => {
-        if (!initPaymentReceived) {
-          initPaymentReceived = true;
-          return;
-        }
-        notify(`received ${formatEther(amount)} ETH from ${to}`);
-        fetch(contractAddr);
-      });
-
-      let initPayeeAdded = false;
-      state.splitter?.on("PayeeAdded", (account, share) => {
-        if (!initPayeeAdded) {
-          initPayeeAdded = true;
-          return;
-        }
-        notify(`payee added: ${account} with share ${share}`);
-        fetch(contractAddr);
-      });
+      addEventListener();
     });
     onUnmounted(() => {
       // @ts-ignore removeAllListeners can accept no arguments, but typescript not accept
       state.splitter?.removeAllListeners();
-      provider.value.removeAllListeners();
       console.log("removed Event listener");
     });
 
@@ -144,13 +152,18 @@ export default defineComponent({
 
     const sendError = ref("");
     const sendTxHandler = async () => {
+      // let tx;
       try {
-        await sendEther(contractAddr, sendAmount.value);
+        const txHash = await sendEther(contractAddr, sendAmount.value);
         sendEtherModal.value = false;
         notify("transaction pending...");
+        // tx = await provider.value.getTransaction(txHash);
       } catch (e) {
         sendError.value = e.message;
       }
+
+      // await tx.wait();
+      // notify("transaction confirmed");
     };
 
     // owner setting feature

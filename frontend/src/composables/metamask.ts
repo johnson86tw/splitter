@@ -129,7 +129,7 @@ export default function useMetaMask() {
       }
 
       hasSetupWallet.value = true;
-      console.log("has set up wallet with signer and network: ", await signer.value.getAddress(), network.value.name);
+      console.log("wallet set up");
     } else {
       connectError.value = "Please install MetaMask!";
     }
@@ -149,7 +149,7 @@ export default function useMetaMask() {
 
   async function sendEther(to: string, amount: number) {
     if (hasSetupWallet.value) {
-      await window.ethereum!.request({
+      const txHash = await window.ethereum!.request({
         method: "eth_sendTransaction",
         params: [
           {
@@ -159,6 +159,7 @@ export default function useMetaMask() {
           },
         ],
       });
+      return txHash;
     } else {
       throw new Error("wallet hasn't connected");
     }
