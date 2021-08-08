@@ -17,7 +17,7 @@ export default defineComponent({
 });
 </script>
 <template>
-  <teleport to="body">
+  <teleport to="html">
     <div
       v-if="isLoading"
       class="fixed fixed left-0 bottom-0 w-full h-full bg-gray-500 bg-opacity-80 flex items-center justify-center w-full h-full"

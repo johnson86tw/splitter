@@ -264,7 +264,7 @@ export default defineComponent({
 
         <div class="p-5">
           <p class="text-lg text-center font-medium">Contract Address</p>
-          <p class="text-center text-gray-500">
+          <p class="text-center text-gray-500 text-sm">
             <Address
               :address="contractAddr"
               :short="false"
