@@ -2,6 +2,7 @@
 import { defineComponent, ref } from "vue";
 import { useLoader } from "./Loader.vue";
 
+// default
 const fn = () => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {

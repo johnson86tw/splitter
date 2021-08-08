@@ -189,6 +189,7 @@ export default defineComponent({
 
       await addPayees(signer.value, contractAddr, addrs, shares);
       settingModal.value = false;
+      notify("transaction pending...");
     };
 
     return {

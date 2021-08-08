@@ -214,7 +214,10 @@ export default defineComponent({
         </div>
         <div class="sm:flex bg-grey-light sm:items-center py-4">
           <div class="flex-grow w-full">
-            <Button :handlerFn="deployHandler">Deploy</Button>
+            <Button
+              :handlerFn="deployHandler"
+              globalLoader
+            >Deploy</Button>
           </div>
         </div>
       </div>
