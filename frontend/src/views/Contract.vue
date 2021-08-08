@@ -45,11 +45,14 @@ export default defineComponent({
         if (state.payees[i].address === userAddress.value) {
           if (state.owner === userAddress.value) {
             role.value = Role.OwnerAndPayee;
+            break;
           } else {
             role.value = Role.Payee;
+            break;
           }
         } else if (state.owner === userAddress.value) {
           role.value = Role.Owner;
+          break;
         }
       }
     };
