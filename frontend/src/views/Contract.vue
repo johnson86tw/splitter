@@ -30,8 +30,9 @@ export default defineComponent({
   name: "Contract",
   setup() {
     const route = useRoute();
-    const { state, fetch, clearState } = useSplitter();
-    const { provider, sendEther, hasSetupWallet, userAddress } = useMetaMask();
+    const { state, fetch, clearState, addPayees } = useSplitter();
+    const { signer, provider, sendEther, hasSetupWallet, userAddress } =
+      useMetaMask();
     const { appChainId } = useConfig();
     const { isLoading } = useLoader();
     const { notify } = useNotify();
@@ -40,7 +41,9 @@ export default defineComponent({
     const role = ref<Role>(Role.Others);
     const updateRole = () => {
       role.value = Role.Others;
-
+      if (state.owner === userAddress.value) {
+        role.value = Role.Owner;
+      }
       for (let i = 0; i < state.payees.length; i++) {
         if (state.payees[i].address === userAddress.value) {
           if (state.owner === userAddress.value) {
@@ -50,9 +53,6 @@ export default defineComponent({
             role.value = Role.Payee;
             break;
           }
-        } else if (state.owner === userAddress.value) {
-          role.value = Role.Owner;
-          break;
         }
       }
     };
@@ -85,7 +85,6 @@ export default defineComponent({
         isLoading.value = true;
         await fetch(contractAddr);
       } catch (e) {
-        console.error(e);
         fetchError.value = formatError(e);
         clearState();
       } finally {
@@ -99,14 +98,25 @@ export default defineComponent({
     onMounted(async () => {
       await fetchData();
 
-      // listen contract event
-      let initListener = false;
+      // feature: listener
+      console.log("start listening Event...");
+      let initPaymentReceived = false;
       state.splitter?.on("PaymentReceived", (to, amount) => {
-        if (!initListener) {
-          initListener = true;
+        if (!initPaymentReceived) {
+          initPaymentReceived = true;
           return;
         }
         notify(`received ${formatEther(amount)} ETH from ${to}`);
+        fetch(contractAddr);
+      });
+
+      let initPayeeAdded = false;
+      state.splitter?.on("PayeeAdded", (account, share) => {
+        if (!initPayeeAdded) {
+          initPayeeAdded = true;
+          return;
+        }
+        notify(`payee added: ${account} with share ${share}`);
         fetch(contractAddr);
       });
     });
@@ -114,6 +124,7 @@ export default defineComponent({
       // @ts-ignore removeAllListeners can accept no arguments, but typescript not accept
       state.splitter?.removeAllListeners();
       provider.value.removeAllListeners();
+      console.log("removed Event listener");
     });
 
     // send ether feature
@@ -136,7 +147,6 @@ export default defineComponent({
         sendEtherModal.value = false;
         notify("transaction pending...");
       } catch (e) {
-        console.error(e);
         sendError.value = e.message;
       }
     };
@@ -165,6 +175,21 @@ export default defineComponent({
       }
     });
 
+    // feature: Add Payees
+    const addPayeesHandler = async () => {
+      if (!signer.value) throw new Error("please connect wallet at first");
+
+      let addrs: string[] = [];
+      let shares: number[] = [];
+      payees.value.forEach((payee) => {
+        addrs.push(payee.address);
+        shares.push(payee.share);
+      });
+
+      await addPayees(signer.value, contractAddr, addrs, shares);
+      settingModal.value = false;
+    };
+
     return {
       role,
       Role,
@@ -188,6 +213,9 @@ export default defineComponent({
       share,
       address,
       payeesError,
+
+      // add Payees
+      addPayeesHandler,
     };
   },
 });
@@ -259,7 +287,7 @@ export default defineComponent({
               </div>
               <!-- only owner -->
               <tune
-                v-if="role === Role.Owner"
+                v-if="role === Role.Owner || role === Role.OwnerAndPayee"
                 @click="settingHandler"
               />
             </div>
@@ -276,7 +304,9 @@ export default defineComponent({
               <div class="flex-grow font-medium px-2">
                 <Address :address="payee.address" />
               </div>
-              <div class="text-sm text-gray-500 tracking-wide mr-6"> {{ payee.share / state.totalShares * 100 }} %</div>
+              <div class="text-sm text-gray-500 tracking-wide mr-6">
+                {{ (payee.share / state.totalShares * 100).toFixed(1) }} %
+              </div>
               <div class="text-sm text-gray-500 tracking-wide">{{ payee.available }} ETH</div>
             </div>
           </div>
@@ -401,7 +431,9 @@ export default defineComponent({
                   <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                 </div>
                 <div class="w-4/6 flex items-center">
-                  <p class="">{{ payee.address }}</p>
+                  <p class="">
+                    <Address :address="payee.address" />
+                  </p>
                 </div>
                 <div class="w-1/6 flex items-center">
                   <p class="text-sm text-grey-dark">{{ payee.share }}</p>
@@ -417,7 +449,7 @@ export default defineComponent({
         </div>
         <div class="sm:flex bg-grey-light sm:items-center py-4">
           <div class="flex-grow">
-            <button class="btn w-full">Send Transaction</button>
+            <Button :handlerFn="addPayeesHandler">Add Payees</Button>
           </div>
         </div>
       </div>

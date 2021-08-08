@@ -97,10 +97,16 @@ export default function useSplitter() {
     }
   }
 
+  async function addPayees(signer: Signer, address: string, payees: string[], shares: number[]) {
+    const splitter = new ethers.Contract(address, artifact.abi, signer) as Splitter;
+    await splitter.addPayees(payees, shares);
+  }
+
   return {
     state,
     fetch,
     clearState,
     deploy,
+    addPayees,
   };
 }
