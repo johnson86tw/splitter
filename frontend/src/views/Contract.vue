@@ -41,6 +41,7 @@ export default defineComponent({
     const role = ref<Role>(Role.Others);
     const updateRole = () => {
       role.value = Role.Others;
+      if (!userAddress.value) return;
       if (state.owner === userAddress.value) {
         role.value = Role.Owner;
       }
