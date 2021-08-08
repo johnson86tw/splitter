@@ -16,6 +16,7 @@
     "dev": "yarn workspace @splitter/frontend run dev",
     "build:contracts": "yarn workspace @splitter/contracts run build",
     "build:vue": "yarn workspace @splitter/frontend run build",
-    "build": "yarn build:contracts && yarn build:vue"
+    "build": "yarn build:contracts && yarn build:vue",
+    "lint:vue": "yarn workspace @splitter/frontend run lint"
   }
 }
