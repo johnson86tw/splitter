@@ -10,6 +10,7 @@ import {
 import { useRoute } from "vue-router";
 import Address from "../components/Address.vue";
 import Modal from "../components/Modal.vue";
+import Button from "../components/Button.vue";
 import useMetaMask from "../composables/metamask";
 import useSplitter from "../composables/splitter";
 import useConfig from "../config";
@@ -26,7 +27,7 @@ enum Role {
 }
 
 export default defineComponent({
-  components: { Modal, Address },
+  components: { Modal, Address, Button },
   name: "Contract",
   setup() {
     const route = useRoute();
@@ -228,6 +229,10 @@ export default defineComponent({
     <div class="flex justify-center p-2 px-3">
       <div class="w-full max-w-md text-center">
         <!-- role -->
+        <p
+          v-if="role !== Role.Others"
+          class="text-gray-500"
+        >role</p>
         <p
           v-if="role === Role.Owner"
           class="text-3xl text-gray-500"

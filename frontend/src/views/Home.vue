@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, onUnmounted, ref, watch } from "vue";
 import useMetaMask from "../composables/metamask";
-import { useNotify } from "../components/Notification.vue";
+import Button from "../components/Button.vue";
 import { useRouter, useRoute } from "vue-router";
 import { isAddress } from "@ethersproject/address";
 import Delete from "../components/icons/Delete.vue";
@@ -10,7 +10,7 @@ import useSplitter from "../composables/splitter";
 import useConfig from "../config";
 
 export default defineComponent({
-  components: { Delete },
+  components: { Delete, Button },
   name: "Home",
   setup() {
     const { etherBalance, connectError, signer } = useMetaMask();
