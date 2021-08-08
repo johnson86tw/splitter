@@ -3,7 +3,7 @@ import { JsonRpcProvider, JsonRpcSigner, Web3Provider, Network } from "@etherspr
 import { BigNumber, ethers, utils } from "ethers";
 import useConfig from "@/config";
 import { parseEther } from "ethers/lib/utils";
-const { supportedChainIds, rpcURL } = useConfig();
+const { supportedChainIds, rpcURL, appChainId } = useConfig();
 
 declare global {
   interface Window {
@@ -167,10 +167,12 @@ export default function useMetaMask() {
 
   // assume valid if we have no network information
   const isSupportedNetwork = computed(() => (network.value ? supportedChainIds.includes(network.value.chainId) : true));
+  const unmatchedNetwork = computed(() => hasSetupWallet.value && network.value?.chainId !== appChainId.value);
 
   return {
     hasSetupWallet,
     isSupportedNetwork,
+    unmatchedNetwork,
     userAddress,
     provider,
     signer,

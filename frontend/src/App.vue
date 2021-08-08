@@ -13,7 +13,7 @@ export default defineComponent({
   name: "App",
   components: { LayoutHeader, LayoutFooter, Notification, Loader },
   setup() {
-    const { isSupportedNetwork } = useMetaMask();
+    const { isSupportedNetwork, unmatchedNetwork } = useMetaMask();
     const { supportedChainIds } = useConfig();
 
     const supportedChainName = computed(() => {
@@ -24,14 +24,14 @@ export default defineComponent({
       return names.join(", ");
     });
 
-    return { isSupportedNetwork, supportedChainName };
+    return { isSupportedNetwork, unmatchedNetwork, supportedChainName };
   },
 });
 </script>
 
 <template>
   <layout-header />
-  <div v-if="isSupportedNetwork">
+  <div v-if="isSupportedNetwork && !unmatchedNetwork">
     <router-view></router-view>
   </div>
   <div

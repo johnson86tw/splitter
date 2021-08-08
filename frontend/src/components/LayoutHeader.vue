@@ -15,6 +15,7 @@ export default defineComponent({
       chainId,
       userAddress,
       isSupportedNetwork,
+      unmatchedNetwork,
       hasSetupWallet,
       etherBalance,
       connectWallet,
@@ -37,6 +38,7 @@ export default defineComponent({
       userAddress,
       displayBalance: computed(() => Number(etherBalance.value).toFixed(3)),
       isSupportedNetwork,
+      unmatchedNetwork,
       chainName: computed(() => NETWORK(appChainId.value)?.name), // note: must use computed
       supportedChainNames,
       hasSetupWallet,
@@ -141,7 +143,7 @@ export default defineComponent({
             </div>
 
             <div
-              v-else-if="hasSetupWallet && chainId !== appChainId"
+              v-else-if="unmatchedNetwork"
               class="flex items-center"
             >
               <div class="text-gray-500">unmatched network</div>
