@@ -71,7 +71,7 @@ export default defineComponent({
               />
             </svg>
           </div>
-          <div class="text-white max-w-xs ">
+          <div class="text-white max-w-sm">
             {{ state.message }}
           </div>
         </div>
