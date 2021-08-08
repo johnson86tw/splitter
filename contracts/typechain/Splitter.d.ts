@@ -23,6 +23,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface SplitterInterface extends ethers.utils.Interface {
   functions: {
     "addPayee(address,uint256)": FunctionFragment;
+    "addPayees(address[],uint256[])": FunctionFragment;
     "finalize()": FunctionFragment;
     "isPayee(address)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -39,6 +40,10 @@ interface SplitterInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "addPayee",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addPayees",
+    values: [string[], BigNumberish[]]
   ): string;
   encodeFunctionData(functionFragment: "finalize", values?: undefined): string;
   encodeFunctionData(functionFragment: "isPayee", values: [string]): string;
@@ -62,6 +67,7 @@ interface SplitterInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "addPayee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addPayees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isPayee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -119,6 +125,18 @@ export class Splitter extends Contract {
     "addPayee(address,uint256)"(
       account: string,
       shares_: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    addPayees(
+      payees: string[],
+      shares_: BigNumberish[],
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addPayees(address[],uint256[])"(
+      payees: string[],
+      shares_: BigNumberish[],
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -245,6 +263,18 @@ export class Splitter extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  addPayees(
+    payees: string[],
+    shares_: BigNumberish[],
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addPayees(address[],uint256[])"(
+    payees: string[],
+    shares_: BigNumberish[],
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
   finalize(overrides?: Overrides): Promise<ContractTransaction>;
 
   "finalize()"(overrides?: Overrides): Promise<ContractTransaction>;
@@ -314,6 +344,18 @@ export class Splitter extends Contract {
     "addPayee(address,uint256)"(
       account: string,
       shares_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addPayees(
+      payees: string[],
+      shares_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "addPayees(address[],uint256[])"(
+      payees: string[],
+      shares_: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -400,6 +442,18 @@ export class Splitter extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    addPayees(
+      payees: string[],
+      shares_: BigNumberish[],
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "addPayees(address[],uint256[])"(
+      payees: string[],
+      shares_: BigNumberish[],
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     finalize(overrides?: Overrides): Promise<BigNumber>;
 
     "finalize()"(overrides?: Overrides): Promise<BigNumber>;
@@ -470,6 +524,18 @@ export class Splitter extends Contract {
     "addPayee(address,uint256)"(
       account: string,
       shares_: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    addPayees(
+      payees: string[],
+      shares_: BigNumberish[],
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addPayees(address[],uint256[])"(
+      payees: string[],
+      shares_: BigNumberish[],
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 

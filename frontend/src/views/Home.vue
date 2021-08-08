@@ -1,10 +1,11 @@
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
 import useMetaMask from "../composables/metamask";
 import { useNotify } from "../components/Notification.vue";
 import { useRouter, useRoute } from "vue-router";
 import { isAddress } from "@ethersproject/address";
 import Delete from "../components/icons/Delete.vue";
+import usePayees from "../composables/payees";
 
 export default defineComponent({
   components: { Delete },
@@ -12,6 +13,30 @@ export default defineComponent({
   setup() {
     const { etherBalance, connectError } = useMetaMask();
     const router = useRouter();
+
+    // feature: Modal
+    const createSplitterModal = ref(false);
+    const createSplitterHandler = () => {
+      createSplitterModal.value = true;
+    };
+
+    // feature: Payees
+    const {
+      payees,
+      add,
+      remove,
+      share,
+      address,
+      errMsg: payeesError,
+      clearState: clearPayees,
+    } = usePayees();
+
+    watch(createSplitterModal, (val) => {
+      if (!val) {
+        clearPayees();
+        payeesError.value = "";
+      }
+    });
 
     const addressInput = ref("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512");
     const inputError = ref("");
@@ -25,12 +50,6 @@ export default defineComponent({
       }
     };
 
-    const createSplitterModal = ref(false);
-
-    const createSplitterHandler = () => {
-      createSplitterModal.value = true;
-    };
-
     return {
       addressInput,
       etherBalance,
@@ -39,6 +58,14 @@ export default defineComponent({
       createSplitterModal,
       searchHandler,
       createSplitterHandler,
+
+      // usePayees
+      payees,
+      add,
+      remove,
+      share,
+      address,
+      payeesError,
     };
   },
 });
@@ -109,49 +136,43 @@ export default defineComponent({
             <h3 class="font-normal text-lg p-1 leading-tight">Payees and Shares</h3>
             <div class="flex items-center">
               <input
+                v-model="address"
                 type="text"
                 placeholder="payee's address"
                 class="my-2 mr-2 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
               />
               <input
+                v-model="share"
                 type="number"
                 placeholder="shares"
                 class="my-2 mr-2 w-2/7 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
               />
-              <button class="h-10 flex-grow px-3 py-1 rounded inline-block bg-blue-100 text-gray-600 cursor-pointer hover:bg-blue-200 focus:outline-none disabled:cursor-default disabled:opacity-70 disabled:bg-blue-100">
+              <button
+                @click="add"
+                class="h-10 flex-grow px-3 py-1 rounded inline-block bg-blue-100 text-gray-600 cursor-pointer hover:bg-blue-200 focus:outline-none disabled:cursor-default disabled:opacity-70 disabled:bg-blue-100"
+              >
                 Add
               </button>
             </div>
+            <p class="text-sm text-center text-red-600">{{ payeesError }}</p>
             <div class="w-full">
-              <div class="flex">
+              <div
+                v-for="(payee,i ) in payees"
+                :key="i"
+                class="flex"
+              >
                 <div class="flex items-center mr-3">
                   <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                 </div>
                 <div class="w-4/6 flex items-center">
-                  <p class="">Kevin Durant</p>
+                  <p class="">{{ payee.address }}</p>
                 </div>
                 <div class="w-1/6 flex items-center">
-                  <p class="text-sm text-grey-dark">30%</p>
+                  <p class="text-sm text-grey-dark">{{ payee.share }}</p>
                 </div>
                 <div class="w-1/6 flex justify-center items-center">
                   <p class="text-sm text-grey-dark">
-                    <delete />
-                  </p>
-                </div>
-              </div>
-              <div class="flex">
-                <div class="flex items-center mr-3">
-                  <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
-                </div>
-                <div class="w-4/6 flex items-center">
-                  <p class="">Kevin Durant</p>
-                </div>
-                <div class="w-1/6 flex items-center">
-                  <p class="text-sm text-grey-dark">30%</p>
-                </div>
-                <div class="w-1/6 flex justify-center items-center">
-                  <p class="text-sm text-grey-dark">
-                    <delete />
+                    <delete @click="remove(payee.address)" />
                   </p>
                 </div>
               </div>
