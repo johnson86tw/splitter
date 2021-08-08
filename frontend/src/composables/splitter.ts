@@ -1,7 +1,8 @@
 import { markRaw, reactive, ref } from "vue";
 import artifact from "@splitter/contracts/artifacts/contracts/Splitter.sol/Splitter.json";
 import { Splitter } from "@splitter/contracts/typechain/Splitter";
-import { BigNumber, ethers } from "ethers";
+import { SplitterFactory } from "@splitter/contracts/typechain/SplitterFactory";
+import { BigNumber, ContractFactory, ethers, Signer } from "ethers";
 import useConfig from "@/config";
 import { formatEther } from "ethers/lib/utils";
 
@@ -39,6 +40,13 @@ export default function useSplitter() {
     state.totalPayees = 0;
     state.totalShares = 1;
     state.payees = <Payee[]>[];
+  }
+
+  async function deploy(signer: Signer, owner: string, payees: string[], shares: number[]): Promise<string> {
+    const splitterFactory = new ContractFactory(artifact.abi, artifact.bytecode, signer) as SplitterFactory;
+    const splitter = (await splitterFactory.deploy(owner, payees, shares)) as Splitter;
+    await splitter.deployed();
+    return splitter.address;
   }
 
   async function fetch(address: string) {
@@ -93,5 +101,6 @@ export default function useSplitter() {
     state,
     fetch,
     clearState,
+    deploy,
   };
 }

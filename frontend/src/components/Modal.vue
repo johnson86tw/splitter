@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, watch } from "vue";
+import { defineComponent, onUnmounted, watch } from "vue";
 
 export default defineComponent({
   emits: ["modalClose"],
@@ -24,6 +24,10 @@ export default defineComponent({
         }
       }
     );
+
+    onUnmounted(() => {
+      document.body.classList.remove("overflow-hidden");
+    });
 
     return {
       closeModal,

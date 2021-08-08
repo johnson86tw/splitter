@@ -1,17 +1,18 @@
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, onUnmounted, ref, watch } from "vue";
 import useMetaMask from "../composables/metamask";
 import { useNotify } from "../components/Notification.vue";
 import { useRouter, useRoute } from "vue-router";
 import { isAddress } from "@ethersproject/address";
 import Delete from "../components/icons/Delete.vue";
 import usePayees from "../composables/payees";
+import useSplitter from "../composables/splitter";
 
 export default defineComponent({
   components: { Delete },
   name: "Home",
   setup() {
-    const { etherBalance, connectError } = useMetaMask();
+    const { etherBalance, connectError, signer } = useMetaMask();
     const router = useRouter();
 
     // feature: Modal
@@ -50,6 +51,27 @@ export default defineComponent({
       }
     };
 
+    // feature: Deploy
+    const { deploy } = useSplitter();
+    const ownerInput = ref("");
+    const deployHandler = async () => {
+      if (!signer.value) throw new Error("please connect wallet at first");
+
+      let addrs: string[] = [];
+      let shares: number[] = [];
+      payees.value.forEach((payee) => {
+        addrs.push(payee.address);
+        shares.push(payee.share);
+      });
+      const address = await deploy(
+        signer.value,
+        ownerInput.value,
+        addrs,
+        shares
+      );
+      router.push(`/contract/${address}`);
+    };
+
     return {
       addressInput,
       etherBalance,
@@ -66,6 +88,10 @@ export default defineComponent({
       share,
       address,
       payeesError,
+
+      // deploy
+      ownerInput,
+      deployHandler,
     };
   },
 });
@@ -129,6 +155,7 @@ export default defineComponent({
           <div class="flex-grow">
             <h3 class="font-normal text-lg p-1 leading-tight">Owner Address</h3>
             <input
+              v-model="ownerInput"
               type="text"
               placeholder="owner's address"
               class="my-2 w-full text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
@@ -165,7 +192,9 @@ export default defineComponent({
                   <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                 </div>
                 <div class="w-4/6 flex items-center">
-                  <p class="">{{ payee.address }}</p>
+                  <p class="">
+                  <Address :address="payee.address"></Address>
+                  </p>
                 </div>
                 <div class="w-1/6 flex items-center">
                   <p class="text-sm text-grey-dark">{{ payee.share }}</p>
@@ -181,7 +210,7 @@ export default defineComponent({
         </div>
         <div class="sm:flex bg-grey-light sm:items-center py-4">
           <div class="flex-grow w-full">
-            <Button>Deploy</Button>
+            <Button :handlerFn="deployHandler">Deploy</Button>
           </div>
         </div>
       </div>
