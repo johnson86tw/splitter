@@ -7,6 +7,7 @@ import { isAddress } from "@ethersproject/address";
 import Delete from "../components/icons/Delete.vue";
 import usePayees from "../composables/payees";
 import useSplitter from "../composables/splitter";
+import useConfig from "../config";
 
 export default defineComponent({
   components: { Delete },
@@ -39,7 +40,10 @@ export default defineComponent({
       }
     });
 
-    const addressInput = ref("0xe7f1725e7734ce288f8367e1bb143e90bb3f0512");
+    const addressInput = ref("");
+    const { isDev } = useConfig();
+    if (isDev)
+      addressInput.value = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
     const inputError = ref("");
 
     const searchHandler = () => {
