@@ -2,11 +2,19 @@
 import { defineComponent, ref } from "vue";
 import { useLoader } from "./Loader.vue";
 
+const fn = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error("error message"));
+    }, 2000);
+  });
+};
+
 export default defineComponent({
   props: {
     handlerFn: {
       type: Function,
-      required: true,
+      default: fn,
     },
     globalLoader: {
       type: Boolean,
@@ -48,7 +56,7 @@ export default defineComponent({
     @click="handler"
     type="button"
     :disabled="isLoading ? true : false"
-    class="inline-flex items-center px-4 py-2 border border-transparent text-base leading-6 
+    class="inline-flex w-full justify-center items-center px-4 py-2 border border-transparent text-base leading-6 
     font-medium rounded-md text-gray-600 text-xl bg-blue-100 hover:bg-blue-200 focus:outline-none 
     transition ease-in-out duration-150 disabled:cursor-default disabled:opacity-70 disabled:bg-blue-200"
   >
@@ -75,5 +83,5 @@ export default defineComponent({
     </svg>
     <slot />
   </button>
-  <p class="text-red-600">{{ errMsg }}</p>
+  <p class="text-red-600 text-center">{{ errMsg }}</p>
 </template>

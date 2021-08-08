@@ -66,82 +66,6 @@ export default defineComponent({
       @click="createSplitterHandler"
       class="btn"
     >Create Splitter</button>
-
-    <!-- Create Splitter Modal -->
-    <modal
-      :modalOpen="createSplitterModal"
-      @modalClose="createSplitterModal = false"
-    >
-      <div class="w-full relative overflow-hidden mb-8">
-        <div class="bg-white mx-auto max-w-sm overflow-hidden">
-          <div class="sm:flex sm:items-center">
-            <div class="flex-grow">
-              <h3 class="font-normal text-lg p-1 leading-tight">Owner Address</h3>
-              <input
-                type="text"
-                placeholder="owner's address"
-                class="my-2 w-full text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
-              />
-              <h3 class="font-normal text-lg p-1 leading-tight">Payees and Shares</h3>
-              <div class="flex items-center">
-                <input
-                  type="text"
-                  placeholder="payee's address"
-                  class="my-2 mr-2 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
-                />
-                <input
-                  type="number"
-                  placeholder="shares"
-                  class="my-2 mr-2 w-2/7 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
-                />
-                <button class="h-10 flex-grow px-3 py-1 rounded inline-block bg-blue-100 text-gray-600 cursor-pointer hover:bg-blue-200 focus:outline-none disabled:cursor-default disabled:opacity-70 disabled:bg-blue-100">
-                  Add
-                </button>
-              </div>
-              <div class="w-full">
-                <div class="flex">
-                  <div class="flex items-center mr-3">
-                    <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
-                  </div>
-                  <div class="w-4/6 flex items-center">
-                    <p class="">Kevin Durant</p>
-                  </div>
-                  <div class="w-1/6 flex items-center">
-                    <p class="text-sm text-grey-dark">30%</p>
-                  </div>
-                  <div class="w-1/6 flex justify-center items-center">
-                    <p class="text-sm text-grey-dark">
-                      <delete />
-                    </p>
-                  </div>
-                </div>
-                <div class="flex">
-                  <div class="flex items-center mr-3">
-                    <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
-                  </div>
-                  <div class="w-4/6 flex items-center">
-                    <p class="">Kevin Durant</p>
-                  </div>
-                  <div class="w-1/6 flex items-center">
-                    <p class="text-sm text-grey-dark">30%</p>
-                  </div>
-                  <div class="w-1/6 flex justify-center items-center">
-                    <p class="text-sm text-grey-dark">
-                      <delete />
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="sm:flex bg-grey-light sm:items-center py-4">
-            <div class="flex-grow">
-              <button class="btn w-full">Deploy</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </modal>
   </div>
 
   <div class="w-full max-w-screen-xl mx-auto px-6">
@@ -166,4 +90,80 @@ export default defineComponent({
       </div>
     </div>
   </div>
+
+  <!-- ======================= Create Splitter Modal ======================= -->
+  <Modal
+    :modalOpen="createSplitterModal"
+    @modalClose="createSplitterModal = false"
+  >
+    <div class="w-full relative overflow-hidden mb-4">
+      <div class="bg-white mx-auto max-w-lg px-2 overflow-hidden">
+        <div class="sm:flex sm:items-center">
+          <div class="flex-grow">
+            <h3 class="font-normal text-lg p-1 leading-tight">Owner Address</h3>
+            <input
+              type="text"
+              placeholder="owner's address"
+              class="my-2 w-full text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
+            />
+            <h3 class="font-normal text-lg p-1 leading-tight">Payees and Shares</h3>
+            <div class="flex items-center">
+              <input
+                type="text"
+                placeholder="payee's address"
+                class="my-2 mr-2 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
+              />
+              <input
+                type="number"
+                placeholder="shares"
+                class="my-2 mr-2 w-2/7 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
+              />
+              <button class="h-10 flex-grow px-3 py-1 rounded inline-block bg-blue-100 text-gray-600 cursor-pointer hover:bg-blue-200 focus:outline-none disabled:cursor-default disabled:opacity-70 disabled:bg-blue-100">
+                Add
+              </button>
+            </div>
+            <div class="w-full">
+              <div class="flex">
+                <div class="flex items-center mr-3">
+                  <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
+                </div>
+                <div class="w-4/6 flex items-center">
+                  <p class="">Kevin Durant</p>
+                </div>
+                <div class="w-1/6 flex items-center">
+                  <p class="text-sm text-grey-dark">30%</p>
+                </div>
+                <div class="w-1/6 flex justify-center items-center">
+                  <p class="text-sm text-grey-dark">
+                    <delete />
+                  </p>
+                </div>
+              </div>
+              <div class="flex">
+                <div class="flex items-center mr-3">
+                  <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
+                </div>
+                <div class="w-4/6 flex items-center">
+                  <p class="">Kevin Durant</p>
+                </div>
+                <div class="w-1/6 flex items-center">
+                  <p class="text-sm text-grey-dark">30%</p>
+                </div>
+                <div class="w-1/6 flex justify-center items-center">
+                  <p class="text-sm text-grey-dark">
+                    <delete />
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sm:flex bg-grey-light sm:items-center py-4">
+          <div class="flex-grow w-full">
+            <Button>Deploy</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Modal>
 </template>
