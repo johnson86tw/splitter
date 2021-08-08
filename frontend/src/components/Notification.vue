@@ -25,7 +25,7 @@ export function useNotify() {
 
     state.timeout = setTimeout(() => {
       state.isNotifying = false;
-    }, duration);
+    }, duration) as unknown as number;
   };
 
   return {

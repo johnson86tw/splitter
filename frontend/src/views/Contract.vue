@@ -107,6 +107,7 @@ export default defineComponent({
       });
     });
     onUnmounted(() => {
+      // @ts-ignore removeAllListeners can accept no arguments, but typescript not accept
       state.splitter?.removeAllListeners();
       provider.value.removeAllListeners();
     });
