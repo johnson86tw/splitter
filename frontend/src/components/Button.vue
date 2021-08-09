@@ -21,14 +21,23 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    loadingMsg: {
+      type: String,
+    },
   },
   setup(props) {
-    const { isLoading: isGlobalLoading } = useLoader();
+    const { isLoading: isGlobalLoading, message } = useLoader();
     const isLoading = ref(false);
     const errMsg = ref("");
 
     const handler = async () => {
       errMsg.value = "";
+
+      // feature: useLoader
+      if (props.loadingMsg && props.globalLoader) {
+        message.value = props.loadingMsg;
+      }
+
       props.globalLoader
         ? (isGlobalLoading.value = true)
         : (isLoading.value = true);

@@ -1,18 +1,27 @@
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, onUnmounted, ref, watch } from "vue";
 
 const isLoading = ref(false);
+const message = ref("Loading...");
+
+watch(isLoading, (val) => {
+  if (!val) {
+    console.log("change msg to default");
+    message.value = "Loading...";
+  }
+});
 
 export function useLoader() {
   return {
     isLoading,
+    message,
   };
 }
 
 export default defineComponent({
   setup() {
-    const { isLoading } = useLoader();
-    return { isLoading };
+    const { isLoading, message } = useLoader();
+    return { isLoading, message };
   },
 });
 </script>
@@ -38,7 +47,7 @@ export default defineComponent({
           />
         </svg>
 
-        <div class="text-gray-300 text-xl">Loading ...</div>
+        <div class="text-gray-300 text-xl">{{ message }}</div>
       </div>
     </div>
   </teleport>

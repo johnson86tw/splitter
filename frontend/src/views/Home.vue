@@ -217,6 +217,7 @@ export default defineComponent({
             <Button
               :handlerFn="deployHandler"
               globalLoader
+              loadingMsg="Deploying..."
             >Deploy</Button>
           </div>
         </div>
