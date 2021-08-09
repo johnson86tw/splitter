@@ -104,11 +104,18 @@ export default function useSplitter() {
     await splitter.addPayees(payees, shares);
   }
 
+  async function withdraw(signer: Signer, address: string, recipient: string) {
+    const splitter = new ethers.Contract(address, artifact.abi, signer) as Splitter;
+    const tx = await splitter.release(recipient);
+    return tx;
+  }
+
   return {
     state,
     fetch,
     clearState,
     deploy,
     addPayees,
+    withdraw,
   };
 }

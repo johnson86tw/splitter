@@ -32,7 +32,7 @@ export default defineComponent({
   name: "Contract",
   setup() {
     const route = useRoute();
-    const { state, fetch, clearState, addPayees } = useSplitter();
+    const { state, fetch, clearState, addPayees, withdraw } = useSplitter();
     const { signer, provider, sendEther, hasSetupWallet, userAddress } =
       useMetaMask();
     const { appChainId, isDev } = useConfig();
@@ -202,6 +202,17 @@ export default defineComponent({
       notify("transaction pending...");
     };
 
+    // feature: withdraw
+    const withdrawHandler = async () => {
+      if (state.state === "Opening")
+        throw new Error("cannot withdraw in Opening state.");
+      if (!signer.value) throw new Error("please connect wallet at first");
+      const tx = await withdraw(signer.value, contractAddr, userAddress.value);
+      notify("transaction pending...");
+      await tx.wait();
+      notify("transaction confirmed");
+    };
+
     return {
       role,
       Role,
@@ -228,6 +239,9 @@ export default defineComponent({
 
       // add Payees
       addPayeesHandler,
+
+      // withdraw
+      withdrawHandler,
     };
   },
 });
@@ -327,10 +341,10 @@ export default defineComponent({
             </div>
           </div>
           <!-- only payees -->
-          <button
-            v-if="role === Role.Payee || role === Role.OwnerAndPayee"
-            class="btn w-full"
-          >Withdraw</button>
+          <Button
+            :handlerFn="withdrawHandler"
+            v-if="role === Role.Payee || role === Role.OwnerAndPayee && state.state === 'Finalized'"
+          >Withdraw</Button>
         </div>
       </div>
     </div>

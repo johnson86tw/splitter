@@ -4,9 +4,9 @@ import { defineComponent, onUnmounted, ref, watch } from "vue";
 const isLoading = ref(false);
 const message = ref("Loading...");
 
+// reset default message
 watch(isLoading, (val) => {
   if (!val) {
-    console.log("change msg to default");
     message.value = "Loading...";
   }
 });
