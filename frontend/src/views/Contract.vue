@@ -32,7 +32,8 @@ export default defineComponent({
   name: "Contract",
   setup() {
     const route = useRoute();
-    const { state, fetch, clearState, addPayees, withdraw } = useSplitter();
+    const { state, fetch, clearState, addPayees, withdraw, finalize } =
+      useSplitter();
     const { signer, provider, sendEther, hasSetupWallet, userAddress } =
       useMetaMask();
     const { appChainId, isDev } = useConfig();
@@ -202,7 +203,16 @@ export default defineComponent({
       notify("transaction pending...");
     };
 
-    // feature: withdraw
+    // feature: Finalize & Withdraw
+    const finalizeHandler = async () => {
+      if (state.state === "Finalized")
+        throw new Error("cannot withdraw in Opening state.");
+      if (!signer.value) throw new Error("please connect wallet at first");
+      const tx = await finalize(signer.value, contractAddr);
+      notify("transaction pending...");
+      await tx.wait();
+      notify("transaction confirmed");
+    };
     const withdrawHandler = async () => {
       if (state.state === "Opening")
         throw new Error("cannot withdraw in Opening state.");
@@ -240,8 +250,9 @@ export default defineComponent({
       // add Payees
       addPayeesHandler,
 
-      // withdraw
+      // finalize & withdraw
       withdrawHandler,
+      finalizeHandler,
     };
   },
 });
@@ -298,7 +309,15 @@ export default defineComponent({
           <p class="text-xl text-gray-500">{{ state.totalReceived }} ETH</p>
         </div>
         <div class="w-1/2 rounded shadow p-5 ml-2">
-          <p class="text-lg font-bold">State</p>
+          <div class="flex justify-between">
+            <p class="text-lg font-bold">State</p>
+            <!-- only owner -->
+            <tune
+              v-if="role === Role.Owner || role === Role.OwnerAndPayee && state.state === 'Opening'"
+              @click="finalizeHandler"
+            />
+          </div>
+
           <p class="text-xl text-gray-500">{{ state.state }}</p>
         </div>
       </div>
@@ -317,7 +336,7 @@ export default defineComponent({
               </div>
               <!-- only owner -->
               <tune
-                v-if="role === Role.Owner || role === Role.OwnerAndPayee"
+                v-if="role === Role.Owner || role === Role.OwnerAndPayee && state.state === 'Opening'"
                 @click="settingHandler"
               />
             </div>

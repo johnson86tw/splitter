@@ -110,6 +110,12 @@ export default function useSplitter() {
     return tx;
   }
 
+  async function finalize(signer: Signer, address: string) {
+    const splitter = new ethers.Contract(address, artifact.abi, signer) as Splitter;
+    const tx = await splitter.finalize();
+    return tx;
+  }
+
   return {
     state,
     fetch,
@@ -117,5 +123,6 @@ export default function useSplitter() {
     deploy,
     addPayees,
     withdraw,
+    finalize,
   };
 }
