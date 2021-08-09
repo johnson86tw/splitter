@@ -1,3 +1,4 @@
+import { isAddress } from "ethers/lib/utils";
 import { ref } from "vue";
 
 type Payee = {
@@ -13,7 +14,7 @@ export default function usePayees() {
 
   const add = () => {
     errMsg.value = "";
-    if (!address.value || !share.value) {
+    if (!address.value || !share.value || !isAddress(address.value)) {
       errMsg.value = "invalid parameters";
       return;
     }
