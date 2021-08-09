@@ -101,13 +101,13 @@ export default defineComponent({
           notify(
             `received ${formatEther(amount)} ETH from ${shortenAddress(to)}`
           );
-          fetch(contractAddr);
+          fetchData();
         });
 
         state.splitter?.on("PayeeAdded", (account, share, event) => {
           if (event.blockNumber <= startBlockNumber) return;
           notify(`payee added: ${shortenAddress(account)} with share ${share}`);
-          fetch(contractAddr);
+          fetchData();
         });
 
         if (isDev) {
