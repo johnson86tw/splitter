@@ -18,6 +18,7 @@ import { useLoader } from "../components/Loader.vue";
 import { useNotify } from "../components/Notification.vue";
 import { formatEther } from "@ethersproject/units";
 import usePayees from "../composables/payees";
+import { shortenAddress } from "../utils/filters";
 
 enum Role {
   Owner,
@@ -92,25 +93,20 @@ export default defineComponent({
     // feature: Event Listener
     const addEventListener = async () => {
       if (state.splitter) {
-        // hardhat network problem
-        let initPaymentReceived = appChainId.value === 31337 ? false : true;
-        let initPayeeAdded = appChainId.value === 31337 ? false : true;
+        // issue: https://github.com/ethers-io/ethers.js/issues/1096
+        const startBlockNumber = await provider.value.getBlockNumber();
 
-        state.splitter?.on("PaymentReceived", (to, amount) => {
-          if (!initPaymentReceived) {
-            initPaymentReceived = true;
-            return;
-          }
-          notify(`received ${formatEther(amount)} ETH from ${to}`);
+        state.splitter?.on("PaymentReceived", (to, amount, event) => {
+          if (event.blockNumber <= startBlockNumber) return;
+          notify(
+            `received ${formatEther(amount)} ETH from ${shortenAddress(to)}`
+          );
           fetch(contractAddr);
         });
 
-        state.splitter?.on("PayeeAdded", (account, share) => {
-          if (!initPayeeAdded) {
-            initPayeeAdded = true;
-            return;
-          }
-          notify(`payee added: ${account} with share ${share}`);
+        state.splitter?.on("PayeeAdded", (account, share, event) => {
+          if (event.blockNumber <= startBlockNumber) return;
+          notify(`payee added: ${shortenAddress(account)} with share ${share}`);
           fetch(contractAddr);
         });
 

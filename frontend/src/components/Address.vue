@@ -3,6 +3,7 @@ import { isAddress } from "@ethersproject/address";
 import { ethers } from "ethers";
 import { computed, defineComponent, ref } from "vue";
 import useClipboard from "vue-clipboard3";
+import { shortenAddress } from "../utils/filters";
 
 export default defineComponent({
   props: {
@@ -34,9 +35,9 @@ export default defineComponent({
 
     const displayAddress = computed(() => {
       let address: string = props.address;
-      if (!isAddress(address)) address = ethers.constants.AddressZero;
+      if (!isAddress(address)) address = "";
       if (props.short) {
-        return address.slice(0, 6) + "..." + address.slice(-4);
+        return shortenAddress(address);
       }
       return address;
     });
