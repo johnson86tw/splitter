@@ -1,5 +1,16 @@
 <script lang="ts">
-import { defineComponent, onUnmounted, watch } from "vue";
+import { defineComponent, onUnmounted, watch, ref } from "vue";
+
+export const useModal = () => {
+  const modalOpen = ref(false);
+  const open = () => {
+    modalOpen.value = true;
+  };
+  const close = () => {
+    modalOpen.value = false;
+  };
+  return { modalOpen, open, close };
+};
 
 export default defineComponent({
   emits: ["modalClose"],

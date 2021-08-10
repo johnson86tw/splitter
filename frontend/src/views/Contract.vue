@@ -9,7 +9,7 @@ import {
 } from "vue";
 import { useRoute } from "vue-router";
 import Address from "../components/Address.vue";
-import Modal from "../components/Modal.vue";
+import Modal, { useModal } from "../components/Modal.vue";
 import Button from "../components/Button.vue";
 import useMetaMask from "../composables/metamask";
 import useSplitter from "../composables/splitter";
@@ -207,10 +207,16 @@ export default defineComponent({
     };
 
     // feature: Finalize & Withdraw
+    const {
+      modalOpen: finalizeModal,
+      open: openFinalizeModal,
+      close: closeFinalizeModal,
+    } = useModal();
     const finalizeHandler = async () => {
       if (state.state === "Finalized") throw new Error("state is finalized");
       if (!signer.value) throw new Error("please connect wallet at first");
       const tx = await finalize(signer.value, contractAddr);
+      closeFinalizeModal();
       notify("transaction pending...");
       await tx.wait();
       notify("transaction confirmed");
@@ -255,6 +261,9 @@ export default defineComponent({
       addPayeesHandler,
 
       // finalize & withdraw
+      finalizeModal,
+      openFinalizeModal,
+      closeFinalizeModal,
       withdrawHandler,
       finalizeHandler,
     };
@@ -318,7 +327,7 @@ export default defineComponent({
             <!-- only owner -->
             <tune
               v-if="state.state === 'Opening' && (role === Role.Owner || role === Role.OwnerAndPayee)"
-              @click="finalizeHandler"
+              @click="openFinalizeModal"
             />
           </div>
 
@@ -506,6 +515,18 @@ export default defineComponent({
           </div>
         </div>
       </div>
+    </div>
+  </Modal>
+
+  <!-- ======================= Finalize Modal ======================= -->
+  <Modal
+    :modalOpen="finalizeModal"
+    @modalClose="closeFinalizeModal"
+  >
+    <div class="w-full text-center">
+      <p class="text-2xl">Finalize</p>
+      <p class="text-xl my-4">Are you sure to finalize the splitter?</p>
+      <Button :handlerFn="finalizeHandler">Confirm</Button>
     </div>
   </Modal>
 </template>
