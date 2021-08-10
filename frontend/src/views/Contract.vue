@@ -19,6 +19,7 @@ import { useNotify } from "../components/Notification.vue";
 import { formatEther } from "@ethersproject/units";
 import usePayees from "../composables/payees";
 import { shortenAddress } from "../utils/filters";
+import { timeout } from "../utils/dev";
 
 enum Role {
   Owner,
@@ -79,6 +80,7 @@ export default defineComponent({
       return e.message.substring(0, e.message.indexOf("("));
     };
     const fetchData = async () => {
+      if (route.name !== "Contract") return;
       fetchError.value = "";
       try {
         isLoading.value = true;
@@ -89,6 +91,7 @@ export default defineComponent({
       } finally {
         isLoading.value = false;
       }
+      if (isDev) console.log("fetchData: data updated");
     };
 
     // feature: Event Listener
@@ -205,13 +208,13 @@ export default defineComponent({
 
     // feature: Finalize & Withdraw
     const finalizeHandler = async () => {
-      if (state.state === "Finalized")
-        throw new Error("cannot withdraw in Opening state.");
+      if (state.state === "Finalized") throw new Error("state is finalized");
       if (!signer.value) throw new Error("please connect wallet at first");
       const tx = await finalize(signer.value, contractAddr);
       notify("transaction pending...");
       await tx.wait();
       notify("transaction confirmed");
+      await fetchData();
     };
     const withdrawHandler = async () => {
       if (state.state === "Opening")
@@ -221,6 +224,7 @@ export default defineComponent({
       notify("transaction pending...");
       await tx.wait();
       notify("transaction confirmed");
+      await fetchData();
     };
 
     return {
@@ -313,7 +317,7 @@ export default defineComponent({
             <p class="text-lg font-bold">State</p>
             <!-- only owner -->
             <tune
-              v-if="role === Role.Owner || role === Role.OwnerAndPayee && state.state === 'Opening'"
+              v-if="state.state === 'Opening' && (role === Role.Owner || role === Role.OwnerAndPayee)"
               @click="finalizeHandler"
             />
           </div>
@@ -336,7 +340,7 @@ export default defineComponent({
               </div>
               <!-- only owner -->
               <tune
-                v-if="role === Role.Owner || role === Role.OwnerAndPayee && state.state === 'Opening'"
+                v-if="state.state === 'Opening' && (role === Role.Owner || role === Role.OwnerAndPayee)"
                 @click="settingHandler"
               />
             </div>
