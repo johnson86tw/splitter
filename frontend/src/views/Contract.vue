@@ -325,7 +325,7 @@ export default defineComponent({
         <!-- withdraw -->
         <div
           v-if="state.state === 'Finalized' && (role === Role.Payee || role === Role.OwnerAndPayee)"
-          class="py-2"
+          class="py-2 px-5"
         >
           <p class="p-2 text-xl text-gray-500">You can withdraw {{ displayWithdrawableAmount }} ETH </p>
           <Button
@@ -344,7 +344,7 @@ export default defineComponent({
         <div class="p-5 shadow rounded-lg">
           <p class="text-center text-lg font-bold text-xl mb-2">Contract</p>
           <p class="text-center text-gray-500 text-xl">
-            {{ state.balance }} ETH
+            balance: {{ state.balance }} ETH
           </p>
           <p class="text-center text-gray-500 text-sm">
             <Address
