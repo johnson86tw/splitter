@@ -18,8 +18,7 @@ import { useLoader } from "../components/Loader.vue";
 import { useNotify } from "../components/Notification.vue";
 import { formatEther } from "@ethersproject/units";
 import usePayees from "../composables/payees";
-import { shortenAddress } from "../utils/filters";
-import { timeout } from "../utils/dev";
+import { displayEther, shortenAddress } from "../utils/filters";
 
 enum Role {
   Owner,
@@ -33,8 +32,16 @@ export default defineComponent({
   name: "Contract",
   setup() {
     const route = useRoute();
-    const { state, fetch, clearState, addPayees, withdraw, finalize } =
-      useSplitter();
+    const {
+      state,
+      withdrawable,
+      fetch,
+      clearState,
+      addPayees,
+      withdraw,
+      finalize,
+      fetchWithdrawableAmount,
+    } = useSplitter();
     const { signer, provider, sendEther, hasSetupWallet, userAddress } =
       useMetaMask();
     const { appChainId, isDev } = useConfig();
@@ -61,17 +68,34 @@ export default defineComponent({
         }
       }
     };
-    watch(hasSetupWallet, async (value) => {
+    watch(hasSetupWallet, async () => {
       if (isDev) console.log("watching hasSetupWallet");
       updateRole();
     });
-    // @todo check if payee added can update role
     watch(
       () => ({ ...state }), // deep watch
-      async (val, oldVal) => {
+      async () => {
         updateRole();
       }
     );
+
+    // feature: Withdraw
+    watch(role, async (val) => {
+      if (val === Role.Payee || val === Role.OwnerAndPayee) {
+        await fetchWithdrawableAmount(signer.value!, contractAddr);
+      }
+    });
+
+    const withdrawHandler = async () => {
+      if (state.state === "Opening")
+        throw new Error("cannot withdraw in Opening state.");
+      if (!signer.value) throw new Error("please connect wallet at first");
+      const tx = await withdraw(signer.value, contractAddr, userAddress.value);
+      notify("transaction pending...");
+      await tx.wait();
+      notify("transaction confirmed");
+      await fetchData();
+    };
 
     // fetch data
     const contractAddr = route.params.address as string;
@@ -85,6 +109,11 @@ export default defineComponent({
       try {
         isLoading.value = true;
         await fetch(contractAddr);
+
+        if (hasSetupWallet.value && signer.value) {
+          await fetchWithdrawableAmount(signer.value, contractAddr);
+          if (isDev) console.log("fetchData: withdrawableAmount updated");
+        }
       } catch (e) {
         fetchError.value = formatError(e);
         clearState();
@@ -157,13 +186,12 @@ export default defineComponent({
         const txHash = await sendEther(contractAddr, sendAmount.value);
         sendEtherModal.value = false;
         notify("transaction pending...");
-        // tx = await provider.value.getTransaction(txHash);
+        const tx = await provider.value.getTransaction(txHash);
+        await tx.wait();
+        notify("transaction confirmed");
       } catch (e) {
         sendError.value = e.message;
       }
-
-      // await tx.wait();
-      // notify("transaction confirmed");
     };
 
     // owner setting feature
@@ -206,7 +234,7 @@ export default defineComponent({
       notify("transaction pending...");
     };
 
-    // feature: Finalize & Withdraw
+    // feature: Finalize
     const {
       modalOpen: finalizeModal,
       open: openFinalizeModal,
@@ -222,21 +250,20 @@ export default defineComponent({
       notify("transaction confirmed");
       await fetchData();
     };
-    const withdrawHandler = async () => {
-      if (state.state === "Opening")
-        throw new Error("cannot withdraw in Opening state.");
-      if (!signer.value) throw new Error("please connect wallet at first");
-      const tx = await withdraw(signer.value, contractAddr, userAddress.value);
-      notify("transaction pending...");
-      await tx.wait();
-      notify("transaction confirmed");
-      await fetchData();
-    };
+
+    const displayWithdrawableAmount = computed(() => {
+      return displayEther(state.withdrawableAmount);
+    });
 
     return {
       role,
       Role,
+
+      // contract
       state,
+      withdrawable,
+      displayWithdrawableAmount,
+
       settingModal,
       sendEtherModal,
       contractAddr: computed(() => contractAddr),
@@ -248,16 +275,15 @@ export default defineComponent({
       settingHandler,
       sendEtherHandler,
       sendTxHandler,
+      displayEther,
 
-      // usePayees
+      // payees
       payees,
       add,
       remove,
       share,
       address,
       payeesError,
-
-      // add Payees
       addPayeesHandler,
 
       // finalize & withdraw
@@ -296,20 +322,42 @@ export default defineComponent({
         <!-- fetch error -->
         <p class="text-red-600">{{ fetchError }}</p>
 
-        <div class="p-5">
-          <p class="text-lg text-center font-medium">Contract Address</p>
+        <!-- withdraw -->
+        <div
+          v-if="state.state === 'Finalized' && (role === Role.Payee || role === Role.OwnerAndPayee)"
+          class="py-2"
+        >
+          <p class="p-2 text-xl text-gray-500">You can withdraw {{ displayWithdrawableAmount }} ETH </p>
+          <Button
+            :handlerFn="withdrawHandler"
+            v-if="withdrawable && state.state === 'Finalized' && (role === Role.Payee || role === Role.OwnerAndPayee)"
+          >Withdraw</Button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contract -->
+  <div class="w-full max-w-screen-xl mx-auto px-6">
+    <div class="flex justify-center p-2 px-3">
+      <div class="w-full max-w-md text-center">
+        <div class="p-5 shadow rounded-lg">
+          <p class="text-center text-lg font-bold text-xl mb-2">Contract</p>
+          <p class="text-center text-gray-500 text-xl">
+            {{ state.balance }} ETH
+          </p>
           <p class="text-center text-gray-500 text-sm">
             <Address
               :address="contractAddr"
               :short="false"
             />
           </p>
+          <button
+            @click="sendEtherHandler"
+            class="btn w-full mt-2"
+            :disabled="fetchError ? true : false"
+          >Send Ether</button>
         </div>
-        <button
-          @click="sendEtherHandler"
-          class="btn w-full"
-          :disabled="fetchError ? true : false"
-        >Send Ether</button>
       </div>
     </div>
   </div>
@@ -372,11 +420,6 @@ export default defineComponent({
               <div class="text-sm text-gray-500 tracking-wide">{{ payee.available }} ETH</div>
             </div>
           </div>
-          <!-- only payees -->
-          <Button
-            :handlerFn="withdrawHandler"
-            v-if="role === Role.Payee || role === Role.OwnerAndPayee && state.state === 'Finalized'"
-          >Withdraw</Button>
         </div>
       </div>
     </div>

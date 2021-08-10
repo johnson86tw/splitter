@@ -66,8 +66,8 @@ export default defineComponent({
     @click="handler"
     type="button"
     :disabled="isLoading ? true : false"
-    class="inline-flex w-full justify-center items-center px-6 py-3 border border-transparent 
-    rounded-md text-gray-600 text-xl bg-blue-100 hover:bg-blue-200 focus:outline-none 
+    class="inline-flex w-full justify-center items-center px-6 py-3 
+    rounded text-gray-600 text-xl bg-blue-100 hover:bg-blue-200 focus:outline-none 
     transition ease-in-out duration-150 disabled:cursor-default disabled:opacity-70 disabled:bg-blue-200"
   >
     <svg

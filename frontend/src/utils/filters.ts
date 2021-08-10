@@ -1,4 +1,5 @@
-import { isAddress } from "ethers/lib/utils";
+import { BigNumber } from "ethers";
+import { formatEther, isAddress } from "ethers/lib/utils";
 
 export const shortenAddress = (address: string): string => {
   if (isAddress(address)) {
@@ -6,4 +7,8 @@ export const shortenAddress = (address: string): string => {
   } else {
     return "";
   }
+};
+
+export const displayEther = (balance: BigNumber) => {
+  return (+formatEther(balance)).toFixed(3);
 };
