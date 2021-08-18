@@ -144,7 +144,11 @@ export default defineComponent({
     >Create Splitter</button>
   </div>
 
-  <div class="w-full max-w-screen-xl mx-auto px-6">
+  <!-- History -->
+  <div
+    v-if="reverseStorage.length > 0"
+    class="w-full max-w-screen-xl mx-auto px-6"
+  >
     <div class="flex justify-center p-2 px-3">
       <div class="w-full max-w-md">
         <div class="bg-white shadow rounded-lg px-3 py-2 mb-4">
@@ -155,7 +159,7 @@ export default defineComponent({
             <div
               v-for="(searchAddress, i) in reverseStorage"
               :key="i"
-              class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:text-blue-600  hover:bg-blue-100"
+              class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:bg-blue-100"
             >
               <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
               <div class="flex-grow font-medium px-2">
@@ -164,8 +168,14 @@ export default defineComponent({
               <div class="mr-10">
                 {{ NETWORK(searchAddress.chainId)?.name }}
               </div>
+              <router-link
+                :to="{ name: 'Contract', params: { address: searchAddress.address }, query: { chainId: searchAddress.chainId}}"
+                class="text-sm text-gray-500 tracking-wide mr-10"
+              >
+                <Link />
+              </router-link>
               <div class="text-sm text-gray-500 tracking-wide">
-                <delete @click="removeHistory(reverseStorage.length-1-i)" />
+                <Delete @click="removeHistory(reverseStorage.length-1-i)" />
               </div>
             </div>
           </div>
