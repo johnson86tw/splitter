@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, onUnmounted, ref, watch } from "vue";
+import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
 import useMetaMask from "../composables/metamask";
 import Button from "../components/Button.vue";
 import { useRouter, useRoute } from "vue-router";
@@ -8,6 +8,8 @@ import Delete from "../components/icons/Delete.vue";
 import usePayees from "../composables/payees";
 import useSplitter from "../composables/splitter";
 import useConfig from "../config";
+import useHistory from "../composables/history";
+import NETWORK from "../constants";
 
 export default defineComponent({
   components: { Delete, Button },
@@ -15,6 +17,13 @@ export default defineComponent({
   setup() {
     const { etherBalance, connectError, signer } = useMetaMask();
     const router = useRouter();
+
+    // feat: History
+    const { add: addHistory, remove: removeHistory, storage } = useHistory();
+    const reverseStorage = computed(() => {
+      let reverseStore = storage.value.slice();
+      return reverseStore.reverse();
+    });
 
     // feature: Modal
     const createSplitterModal = ref(false);
@@ -41,7 +50,7 @@ export default defineComponent({
     });
 
     const addressInput = ref("");
-    const { isDev } = useConfig();
+    const { isDev, appChainId } = useConfig();
     if (isDev)
       addressInput.value = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
     const inputError = ref("");
@@ -49,6 +58,10 @@ export default defineComponent({
     const searchHandler = () => {
       inputError.value = "";
       if (isAddress(addressInput.value)) {
+        addHistory({
+          address: addressInput.value,
+          chainId: appChainId.value,
+        });
         router.push(`/contract/${addressInput.value}`);
       } else {
         inputError.value = "invalid address";
@@ -73,6 +86,7 @@ export default defineComponent({
         addrs,
         shares
       );
+      addHistory({ address, chainId: appChainId.value });
       router.push(`/contract/${address}`);
     };
 
@@ -96,6 +110,11 @@ export default defineComponent({
       // deploy
       ownerInput,
       deployHandler,
+
+      // history
+      reverseStorage,
+      removeHistory,
+      NETWORK,
     };
   },
 });
@@ -131,15 +150,22 @@ export default defineComponent({
         <div class="bg-white shadow rounded-lg px-3 py-2 mb-4">
           <div class="py-3 text-md">
             <div class="flex justify-start px-2 py-2 my-2">
-              <div class="text-lg flex-grow font-bold px-2">Search History</div>
+              <div class="text-lg flex-grow font-bold px-2">History</div>
             </div>
-            <div class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:text-blue-600  hover:bg-blue-100">
+            <div
+              v-for="(searchAddress, i) in reverseStorage"
+              :key="i"
+              class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:text-blue-600  hover:bg-blue-100"
+            >
               <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
               <div class="flex-grow font-medium px-2">
-                <Address address="0xe7f1725e7734ce288f8367e1bb143e90bb3f0512" />
+                <Address :address="searchAddress.address" />
+              </div>
+              <div class="mr-10">
+                {{ NETWORK(searchAddress.chainId)?.name }}
               </div>
               <div class="text-sm text-gray-500 tracking-wide">
-                <delete />
+                <delete @click="removeHistory(reverseStorage.length-1-i)" />
               </div>
             </div>
           </div>
