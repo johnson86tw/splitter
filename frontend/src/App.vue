@@ -42,6 +42,6 @@ export default defineComponent({
   </div>
   <layout-footer />
 
-  <notification />
   <loader />
+  <notification />
 </template>

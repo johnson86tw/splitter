@@ -12,6 +12,7 @@
     "hardhat": "yarn workspace @splitter/contracts run hardhat",
     "test": "yarn workspace @splitter/contracts run test",
     "start:node": "yarn workspace @splitter/contracts run node",
+    "start:dev": "yarn deploy:local && yarn run dev",
     "deploy:local": "yarn workspace @splitter/contracts run deploy:local",
     "dev": "yarn workspace @splitter/frontend run dev",
     "build:contracts": "yarn workspace @splitter/contracts run build",

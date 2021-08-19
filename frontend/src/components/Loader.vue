@@ -21,6 +21,19 @@ export function useLoader() {
 export default defineComponent({
   setup() {
     const { isLoading, message } = useLoader();
+
+    watch(isLoading, (isLoading) => {
+      if (isLoading) {
+        document.body.classList.add("overflow-hidden");
+      } else {
+        document.body.classList.remove("overflow-hidden");
+      }
+    });
+
+    onUnmounted(() => {
+      document.body.classList.remove("overflow-hidden");
+    });
+
     return { isLoading, message };
   },
 });
