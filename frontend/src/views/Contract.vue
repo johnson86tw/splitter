@@ -415,7 +415,7 @@ export default defineComponent({
                 <Address :address="payee.address" />
               </div>
               <div class="text-sm text-gray-500 tracking-wide mr-6">
-                {{ (payee.share / state.totalShares * 100).toFixed(1) }} %
+                {{ payee.share }} ({{ (payee.share / state.totalShares * 100).toFixed(1) }} %)
               </div>
               <div class="text-sm text-gray-500 tracking-wide">{{ payee.available }} ETH</div>
             </div>
