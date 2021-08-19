@@ -200,12 +200,12 @@ export default defineComponent({
               placeholder="owner's address"
               class="my-2 w-full text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
             />
-            <h3 class="font-normal text-lg p-1 leading-tight">Payees and Shares</h3>
+            <h3 class="font-normal text-lg p-1 leading-tight">Recipients and Shares</h3>
             <div class="flex items-center">
               <input
                 v-model="address"
                 type="text"
-                placeholder="payee's address"
+                placeholder="recipient's address"
                 class="my-2 mr-2 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
               />
               <input

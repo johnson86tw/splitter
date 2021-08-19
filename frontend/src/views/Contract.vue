@@ -313,11 +313,11 @@ export default defineComponent({
         <p
           v-else-if="role === Role.Payee"
           class="text-3xl text-gray-500"
-        >Payee</p>
+        >Recipient</p>
         <p
           v-else-if="role === Role.OwnerAndPayee"
           class="text-3xl text-gray-500"
-        >Owner & Payee</p>
+        >Owner & Recipient</p>
 
         <!-- fetch error -->
         <p class="text-red-600">{{ fetchError }}</p>
@@ -402,7 +402,7 @@ export default defineComponent({
               />
             </div>
             <div class="flex justify-start items-center px-2 py-2 my-2">
-              <div class="text-lg flex-grow font-bold px-2">Payees</div>
+              <div class="text-lg flex-grow font-bold px-2">Recipients</div>
               <div class="text-lg text-gray-500 tracking-wide">Total: {{ state.totalPayees }}</div>
             </div>
             <div
@@ -504,12 +504,12 @@ export default defineComponent({
       <div class="bg-white mx-auto max-w-sm overflow-hidden">
         <div class="sm:flex sm:items-center">
           <div class="flex-grow">
-            <h3 class="font-normal text-lg p-1 leading-tight">Payees and Shares</h3>
+            <h3 class="font-normal text-lg p-1 leading-tight">Recipients and Shares</h3>
             <div class="flex items-center">
               <input
                 v-model="address"
                 type="text"
-                placeholder="payee's address"
+                placeholder="recipient's address"
                 class="my-2 mr-2 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
               />
               <input
@@ -554,7 +554,7 @@ export default defineComponent({
         </div>
         <div class="sm:flex bg-grey-light sm:items-center py-4">
           <div class="flex-grow">
-            <Button :handlerFn="addPayeesHandler">Add Payees</Button>
+            <Button :handlerFn="addPayeesHandler">Add Recipients</Button>
           </div>
         </div>
       </div>
