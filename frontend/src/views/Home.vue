@@ -159,18 +159,18 @@ export default defineComponent({
             <div
               v-for="(searchAddress, i) in reverseStorage"
               :key="i"
-              class="flex justify-start rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:bg-blue-100"
+              class="flex justify-between rounded-md px-2 py-2 my-2 cursor-pointer text-gray-700 hover:bg-blue-100"
             >
               <span class="bg-blue-400 h-2 w-2 m-2 rounded-full"></span>
-              <div class="flex-grow font-medium px-2">
+              <div class="flex-1 font-medium">
                 <Address :address="searchAddress.address" />
               </div>
-              <div class="mr-10">
+              <div class="w-24">
                 {{ NETWORK(searchAddress.chainId)?.name }}
               </div>
               <router-link
                 :to="{ name: 'Contract', params: { address: searchAddress.address }, query: { chainId: searchAddress.chainId}}"
-                class="text-sm text-gray-500 tracking-wide mr-10"
+                class="w-12 text-sm text-gray-500 tracking-wide"
               >
                 <Link />
               </router-link>

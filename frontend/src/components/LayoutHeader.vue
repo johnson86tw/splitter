@@ -36,7 +36,7 @@ export default defineComponent({
       chainId,
       appChainId,
       userAddress,
-      displayBalance: computed(() => Number(etherBalance.value).toFixed(3)),
+      displayBalance: computed(() => Number(etherBalance.value).toFixed(2)),
       isSupportedNetwork,
       unmatchedNetwork,
       chainName: computed(() => NETWORK(appChainId.value)?.name), // note: must use computed
@@ -55,10 +55,10 @@ export default defineComponent({
 </script>
 
 <template>
-  <header class="max-w-screen-xl mx-auto px-4">
-    <div class="flex justify-center p-4 px-3">
-      <nav class="w-full max-w-lg">
-        <div class="py-4 flex items-center justify-between border-b border-solid">
+  <header class="w-full px-4">
+    <div class="flex justify-between p-4 px-3">
+      <nav class="w-full">
+        <div class="py-4 flex items-center justify-between">
           <div class="flex space-x-4 items-center">
             <div class="">
               <router-link to="/">
@@ -154,15 +154,16 @@ export default defineComponent({
               class="flex items-center"
             >
               <!-- Account -->
-              <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">
+              <div class="sm:hidden py-2 px-3 rounded-2xl inline-block bg-gray-100">
                 <Address :address="userAddress" />
               </div>
-              <!-- <div class="py-1 px-2 flex items-center rounded-2xl border border-solid">
+
+              <div class="hidden sm:flex py-1 px-2 flex items-center rounded-3xl border border-solid ">
                 <div class="px-1 mr-1"> {{ displayBalance }} ETH </div>
-                  <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">
+                <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">
                   <Address :address="userAddress" />
                 </div>
-              </div> -->
+              </div>
             </div>
 
             <button
