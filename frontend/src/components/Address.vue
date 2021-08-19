@@ -67,10 +67,10 @@ export default defineComponent({
       v-if="isCopied"
       class="absolute bottom-7 -left-3 mx-2 w-16"
     >
-      <div class="bg-blue-200 text-gray-600 text-sm rounded py-1 px-3">
+      <div class="bg-black text-white text-sm rounded py-1 text-center">
         copied
         <svg
-          class="absolute text-blue-200 h-2 left-0 ml-3 top-full"
+          class="absolute text-black h-2 left-0 ml-3 top-full"
           x="0px"
           y="0px"
           viewBox="0 0 255 255"
