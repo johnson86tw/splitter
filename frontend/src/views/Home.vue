@@ -123,11 +123,18 @@ export default defineComponent({
 <template>
   <p class="text-center text-red-600">{{ connectError }}</p>
 
+  <div class="text-center p-6">
+    <button
+      @click="createSplitterHandler"
+      class="btn"
+    >Create Splitter</button>
+  </div>
+
   <div class="max-w-sm mx-auto p-1 pr-0 flex items-center">
     <input
       v-model="addressInput"
       type="text"
-      placeholder="contract address"
+      placeholder="existing contract address"
       class="flex-1 appearance-none rounded shadow p-3 text-grey-dark mr-2 focus:outline-none"
     >
     <button
@@ -136,13 +143,6 @@ export default defineComponent({
     >Search</button>
   </div>
   <p class="text-center text-red-600">{{ inputError }}</p>
-
-  <div class="text-center p-6">
-    <button
-      @click="createSplitterHandler"
-      class="btn"
-    >Create Splitter</button>
-  </div>
 
   <!-- History -->
   <div
