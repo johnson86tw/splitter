@@ -6,19 +6,19 @@ import {
   onUnmounted,
   ref,
   watch,
-} from "vue";
-import { useRoute } from "vue-router";
-import Address from "../components/Address.vue";
-import Modal, { useModal } from "../components/Modal.vue";
-import Button from "../components/Button.vue";
-import useMetaMask from "../composables/metamask";
-import useSplitter from "../composables/splitter";
-import useConfig from "../config";
-import { useLoader } from "../components/Loader.vue";
-import { useNotify } from "../components/Notification.vue";
-import { formatEther } from "@ethersproject/units";
-import usePayees from "../composables/payees";
-import { displayEther, shortenAddress } from "../utils/filters";
+} from 'vue'
+import { useRoute } from 'vue-router'
+import Address from '../components/Address.vue'
+import Modal, { useModal } from '../components/Modal.vue'
+import Button from '../components/Button.vue'
+import useMetaMask from '../composables/metamask'
+import useSplitter from '../composables/splitter'
+import useConfig from '../config'
+import { useLoader } from '../components/Loader.vue'
+import { useNotify } from '../components/Notification.vue'
+import { formatEther } from '@ethersproject/units'
+import usePayees from '../composables/payees'
+import { displayEther, shortenAddress } from '../utils/filters'
 
 enum Role {
   Owner,
@@ -29,9 +29,9 @@ enum Role {
 
 export default defineComponent({
   components: { Modal, Address, Button },
-  name: "Contract",
+  name: 'Contract',
   setup() {
-    const route = useRoute();
+    const route = useRoute()
     const {
       state,
       withdrawable,
@@ -41,164 +41,164 @@ export default defineComponent({
       withdraw,
       finalize,
       fetchWithdrawableAmount,
-    } = useSplitter();
+    } = useSplitter()
     const { signer, provider, sendEther, hasSetupWallet, userAddress } =
-      useMetaMask();
-    const { appChainId, isDev } = useConfig();
-    const { isLoading } = useLoader();
-    const { notify } = useNotify();
+      useMetaMask()
+    const { appChainId, isDev } = useConfig()
+    const { isLoading } = useLoader()
+    const { notify } = useNotify()
 
     // role
-    const role = ref<Role>(Role.Others);
+    const role = ref<Role>(Role.Others)
     const updateRole = () => {
-      role.value = Role.Others;
-      if (!userAddress.value) return;
+      role.value = Role.Others
+      if (!userAddress.value) return
       if (state.owner === userAddress.value) {
-        role.value = Role.Owner;
+        role.value = Role.Owner
       }
       for (let i = 0; i < state.payees.length; i++) {
         if (state.payees[i].address === userAddress.value) {
           if (state.owner === userAddress.value) {
-            role.value = Role.OwnerAndPayee;
-            break;
+            role.value = Role.OwnerAndPayee
+            break
           } else {
-            role.value = Role.Payee;
-            break;
+            role.value = Role.Payee
+            break
           }
         }
       }
-    };
+    }
     watch(hasSetupWallet, async () => {
-      if (isDev) console.log("watching hasSetupWallet");
-      updateRole();
-    });
+      if (isDev) console.log('watching hasSetupWallet')
+      updateRole()
+    })
     watch(
       () => ({ ...state }), // deep watch
       async () => {
-        updateRole();
-      }
-    );
+        updateRole()
+      },
+    )
 
     // feature: Withdraw
     watch(role, async (val) => {
       if (val === Role.Payee || val === Role.OwnerAndPayee) {
-        await fetchWithdrawableAmount(signer.value!, contractAddr);
+        await fetchWithdrawableAmount(signer.value!, contractAddr)
       }
-    });
+    })
 
     const withdrawHandler = async () => {
-      if (state.state === "Opening")
-        throw new Error("cannot withdraw in Opening state.");
-      if (!signer.value) throw new Error("please connect wallet at first");
-      const tx = await withdraw(signer.value, contractAddr, userAddress.value);
-      notify("transaction pending...");
-      await tx.wait();
-      notify("transaction confirmed");
-      await fetchData();
-    };
+      if (state.state === 'Opening')
+        throw new Error('cannot withdraw in Opening state.')
+      if (!signer.value) throw new Error('please connect wallet at first')
+      const tx = await withdraw(signer.value, contractAddr, userAddress.value)
+      notify('transaction pending...')
+      await tx.wait()
+      notify('transaction confirmed')
+      await fetchData()
+    }
 
     // fetch data
-    const contractAddr = route.params.address as string;
-    const fetchError = ref("");
+    const contractAddr = route.params.address as string
+    const fetchError = ref('')
     const formatError = (e: Error) => {
-      return e.message.substring(0, e.message.indexOf("("));
-    };
+      return e.message.substring(0, e.message.indexOf('('))
+    }
     const fetchData = async () => {
-      if (route.name !== "Contract") return;
-      fetchError.value = "";
+      if (route.name !== 'Contract') return
+      fetchError.value = ''
       try {
-        isLoading.value = true;
-        await fetch(contractAddr);
+        isLoading.value = true
+        await fetch(contractAddr)
 
         if (hasSetupWallet.value && signer.value) {
-          await fetchWithdrawableAmount(signer.value, contractAddr);
-          if (isDev) console.log("fetchData: withdrawableAmount updated");
+          await fetchWithdrawableAmount(signer.value, contractAddr)
+          if (isDev) console.log('fetchData: withdrawableAmount updated')
         }
       } catch (e) {
-        fetchError.value = formatError(e);
-        clearState();
+        fetchError.value = formatError(e)
+        clearState()
       } finally {
-        isLoading.value = false;
+        isLoading.value = false
       }
-      if (isDev) console.log("fetchData: data updated");
-    };
+      if (isDev) console.log('fetchData: data updated')
+    }
 
     // feature: Event Listener
     const addEventListener = async () => {
       if (state.splitter) {
         // issue: https://github.com/ethers-io/ethers.js/issues/1096
-        const startBlockNumber = await provider.value.getBlockNumber();
+        const startBlockNumber = await provider.value.getBlockNumber()
 
-        state.splitter?.on("PaymentReceived", (to, amount, event) => {
-          if (event.blockNumber <= startBlockNumber) return;
+        state.splitter?.on('PaymentReceived', (to, amount, event) => {
+          if (event.blockNumber <= startBlockNumber) return
           notify(
-            `received ${formatEther(amount)} ETH from ${shortenAddress(to)}`
-          );
-          fetchData();
-        });
+            `received ${formatEther(amount)} ETH from ${shortenAddress(to)}`,
+          )
+          fetchData()
+        })
 
-        state.splitter?.on("PayeeAdded", (account, share, event) => {
-          if (event.blockNumber <= startBlockNumber) return;
-          notify(`payee added: ${shortenAddress(account)} with share ${share}`);
-          fetchData();
-        });
+        state.splitter?.on('PayeeAdded', (account, share, event) => {
+          if (event.blockNumber <= startBlockNumber) return
+          notify(`payee added: ${shortenAddress(account)} with share ${share}`)
+          fetchData()
+        })
 
         if (isDev) {
-          const network = await state.splitter?.provider.getNetwork();
-          console.log(`start listening Event at chainId: `, network?.chainId);
+          const network = await state.splitter?.provider.getNetwork()
+          console.log(`start listening Event at chainId: `, network?.chainId)
         }
       }
-    };
+    }
 
     watch(appChainId, async () => {
-      if (isDev) console.log("watching appChainId...");
-      await fetchData();
-      updateRole();
-      addEventListener();
-    });
+      if (isDev) console.log('watching appChainId...')
+      await fetchData()
+      updateRole()
+      addEventListener()
+    })
     onMounted(async () => {
-      await fetchData();
-      addEventListener();
-    });
+      await fetchData()
+      addEventListener()
+    })
     onUnmounted(() => {
       // @ts-ignore removeAllListeners can accept no arguments, but typescript not accept
-      state.splitter?.removeAllListeners();
-      console.log("removed Event listener");
-    });
+      state.splitter?.removeAllListeners()
+      console.log('removed Event listener')
+    })
 
     // send ether feature
-    const sendEtherModal = ref(false);
+    const sendEtherModal = ref(false)
     const sendEtherHandler = () => {
-      sendError.value = "";
-      sendEtherModal.value = true;
-    };
-    const sendAmount = ref(0);
+      sendError.value = ''
+      sendEtherModal.value = true
+    }
+    const sendAmount = ref(0)
 
-    const dropdown = ref(false);
+    const dropdown = ref(false)
     const dropdownHandler = () => {
-      dropdown.value = !dropdown.value;
-    };
+      dropdown.value = !dropdown.value
+    }
 
-    const sendError = ref("");
+    const sendError = ref('')
     const sendTxHandler = async () => {
       // let tx;
       try {
-        const txHash = await sendEther(contractAddr, sendAmount.value);
-        sendEtherModal.value = false;
-        notify("transaction pending...");
-        const tx = await provider.value.getTransaction(txHash);
-        await tx.wait();
-        notify("transaction confirmed");
+        const txHash = await sendEther(contractAddr, sendAmount.value)
+        sendEtherModal.value = false
+        notify('transaction pending...')
+        const tx = await provider.value.getTransaction(txHash)
+        await tx.wait()
+        notify('transaction confirmed')
       } catch (e) {
-        sendError.value = e.message;
+        sendError.value = e.message
       }
-    };
+    }
 
     // owner setting feature
-    const settingModal = ref(false);
+    const settingModal = ref(false)
     const settingHandler = () => {
-      settingModal.value = true;
-    };
+      settingModal.value = true
+    }
 
     // feature: Payees
     const {
@@ -209,51 +209,51 @@ export default defineComponent({
       address,
       errMsg: payeesError,
       clearState: clearPayees,
-    } = usePayees();
+    } = usePayees()
 
     watch(settingModal, (val) => {
       if (!val) {
-        clearPayees();
-        payeesError.value = "";
+        clearPayees()
+        payeesError.value = ''
       }
-    });
+    })
 
     // feature: Add Payees
     const addPayeesHandler = async () => {
-      if (!signer.value) throw new Error("please connect wallet at first");
+      if (!signer.value) throw new Error('please connect wallet at first')
 
-      let addrs: string[] = [];
-      let shares: number[] = [];
+      let addrs: string[] = []
+      let shares: number[] = []
       payees.value.forEach((payee) => {
-        addrs.push(payee.address);
-        shares.push(payee.share);
-      });
+        addrs.push(payee.address)
+        shares.push(payee.share)
+      })
 
-      await addPayees(signer.value, contractAddr, addrs, shares);
-      settingModal.value = false;
-      notify("transaction pending...");
-    };
+      await addPayees(signer.value, contractAddr, addrs, shares)
+      settingModal.value = false
+      notify('transaction pending...')
+    }
 
     // feature: Finalize
     const {
       modalOpen: finalizeModal,
       open: openFinalizeModal,
       close: closeFinalizeModal,
-    } = useModal();
+    } = useModal()
     const finalizeHandler = async () => {
-      if (state.state === "Finalized") throw new Error("state is finalized");
-      if (!signer.value) throw new Error("please connect wallet at first");
-      const tx = await finalize(signer.value, contractAddr);
-      closeFinalizeModal();
-      notify("transaction pending...");
-      await tx.wait();
-      notify("transaction confirmed");
-      await fetchData();
-    };
+      if (state.state === 'Finalized') throw new Error('state is finalized')
+      if (!signer.value) throw new Error('please connect wallet at first')
+      const tx = await finalize(signer.value, contractAddr)
+      closeFinalizeModal()
+      notify('transaction pending...')
+      await tx.wait()
+      notify('transaction confirmed')
+      await fetchData()
+    }
 
     const displayWithdrawableAmount = computed(() => {
-      return displayEther(state.withdrawableAmount);
-    });
+      return displayEther(state.withdrawableAmount)
+    })
 
     return {
       role,
@@ -292,9 +292,9 @@ export default defineComponent({
       closeFinalizeModal,
       withdrawHandler,
       finalizeHandler,
-    };
+    }
   },
-});
+})
 </script>
 
 <template>

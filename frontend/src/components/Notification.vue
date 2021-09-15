@@ -1,61 +1,64 @@
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
+import { defineComponent, reactive } from 'vue'
 
 // @todo: notify list
 const state = reactive({
   isNotifying: false,
-  message: "",
+  message: '',
   timeout: 0,
-});
+})
 
 const clearState = () => {
-  state.isNotifying = false;
-  state.message = "";
-  state.timeout = 0;
-};
+  state.isNotifying = false
+  state.message = ''
+  state.timeout = 0
+}
 
 export function useNotify() {
   const notify = (msg: string, duration: number = 3000) => {
     if (state.isNotifying) {
-      clearTimeout(state.timeout);
-      clearState();
+      clearTimeout(state.timeout)
+      clearState()
     }
-    state.message = msg;
-    state.isNotifying = true;
+    state.message = msg
+    state.isNotifying = true
 
     state.timeout = setTimeout(() => {
-      state.isNotifying = false;
-    }, duration) as unknown as number;
-  };
+      state.isNotifying = false
+    }, duration) as unknown as number
+  }
 
   return {
     state,
     notify,
-  };
+  }
 }
 
 export default defineComponent({
   setup() {
-    const { state } = useNotify();
-    return { state };
+    const { state } = useNotify()
+    return { state }
   },
-});
+})
 </script>
-
 
 <template>
   <teleport to="html">
-    <transition
-      appear
-      name="fade-down"
-    >
-
-      <div
-        v-if="state.isNotifying"
-        class="fixed right-0 bottom-0"
-      >
+    <transition appear name="fade-down">
+      <div v-if="state.isNotifying" class="fixed right-0 bottom-0">
         <!-- Toast Notification Success-->
-        <div class="flex items-center bg-green-500 border-l-4 border-green-700 py-2 px-3 shadow-md mb-2">
+        <div
+          class="
+            flex
+            items-center
+            bg-green-500
+            border-l-4 border-green-700
+            py-2
+            px-3
+            shadow-md
+            mb-2
+          "
+        >
           <div class="text-green-500 rounded-full bg-white mr-3">
             <svg
               width="1.8em"
@@ -146,7 +149,6 @@ export default defineComponent({
       </div> -->
       </div>
     </transition>
-
   </teleport>
 </template>
 
