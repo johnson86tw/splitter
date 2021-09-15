@@ -1,4 +1,5 @@
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
+import { useEthers } from 'vue-dapp'
 import NETWORK from './constants'
 import { updateChainId, urlParams } from './utils/url'
 
@@ -30,6 +31,29 @@ const changeAppChainId = (chainId: number) => {
   updateChainId(appChainId.value)
 }
 
+const { network, isActivated } = useEthers()
+
+// assume valid if we have no network information
+const isSupportedNetwork = computed(() =>
+  network.value ? supportedChainIds.includes(network.value.chainId) : true,
+)
+
+const unmatchedNetwork = computed(
+  () => isActivated.value && network.value?.chainId !== appChainId.value,
+)
+
+const supportedChainNames = computed(() => {
+  return supportedChainIds.map((c) => NETWORK(c)?.name)
+})
+
+const supportedChainName = computed(() => {
+  let names: string[] = []
+  supportedChainIds.forEach((id) => {
+    names.push(NETWORK(id)?.name!)
+  })
+  return names.join(', ')
+})
+
 export default function useConfig() {
   return {
     isDev,
@@ -38,5 +62,10 @@ export default function useConfig() {
     rpcURL,
     appChainId,
     changeAppChainId,
+
+    isSupportedNetwork,
+    unmatchedNetwork,
+    supportedChainNames,
+    supportedChainName,
   }
 }

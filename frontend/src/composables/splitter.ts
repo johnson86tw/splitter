@@ -5,7 +5,7 @@ import { SplitterFactory } from '@splitter/contracts/typechain/SplitterFactory'
 import { BigNumber, ContractFactory, ethers, Signer } from 'ethers'
 import useConfig from '@/config'
 import { formatEther } from 'ethers/lib/utils'
-import { displayEther } from '@/utils/filters'
+import { displayEther } from 'vue-dapp'
 
 const { rpcURL } = useConfig()
 

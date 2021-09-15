@@ -18,7 +18,7 @@ import { useLoader } from '../components/Loader.vue'
 import { useNotify } from '../components/Notification.vue'
 import { formatEther } from '@ethersproject/units'
 import usePayees from '../composables/payees'
-import { displayEther, shortenAddress } from '../utils/filters'
+import { displayEther, shortenAddress } from 'vue-dapp'
 
 enum Role {
   Owner,

@@ -175,18 +175,8 @@ export default function useMetaMask() {
     }
   }
 
-  // assume valid if we have no network information
-  const isSupportedNetwork = computed(() =>
-    network.value ? supportedChainIds.includes(network.value.chainId) : true,
-  )
-  const unmatchedNetwork = computed(
-    () => hasSetupWallet.value && network.value?.chainId !== appChainId.value,
-  )
-
   return {
     hasSetupWallet,
-    isSupportedNetwork,
-    unmatchedNetwork,
     userAddress,
     provider,
     signer,

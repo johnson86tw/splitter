@@ -1,9 +1,8 @@
 <script lang="ts">
 import { isAddress } from '@ethersproject/address'
-import { ethers } from 'ethers'
 import { computed, defineComponent, ref } from 'vue'
 import useClipboard from 'vue-clipboard3'
-import { shortenAddress } from '../utils/filters'
+import { shortenAddress } from 'vue-dapp'
 
 export default defineComponent({
   props: {
@@ -56,9 +55,15 @@ export default defineComponent({
     {{ displayAddress }}
   </span>
   <div class="relative inline-block">
-    <Copy @click="copy" class="w-4 mx-1 inline-block"> </Copy>
+    <Copy
+      @click="copy"
+      class="w-4 mx-1 inline-block"
+    > </Copy>
 
-    <div v-if="isCopied" class="absolute bottom-7 -left-3 mx-2 w-16">
+    <div
+      v-if="isCopied"
+      class="absolute bottom-7 -left-3 mx-2 w-16"
+    >
       <div class="bg-black text-white text-sm rounded py-1 text-center">
         copied
         <svg
@@ -68,7 +73,10 @@ export default defineComponent({
           viewBox="0 0 255 255"
           xml:space="preserve"
         >
-          <polygon class="fill-current" points="0,0 127.5,127.5 255,0" />
+          <polygon
+            class="fill-current"
+            points="0,0 127.5,127.5 255,0"
+          />
         </svg>
       </div>
     </div>

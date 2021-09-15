@@ -1,6 +1,5 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
-import useMetaMask from '../composables/metamask'
 import useConfig from '../config'
 import NETWORK from '../constants'
 import Address from './Address.vue'
@@ -14,17 +13,19 @@ export default defineComponent({
   setup() {
     const { open: openBoard } = useBoard()
     const { address, balance, chainId, isActivated } = useEthers()
-    const { isSupportedNetwork, unmatchedNetwork } = useMetaMask()
+    const {
+      isSupportedNetwork,
+      unmatchedNetwork,
+      appChainId,
+      supportedChainIds,
+      changeAppChainId,
+      supportedChainNames,
+    } = useConfig()
 
     const dropdown = ref(false)
     const dropdownHandler = () => {
       dropdown.value = !dropdown.value
     }
-
-    const { appChainId, supportedChainIds, changeAppChainId } = useConfig()
-    const supportedChainNames = computed(() => {
-      return supportedChainIds.map((c) => NETWORK(c)?.name)
-    })
 
     return {
       openBoard,
