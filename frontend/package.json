@@ -1,6 +1,6 @@
 {
   "name": "@splitter/frontend",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,7 @@
     "lint": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@splitter/contracts": "0.0.1",
+    "@splitter/contracts": "0.1.0",
     "ethers": "^5.4.1",
     "vue": "^3.2.1",
     "vue-clipboard3": "^1.0.1",

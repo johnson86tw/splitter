@@ -1,6 +1,6 @@
 {
   "name": "@splitter/monorepo",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -11,10 +11,10 @@
   "scripts": {
     "hardhat": "yarn workspace @splitter/contracts run hardhat",
     "test": "yarn workspace @splitter/contracts run test",
-    "start:node": "yarn workspace @splitter/contracts run node",
-    "start:dev": "yarn deploy:local && yarn run dev",
+    "dev:node": "yarn workspace @splitter/contracts run node",
+    "dev:vue": "yarn workspace @splitter/frontend run dev",
     "deploy:local": "yarn workspace @splitter/contracts run deploy:local",
-    "dev": "yarn workspace @splitter/frontend run dev",
+    "dev": "yarn deploy:local && yarn run start:vue",
     "build:contracts": "yarn workspace @splitter/contracts run build",
     "build:vue": "yarn workspace @splitter/frontend run build",
     "build": "yarn build:contracts && yarn build:vue",
