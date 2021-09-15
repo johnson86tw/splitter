@@ -34,14 +34,17 @@ export default defineComponent({
   <div v-if="isSupportedNetwork && !unmatchedNetwork">
     <router-view></router-view>
   </div>
-  <div v-else class="text-center text-xl text-red-500 p-4">
+  <div
+    v-else
+    class="text-center text-xl text-red-500 p-4"
+  >
     <p>
       You are connected to the wrong chain. Please switch to
       {{ supportedChainName }}.
     </p>
   </div>
   <layout-footer />
-
+  <vdapp-board />
   <loader />
   <notification />
 </template>

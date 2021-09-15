@@ -4,6 +4,7 @@ import useMetaMask from '../composables/metamask'
 import useConfig from '../config'
 import NETWORK from '../constants'
 import Address from './Address.vue'
+import { useBoard, useEthers, displayEther } from 'vue-dapp'
 
 const navigation: { name: string; href: string }[] = []
 
@@ -11,16 +12,9 @@ export default defineComponent({
   components: { Address },
   name: 'LayoutHeader',
   setup() {
-    const {
-      chainId,
-      userAddress,
-      isSupportedNetwork,
-      unmatchedNetwork,
-      hasSetupWallet,
-      etherBalance,
-      connectWallet,
-      isConnected,
-    } = useMetaMask()
+    const { open: openBoard } = useBoard()
+    const { address, balance, chainId, isActivated } = useEthers()
+    const { isSupportedNetwork, unmatchedNetwork } = useMetaMask()
 
     const dropdown = ref(false)
     const dropdownHandler = () => {
@@ -33,21 +27,20 @@ export default defineComponent({
     })
 
     return {
+      openBoard,
+      address,
       chainId,
       appChainId,
-      userAddress,
-      displayBalance: computed(() => Number(etherBalance.value).toFixed(2)),
+      displayBalance: computed(() => displayEther(balance.value)),
       isSupportedNetwork,
       unmatchedNetwork,
       chainName: computed(() => NETWORK(appChainId.value)?.name), // note: must use computed
       supportedChainNames,
-      hasSetupWallet,
+      isActivated,
       navigation,
       dropdown,
       supportedChainIds,
       dropdownHandler,
-      connectWallet,
-      isConnected,
       changeAppChainId,
     }
   },
@@ -144,7 +137,10 @@ export default defineComponent({
                 aria-labelledby="menu-button"
                 tabindex="-1"
               >
-                <div class="py-1" role="none">
+                <div
+                  class="py-1"
+                  role="none"
+                >
                   <!-- Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700" -->
                   <div
                     v-for="(chainName, i) in supportedChainNames"
@@ -170,27 +166,30 @@ export default defineComponent({
                 </div>
               </div>
             </div>
-            <div v-if="!isSupportedNetwork" class="flex items-center">
+            <div
+              v-if="!isSupportedNetwork"
+              class="flex items-center"
+            >
               <div class="text-gray-500">unsupported network</div>
             </div>
 
-            <div v-else-if="unmatchedNetwork" class="flex items-center">
+            <div
+              v-else-if="unmatchedNetwork"
+              class="flex items-center"
+            >
               <div class="text-gray-500">unmatched network</div>
             </div>
 
             <div
-              v-else-if="isConnected() && hasSetupWallet"
+              v-else-if="isActivated"
               class="flex items-center"
             >
               <!-- Account -->
-              <div
-                class="sm:hidden py-2 px-3 rounded-2xl inline-block bg-gray-100"
-              >
-                <Address :address="userAddress" />
+              <div class="sm:hidden py-2 px-3 rounded-2xl inline-block bg-gray-100">
+                <Address :address="address" />
               </div>
 
-              <div
-                class="
+              <div class="
                   hidden
                   sm:flex
                   py-1
@@ -199,16 +198,19 @@ export default defineComponent({
                   items-center
                   rounded-3xl
                   border border-solid
-                "
-              >
+                ">
                 <div class="px-1 mr-1">{{ displayBalance }} ETH</div>
                 <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">
-                  <Address :address="userAddress" />
+                  <Address :address="address" />
                 </div>
               </div>
             </div>
 
-            <button v-else @click="connectWallet" class="btn-gray">
+            <button
+              v-else
+              @click="openBoard"
+              class="btn-gray"
+            >
               Connect Wallet
             </button>
           </div>
