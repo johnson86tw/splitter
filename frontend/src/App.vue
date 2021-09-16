@@ -2,7 +2,6 @@
 import { defineComponent } from 'vue'
 import LayoutFooter from './components/LayoutFooter.vue'
 import LayoutHeader from './components/LayoutHeader.vue'
-import Notification from './components/Notification.vue'
 import Loader from './components/Loader.vue'
 
 import useConfig from './config'
@@ -11,7 +10,7 @@ import { notify } from '@kyvg/vue3-notification'
 
 export default defineComponent({
   name: 'App',
-  components: { LayoutHeader, LayoutFooter, Notification, Loader },
+  components: { LayoutHeader, LayoutFooter, Loader },
   setup() {
     const { isSupportedNetwork, unmatchedNetwork, supportedChainName } =
       useConfig()
@@ -53,9 +52,21 @@ export default defineComponent({
   <layout-footer />
   <vdapp-board />
   <loader />
-  <notification />
   <notifications
     position="bottom right"
     :width="300"
+    animation-name="fade-down"
   />
 </template>
+
+<style>
+.fade-down-enter-active,
+.fade-down-leave-active {
+  transition: all 0.5s;
+}
+.fade-down-enter-from,
+.fade-down-leave-to {
+  opacity: 0;
+  transform: translateX(50px);
+}
+</style>

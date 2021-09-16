@@ -14,11 +14,11 @@ import Button from '../components/Button.vue'
 import useSplitter from '../composables/splitter'
 import useConfig from '../config'
 import { useLoader } from '../components/Loader.vue'
-import { useNotify } from '../components/Notification.vue'
 import { formatEther } from '@ethersproject/units'
 import usePayees from '../composables/payees'
 import { displayEther, shortenAddress, useEthers } from 'vue-dapp'
 import { parseEther } from 'ethers/lib/utils'
+import { notify } from '@kyvg/vue3-notification'
 
 enum Role {
   Owner,
@@ -45,7 +45,6 @@ export default defineComponent({
     const { signer, isActivated, address: userAddress } = useEthers()
     const { appChainId, isDev } = useConfig()
     const { isLoading } = useLoader()
-    const { notify } = useNotify()
 
     // role
     const role = ref<Role>(Role.Others)
@@ -90,9 +89,9 @@ export default defineComponent({
         throw new Error('cannot withdraw in Opening state.')
       if (!signer.value) throw new Error('please connect wallet at first')
       const tx = await withdraw(signer.value, contractAddr, userAddress.value)
-      notify('transaction pending...')
+      notify({ text: 'transaction pending...' })
       await tx.wait()
-      notify('transaction confirmed')
+      notify({ text: 'transaction confirmed' })
       await fetchData()
     }
 
@@ -130,15 +129,19 @@ export default defineComponent({
 
         state.splitter?.on('PaymentReceived', (to, amount, event) => {
           if (event.blockNumber <= startBlockNumber) return
-          notify(
-            `received ${formatEther(amount)} ETH from ${shortenAddress(to)}`,
-          )
+          notify({
+            text: `received ${formatEther(amount)} ETH from ${shortenAddress(
+              to,
+            )}`,
+          })
           fetchData()
         })
 
         state.splitter?.on('PayeeAdded', (account, share, event) => {
           if (event.blockNumber <= startBlockNumber) return
-          notify(`payee added: ${shortenAddress(account)} with share ${share}`)
+          notify({
+            text: `payee added: ${shortenAddress(account)} with share ${share}`,
+          })
           fetchData()
         })
 
@@ -197,9 +200,9 @@ export default defineComponent({
       try {
         const tx = await sendEther(contractAddr, sendAmount.value)
         sendEtherModal.value = false
-        notify('transaction pending...')
+        notify({ text: 'transaction pending...' })
         await tx.wait()
-        notify('transaction confirmed')
+        notify({ text: 'transaction confirmed' })
       } catch (e) {
         sendError.value = e.message
       }
@@ -242,7 +245,7 @@ export default defineComponent({
 
       await addPayees(signer.value, contractAddr, addrs, shares)
       settingModal.value = false
-      notify('transaction pending...')
+      notify({ text: 'transaction pending...' })
     }
 
     // feature: Finalize
@@ -256,9 +259,9 @@ export default defineComponent({
       if (!signer.value) throw new Error('please connect wallet at first')
       const tx = await finalize(signer.value, contractAddr)
       closeFinalizeModal()
-      notify('transaction pending...')
+      notify({ text: 'transaction pending...' })
       await tx.wait()
-      notify('transaction confirmed')
+      notify({ text: 'transaction confirmed' })
       await fetchData()
     }
 
