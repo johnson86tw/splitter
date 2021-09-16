@@ -5,7 +5,7 @@ import { SplitterFactory } from '@splitter/contracts/typechain/SplitterFactory'
 import { BigNumber, ContractFactory, ethers, Signer } from 'ethers'
 import useConfig from '@/config'
 import { formatEther } from 'ethers/lib/utils'
-import { displayEther } from 'vue-dapp'
+import { ContractCall, displayEther, useMulticall } from 'vue-dapp'
 
 const { rpcURL } = useConfig()
 
@@ -98,14 +98,54 @@ export default function useSplitter() {
 
     await splitter.deployed()
 
-    const owner = await splitter.owner()
-    const totalPayees = await splitter.totalPayees()
-    const totalShares = await splitter.totalShares()
+    // multicall usecase
+    const { multicall, call, results } = useMulticall(provider)
 
-    const stateNum = await splitter.state()
+    const calls: ContractCall[] = [
+      {
+        interface: splitter.interface,
+        address: address,
+        method: 'owner',
+      },
+      {
+        interface: splitter.interface,
+        address: address,
+        method: 'totalPayees',
+      },
+      {
+        interface: splitter.interface,
+        address: address,
+        method: 'totalShares',
+      },
+      {
+        interface: splitter.interface,
+        address: address,
+        method: 'state',
+      },
+      {
+        interface: multicall.interface,
+        address: multicall.address,
+        method: 'getEthBalance',
+        args: [address],
+      },
+      {
+        interface: splitter.interface,
+        address: address,
+        method: 'totalReleased',
+      },
+    ]
 
-    const balance = await provider.getBalance(address)
-    const totalReleased = await splitter.totalReleased()
+    await call(calls)
+
+    const [
+      [owner],
+      [totalPayees],
+      [totalShares],
+      [stateNum],
+      { balance },
+      [totalReleased],
+    ] = results.value
+
     const totalReceived = balance.add(totalReleased)
 
     let payees = <Payee[]>[]
