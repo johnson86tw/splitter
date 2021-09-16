@@ -6,6 +6,8 @@ import Notification from './components/Notification.vue'
 import Loader from './components/Loader.vue'
 
 import useConfig from './config'
+import { useWallet } from 'vue-dapp'
+import { notify } from '@kyvg/vue3-notification'
 
 export default defineComponent({
   name: 'App',
@@ -13,6 +15,21 @@ export default defineComponent({
   setup() {
     const { isSupportedNetwork, unmatchedNetwork, supportedChainName } =
       useConfig()
+    const { onAccountsChanged, onChainChanged } = useWallet()
+
+    onAccountsChanged(() => {
+      notify({
+        text: 'Account Changed',
+        type: 'warn',
+      })
+    })
+
+    onChainChanged(() => {
+      notify({
+        text: 'Chain Changed',
+        type: 'warn',
+      })
+    })
 
     return { isSupportedNetwork, unmatchedNetwork, supportedChainName }
   },
@@ -37,4 +54,8 @@ export default defineComponent({
   <vdapp-board />
   <loader />
   <notification />
+  <notifications
+    position="bottom right"
+    :width="300"
+  />
 </template>

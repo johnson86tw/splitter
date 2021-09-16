@@ -4,6 +4,7 @@ import router from './router'
 import 'virtual:windi.css'
 import './styles/main.css'
 import { VueDapp, Config } from 'vue-dapp'
+import Notifications from '@kyvg/vue3-notification'
 
 const app = createApp(App)
 
@@ -13,6 +14,6 @@ const dappConfig: Partial<Config> = {
 
 // @ts-ignore for yarn link vue-dapp
 app.use(VueDapp, dappConfig)
-
+app.use(Notifications)
 app.use(router)
 app.mount('#app')

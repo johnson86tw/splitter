@@ -1,35 +1,39 @@
 <script lang="ts">
-import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
-import useMetaMask from "../composables/metamask";
-import Button from "../components/Button.vue";
-import { useRouter, useRoute } from "vue-router";
-import { isAddress } from "@ethersproject/address";
-import Delete from "../components/icons/Delete.vue";
-import usePayees from "../composables/payees";
-import useSplitter from "../composables/splitter";
-import useConfig from "../config";
-import useHistory from "../composables/history";
-import NETWORK from "../constants";
+import { computed, defineComponent, ref, watch } from 'vue'
+import Button from '../components/Button.vue'
+import Delete from '../components/icons/Delete.vue'
+
+import { useRouter } from 'vue-router'
+import { isAddress } from '@ethersproject/address'
+import usePayees from '../composables/payees'
+import useSplitter from '../composables/splitter'
+import useConfig from '../config'
+import useHistory from '../composables/history'
+import NETWORK from '../constants'
+import { useEthers, useWallet } from 'vue-dapp'
+import { notify } from '@kyvg/vue3-notification'
 
 export default defineComponent({
   components: { Delete, Button },
-  name: "Home",
+  name: 'Home',
   setup() {
-    const { etherBalance, connectError, signer } = useMetaMask();
-    const router = useRouter();
+    const router = useRouter()
+    const { error: connectError } = useWallet()
+    const { signer } = useEthers()
+    const { isDev, appChainId } = useConfig()
 
     // feat: History
-    const { add: addHistory, remove: removeHistory, storage } = useHistory();
+    const { add: addHistory, remove: removeHistory, storage } = useHistory()
     const reverseStorage = computed(() => {
-      let reverseStore = storage.value.slice();
-      return reverseStore.reverse();
-    });
+      let reverseStore = storage.value.slice()
+      return reverseStore.reverse()
+    })
 
     // feature: Modal
-    const createSplitterModal = ref(false);
+    const createSplitterModal = ref(false)
     const createSplitterHandler = () => {
-      createSplitterModal.value = true;
-    };
+      createSplitterModal.value = true
+    }
 
     // feature: Payees
     const {
@@ -40,59 +44,60 @@ export default defineComponent({
       address,
       errMsg: payeesError,
       clearState: clearPayees,
-    } = usePayees();
+    } = usePayees()
 
     watch(createSplitterModal, (val) => {
       if (!val) {
-        clearPayees();
-        payeesError.value = "";
+        clearPayees()
+        payeesError.value = ''
       }
-    });
+    })
 
-    const addressInput = ref("");
-    const { isDev, appChainId } = useConfig();
-    if (isDev)
-      addressInput.value = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
-    const inputError = ref("");
+    const addressInput = ref('')
+    if (isDev) addressInput.value = '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512'
+    const inputError = ref('')
 
     const searchHandler = () => {
-      inputError.value = "";
+      inputError.value = ''
       if (isAddress(addressInput.value)) {
         addHistory({
           address: addressInput.value,
           chainId: appChainId.value,
-        });
-        router.push(`/contract/${addressInput.value}`);
+        })
+        router.push(`/contract/${addressInput.value}`)
       } else {
-        inputError.value = "invalid address";
+        inputError.value = 'invalid address'
       }
-    };
+    }
 
     // feature: Deploy
-    const { deploy } = useSplitter();
-    const ownerInput = ref("");
+    const { deploy } = useSplitter()
+    const ownerInput = ref('')
     const deployHandler = async () => {
-      if (!signer.value) throw new Error("please connect wallet at first");
+      if (!signer.value) {
+        const e = 'Wallet was not yet connected.'
+        notify({ type: 'error', text: e })
+        throw new Error(e)
+      }
 
-      let addrs: string[] = [];
-      let shares: number[] = [];
+      let addrs: string[] = []
+      let shares: number[] = []
       payees.value.forEach((payee) => {
-        addrs.push(payee.address);
-        shares.push(payee.share);
-      });
+        addrs.push(payee.address)
+        shares.push(payee.share)
+      })
       const address = await deploy(
         signer.value,
         ownerInput.value,
         addrs,
-        shares
-      );
-      addHistory({ address, chainId: appChainId.value });
-      router.push(`/contract/${address}`);
-    };
+        shares,
+      )
+      addHistory({ address, chainId: appChainId.value })
+      router.push(`/contract/${address}`)
+    }
 
     return {
       addressInput,
-      etherBalance,
       connectError,
       inputError,
       createSplitterModal,
@@ -115,9 +120,9 @@ export default defineComponent({
       reverseStorage,
       removeHistory,
       NETWORK,
-    };
+    }
   },
-});
+})
 </script>
 
 <template>
