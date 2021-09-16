@@ -42,7 +42,7 @@ export default defineComponent({
       finalize,
       fetchWithdrawableAmount,
     } = useSplitter()
-    const { signer, isActivated, address: userAddress } = useEthers()
+    const { signer, provider, address: userAddress } = useEthers()
     const { appChainId, isDev } = useConfig()
     const { isLoading } = useLoader()
 
@@ -66,10 +66,12 @@ export default defineComponent({
         }
       }
     }
-    watch(isActivated, async () => {
-      if (isDev) console.log('watching isActivated')
+
+    watch(provider, async () => {
+      if (isDev) console.log('watching Web3Provider for update role.')
       updateRole()
     })
+
     watch(
       () => ({ ...state }), // deep watch
       async () => {
