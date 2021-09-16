@@ -52,7 +52,7 @@ export default defineComponent({
   <header class="w-full px-4">
     <div class="flex justify-between p-4 px-3">
       <nav class="w-full">
-        <div class="py-4 flex items-center justify-between">
+        <div class="flex items-center justify-between">
           <div class="flex space-x-4 items-center">
             <div class="">
               <router-link to="/">

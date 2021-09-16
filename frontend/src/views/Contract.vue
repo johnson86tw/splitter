@@ -11,14 +11,14 @@ import { useRoute } from 'vue-router'
 import Address from '../components/Address.vue'
 import Modal, { useModal } from '../components/Modal.vue'
 import Button from '../components/Button.vue'
-import useMetaMask from '../composables/metamask'
 import useSplitter from '../composables/splitter'
 import useConfig from '../config'
 import { useLoader } from '../components/Loader.vue'
 import { useNotify } from '../components/Notification.vue'
 import { formatEther } from '@ethersproject/units'
 import usePayees from '../composables/payees'
-import { displayEther, shortenAddress } from 'vue-dapp'
+import { displayEther, shortenAddress, useEthers } from 'vue-dapp'
+import { parseEther } from 'ethers/lib/utils'
 
 enum Role {
   Owner,
@@ -42,8 +42,7 @@ export default defineComponent({
       finalize,
       fetchWithdrawableAmount,
     } = useSplitter()
-    const { signer, provider, sendEther, hasSetupWallet, userAddress } =
-      useMetaMask()
+    const { signer, isActivated, address: userAddress } = useEthers()
     const { appChainId, isDev } = useConfig()
     const { isLoading } = useLoader()
     const { notify } = useNotify()
@@ -68,8 +67,8 @@ export default defineComponent({
         }
       }
     }
-    watch(hasSetupWallet, async () => {
-      if (isDev) console.log('watching hasSetupWallet')
+    watch(isActivated, async () => {
+      if (isDev) console.log('watching isActivated')
       updateRole()
     })
     watch(
@@ -110,7 +109,7 @@ export default defineComponent({
         isLoading.value = true
         await fetch(contractAddr)
 
-        if (hasSetupWallet.value && signer.value) {
+        if (signer.value) {
           await fetchWithdrawableAmount(signer.value, contractAddr)
           if (isDev) console.log('fetchData: withdrawableAmount updated')
         }
@@ -127,7 +126,7 @@ export default defineComponent({
     const addEventListener = async () => {
       if (state.splitter) {
         // issue: https://github.com/ethers-io/ethers.js/issues/1096
-        const startBlockNumber = await provider.value.getBlockNumber()
+        const startBlockNumber = await state.splitter?.provider.getBlockNumber()
 
         state.splitter?.on('PaymentReceived', (to, amount, event) => {
           if (event.blockNumber <= startBlockNumber) return
@@ -167,6 +166,19 @@ export default defineComponent({
     })
 
     // send ether feature
+    const sendEther = async (to: string, amount: number) => {
+      if (!signer.value) {
+        throw new Error('Wallet was not yet connected')
+      }
+
+      const tx = await signer.value.sendTransaction({
+        from: userAddress.value,
+        to,
+        value: parseEther(amount.toString()).toHexString(),
+      })
+      return tx
+    }
+
     const sendEtherModal = ref(false)
     const sendEtherHandler = () => {
       sendError.value = ''
@@ -183,10 +195,9 @@ export default defineComponent({
     const sendTxHandler = async () => {
       // let tx;
       try {
-        const txHash = await sendEther(contractAddr, sendAmount.value)
+        const tx = await sendEther(contractAddr, sendAmount.value)
         sendEtherModal.value = false
         notify('transaction pending...')
-        const tx = await provider.value.getTransaction(txHash)
         await tx.wait()
         notify('transaction confirmed')
       } catch (e) {
