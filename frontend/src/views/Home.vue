@@ -9,8 +9,7 @@ import usePayees from '../composables/payees'
 import useSplitter from '../composables/splitter'
 import useConfig from '../config'
 import useHistory from '../composables/history'
-import NETWORK from '../constants'
-import { useEthers, useWallet } from 'vue-dapp'
+import { useEthers, useWallet, displayChainName } from 'vue-dapp'
 import { notify } from '@kyvg/vue3-notification'
 
 export default defineComponent({
@@ -119,7 +118,7 @@ export default defineComponent({
       // history
       reverseStorage,
       removeHistory,
-      NETWORK,
+      displayChainName,
     }
   },
 })
@@ -171,7 +170,7 @@ export default defineComponent({
                 <Address :address="searchAddress.address" />
               </div>
               <div class="w-24">
-                {{ NETWORK(searchAddress.chainId)?.name }}
+                {{ displayChainName(searchAddress.chainId) }}
               </div>
               <router-link
                 :to="{ name: 'Contract', params: { address: searchAddress.address }, query: { chainId: searchAddress.chainId}}"

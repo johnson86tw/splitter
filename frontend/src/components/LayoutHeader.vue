@@ -1,9 +1,8 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
 import useConfig from '../config'
-import NETWORK from '../constants'
 import Address from './Address.vue'
-import { useBoard, useEthers, displayEther } from 'vue-dapp'
+import { useBoard, useEthers, displayEther, displayChainName } from 'vue-dapp'
 
 const navigation: { name: string; href: string }[] = []
 
@@ -27,6 +26,10 @@ export default defineComponent({
       dropdown.value = !dropdown.value
     }
 
+    const chainName = computed(() => {
+      return appChainId.value ? displayChainName(appChainId.value) : ''
+    })
+
     return {
       openBoard,
       address,
@@ -35,7 +38,7 @@ export default defineComponent({
       displayBalance: computed(() => displayEther(balance.value)),
       isSupportedNetwork,
       unmatchedNetwork,
-      chainName: computed(() => NETWORK(appChainId.value)?.name), // note: must use computed
+      chainName,
       supportedChainNames,
       isActivated,
       navigation,

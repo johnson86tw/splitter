@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import { useEthers, ChainId, CHAIN_NAMES } from 'vue-dapp'
+import { useEthers, ChainId, CHAIN_NAMES, displayChainName } from 'vue-dapp'
 import { updateChainId, urlParams } from './utils/url'
 
 const isDev = import.meta.env.DEV
@@ -32,12 +32,12 @@ export default function useConfig() {
     updateChainId(appChainId.value)
   }
 
-  const chainName =
-    CHAIN_NAMES[appChainId.value as SupportedChainId].toLowerCase()
   const rpcURL = computed(() => {
     return appChainId.value === 31337
       ? 'http://127.0.0.1:8545/'
-      : `https://${chainName}.infura.io/v3/${infuraApiKey}`
+      : `https://${displayChainName(
+          appChainId.value,
+        )}.infura.io/v3/${infuraApiKey}`
   })
 
   // assume valid if we have no network information
@@ -50,15 +50,13 @@ export default function useConfig() {
   )
 
   const supportedChainNames = computed(() => {
-    return supportedChainIds.map((id) =>
-      CHAIN_NAMES[id as SupportedChainId].toLowerCase(),
-    )
+    return supportedChainIds.map((id) => displayChainName(id))
   })
 
   const supportedChainName = computed(() => {
     let names: string[] = []
     supportedChainIds.forEach((id) => {
-      names.push(CHAIN_NAMES[id as SupportedChainId].toLowerCase())
+      names.push(displayChainName(id))
     })
     return names.join(', ')
   })
