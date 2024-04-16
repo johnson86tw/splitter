@@ -15,9 +15,12 @@ import useSplitter from '../composables/splitter'
 import { useLoader } from '../components/Loader.vue'
 import { formatEther } from '@ethersproject/units'
 import usePayees from '../composables/payees'
-import {  shortenAddress } from '@vue-dapp/core'
+import { shortenAddress, useVueDapp } from '@vue-dapp/core'
 import { parseEther } from 'ethers/lib/utils'
 import { notify } from '@kyvg/vue3-notification'
+import { useDappStore, isDev } from '@/stores/dappStore'
+import { storeToRefs } from 'pinia'
+import { ethers } from 'ethers'
 
 enum Role {
   Owner,
@@ -41,8 +44,8 @@ export default defineComponent({
       finalize,
       fetchWithdrawableAmount,
     } = useSplitter()
-    const { signer, provider, address: userAddress } = useEthers()
-    const { appChainId, isDev } = useConfig()
+    const { address: userAddress } = useVueDapp()
+    const { signer, provider, appChainId } = storeToRefs(useDappStore())
     const { isLoading } = useLoader()
 
     // role
@@ -89,7 +92,11 @@ export default defineComponent({
       if (state.state === 'Opening')
         throw new Error('cannot withdraw in Opening state.')
       if (!signer.value) throw new Error('please connect wallet at first')
-      const tx = await withdraw(signer.value, contractAddr, userAddress.value)
+      const tx = await withdraw(
+        signer.value,
+        contractAddr,
+        userAddress.value || '',
+      )
       notify({ text: 'transaction pending...' })
       await tx.wait()
       notify({ text: 'transaction confirmed' })
@@ -113,7 +120,7 @@ export default defineComponent({
           await fetchWithdrawableAmount(signer.value, contractAddr)
           if (isDev) console.log('fetchData: withdrawableAmount updated')
         }
-      } catch (e) {
+      } catch (e: any) {
         fetchError.value = formatError(e)
         clearState()
       } finally {
@@ -176,7 +183,7 @@ export default defineComponent({
       }
 
       const tx = await signer.value.sendTransaction({
-        from: userAddress.value,
+        from: userAddress.value || '',
         to,
         value: parseEther(amount.toString()).toHexString(),
       })
@@ -204,7 +211,7 @@ export default defineComponent({
         notify({ text: 'transaction pending...' })
         await tx.wait()
         notify({ text: 'transaction confirmed' })
-      } catch (e) {
+      } catch (e: any) {
         sendError.value = e.message
       }
     }
@@ -267,7 +274,7 @@ export default defineComponent({
     }
 
     const displayWithdrawableAmount = computed(() => {
-      return displayEther(state.withdrawableAmount)
+      return ethers.utils.formatEther(state.withdrawableAmount)
     })
 
     return {
@@ -290,7 +297,6 @@ export default defineComponent({
       settingHandler,
       sendEtherHandler,
       sendTxHandler,
-      displayEther,
 
       // payees
       payees,
@@ -309,6 +315,31 @@ export default defineComponent({
       finalizeHandler,
     }
   },
+  directives: {
+    'click-outside': {
+      beforeMount: (el: any, binding: any) => {
+        el.clickOutsideEvent = (event: MouseEvent) => {
+          event.stopPropagation()
+
+          if (event.target !== el && !el.contains(event.target)) {
+            binding.value(event)
+          }
+        }
+        const clickHandler =
+          'ontouchstart' in document.documentElement ? 'touchstart' : 'click'
+        setTimeout(() => {
+          document.addEventListener(clickHandler, el.clickOutsideEvent)
+        }, 0)
+      },
+      unmounted: (el: any) => {
+        const clickOutsideEvent = el.clickOutsideEvent
+        delete el.clickOutsideEvent
+        const clickHandler =
+          'ontouchstart' in document.documentElement ? 'touchstart' : 'click'
+        document.removeEventListener(clickHandler, clickOutsideEvent)
+      },
+    },
+  },
 })
 </script>
 
@@ -317,36 +348,41 @@ export default defineComponent({
     <div class="flex justify-center p-2 px-3">
       <div class="w-full max-w-md text-center">
         <!-- role -->
-        <p
-          v-if="role !== Role.Others"
-          class="text-gray-500"
-        >role</p>
-        <p
-          v-if="role === Role.Owner"
-          class="text-3xl text-gray-500"
-        >Owner</p>
-        <p
-          v-else-if="role === Role.Payee"
-          class="text-3xl text-gray-500"
-        >Recipient</p>
+        <p v-if="role !== Role.Others" class="text-gray-500">role</p>
+        <p v-if="role === Role.Owner" class="text-3xl text-gray-500">Owner</p>
+        <p v-else-if="role === Role.Payee" class="text-3xl text-gray-500">
+          Recipient
+        </p>
         <p
           v-else-if="role === Role.OwnerAndPayee"
           class="text-3xl text-gray-500"
-        >Owner & Recipient</p>
+        >
+          Owner & Recipient
+        </p>
 
         <!-- fetch error -->
         <p class="text-red-600">{{ fetchError }}</p>
 
         <!-- withdraw -->
         <div
-          v-if="state.state === 'Finalized' && (role === Role.Payee || role === Role.OwnerAndPayee)"
+          v-if="
+            state.state === 'Finalized' &&
+            (role === Role.Payee || role === Role.OwnerAndPayee)
+          "
           class="py-2 px-5"
         >
-          <p class="p-2 text-xl text-gray-500">You can withdraw {{ displayWithdrawableAmount }} ETH </p>
+          <p class="p-2 text-xl text-gray-500">
+            You can withdraw {{ displayWithdrawableAmount }} ETH
+          </p>
           <Button
             :handlerFn="withdrawHandler"
-            v-if="withdrawable && state.state === 'Finalized' && (role === Role.Payee || role === Role.OwnerAndPayee)"
-          >Withdraw</Button>
+            v-if="
+              withdrawable &&
+              state.state === 'Finalized' &&
+              (role === Role.Payee || role === Role.OwnerAndPayee)
+            "
+            >Withdraw</Button
+          >
         </div>
       </div>
     </div>
@@ -361,17 +397,16 @@ export default defineComponent({
           <p class="text-center text-gray-500 text-xl">
             balance: {{ state.balance }} ETH
           </p>
-          <p class="text-center text-gray-500 text-sm">
-            <Address
-              :address="contractAddr"
-              :short="false"
-            />
-          </p>
+          <div class="text-center text-gray-500 text-sm">
+            <Address :address="contractAddr" :short="false" />
+          </div>
           <button
             @click="sendEtherHandler"
             class="btn w-full mt-2"
             :disabled="fetchError ? true : false"
-          >Send Ether</button>
+          >
+            Send Ether
+          </button>
         </div>
       </div>
     </div>
@@ -389,7 +424,10 @@ export default defineComponent({
             <p class="text-lg font-bold">State</p>
             <!-- only owner -->
             <tune
-              v-if="state.state === 'Opening' && (role === Role.Owner || role === Role.OwnerAndPayee)"
+              v-if="
+                state.state === 'Opening' &&
+                (role === Role.Owner || role === Role.OwnerAndPayee)
+              "
               @click="openFinalizeModal"
             />
           </div>
@@ -412,13 +450,18 @@ export default defineComponent({
               </div>
               <!-- only owner -->
               <tune
-                v-if="state.state === 'Opening' && (role === Role.Owner || role === Role.OwnerAndPayee)"
+                v-if="
+                  state.state === 'Opening' &&
+                  (role === Role.Owner || role === Role.OwnerAndPayee)
+                "
                 @click="settingHandler"
               />
             </div>
             <div class="flex justify-start items-center px-2 py-2 my-2">
               <div class="text-lg flex-grow font-bold px-2">Recipients</div>
-              <div class="text-lg text-gray-500 tracking-wide">Total: {{ state.totalPayees }}</div>
+              <div class="text-lg text-gray-500 tracking-wide">
+                Total: {{ state.totalPayees }}
+              </div>
             </div>
             <div
               v-for="payee in state.payees"
@@ -430,9 +473,14 @@ export default defineComponent({
                 <Address :address="payee.address" />
               </div>
               <div class="text-sm text-gray-500 tracking-wide mr-6">
-                {{ payee.share }} ({{ (payee.share / state.totalShares * 100).toFixed(1) }} %)
+                {{ payee.share }} ({{
+                  ((payee.share / state.totalShares) * 100).toFixed(1)
+                }}
+                %)
               </div>
-              <div class="text-sm text-gray-500 tracking-wide">{{ payee.available }} ETH</div>
+              <div class="text-sm text-gray-500 tracking-wide">
+                {{ payee.available }} ETH
+              </div>
             </div>
           </div>
         </div>
@@ -441,26 +489,48 @@ export default defineComponent({
   </div>
 
   <!-- ======================= SendEther Modal ======================= -->
-  <Modal
-    :modalOpen="sendEtherModal"
-    @modalClose="sendEtherModal = false"
-  >
+  <Modal :modalOpen="sendEtherModal" @modalClose="sendEtherModal = false">
     <div class="max-w-sm mx-auto py-2 flex items-center">
       <input
         v-model="sendAmount"
         type="number"
         placeholder="amount"
-        class="flex-1 appearance-none rounded px-4 py-2 text-grey-dark mr-2 focus:outline-none"
-      >
+        class="
+          flex-1
+          appearance-none
+          rounded
+          px-4
+          py-2
+          text-grey-dark
+          mr-2
+          focus:outline-none
+        "
+      />
 
       <!-- dropdown -->
       <div class="relative inline-block text-left">
         <div>
           <button
             @click="dropdownHandler"
-            v-click-outside="() => dropdown = false"
+            v-click-outside="() => (dropdown = false)"
             type="button"
-            class="inline-flex justify-center w-full capitalize rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+            class="
+              inline-flex
+              justify-center
+              w-full
+              capitalize
+              rounded-md
+              border border-gray-300
+              shadow-sm
+              px-4
+              py-2
+              bg-white
+              text-sm
+              font-medium
+              text-gray-700
+              hover:bg-gray-50
+              focus:outline-none
+            "
             aria-expanded="true"
             aria-haspopup="true"
           >
@@ -483,18 +553,39 @@ export default defineComponent({
 
         <div
           v-if="dropdown"
-          class="origin-top-right absolute right-0 mt-2 w-30 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+          class="
+            origin-top-right
+            absolute
+            right-0
+            mt-2
+            w-30
+            rounded-md
+            shadow-lg
+            bg-white
+            ring-1 ring-black ring-opacity-5
+            focus:outline-none
+          "
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="menu-button"
           tabindex="-1"
         >
-          <div
-            class="py-1"
-            role="none"
-          >
+          <div class="py-1" role="none">
             <!-- Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700" -->
-            <div class="text-gray-700 capitalize block px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer">USDC</div>
+            <div
+              class="
+                text-gray-700
+                capitalize
+                block
+                px-4
+                py-2
+                text-sm
+                hover:bg-gray-100
+                cursor-pointer
+              "
+            >
+              USDC
+            </div>
           </div>
         </div>
       </div>
@@ -504,56 +595,84 @@ export default defineComponent({
       <p class="text-red-600 text-center">{{ sendError }}</p>
     </div>
 
-    <button
-      @click="sendTxHandler"
-      class="btn w-full"
-    >Send</button>
+    <button @click="sendTxHandler" class="btn w-full">Send</button>
   </Modal>
 
   <!-- ======================= Setting Modal ======================= -->
-  <Modal
-    :modalOpen="settingModal"
-    @modalClose="settingModal = false"
-  >
+  <Modal :modalOpen="settingModal" @modalClose="settingModal = false">
     <div class="w-full relative overflow-hidden mb-8">
       <div class="bg-white mx-auto max-w-sm overflow-hidden">
         <div class="sm:flex sm:items-center">
           <div class="flex-grow">
-            <h3 class="font-normal text-lg p-1 leading-tight">Recipients and Shares</h3>
+            <h3 class="font-normal text-lg p-1 leading-tight">
+              Recipients and Shares
+            </h3>
             <div class="flex items-center">
               <input
                 v-model="address"
                 type="text"
                 placeholder="recipient's address"
-                class="my-2 mr-2 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
+                class="
+                  my-2
+                  mr-2
+                  text-sm
+                  bg-grey-light
+                  text-grey-darkest
+                  rounded
+                  h-10
+                  p-3
+                  focus:outline-none
+                "
               />
               <input
                 v-model="share"
                 type="number"
                 placeholder="shares"
-                class="my-2 mr-2 w-2/7 text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
+                class="
+                  my-2
+                  mr-2
+                  w-2/7
+                  text-sm
+                  bg-grey-light
+                  text-grey-darkest
+                  rounded
+                  h-10
+                  p-3
+                  focus:outline-none
+                "
               />
               <button
                 @click="add"
-                class="h-10 flex-grow px-3 py-1 rounded inline-block bg-blue-100 text-gray-600 cursor-pointer hover:bg-blue-200 focus:outline-none disabled:cursor-default disabled:opacity-70 disabled:bg-blue-100"
+                class="
+                  h-10
+                  flex-grow
+                  px-3
+                  py-1
+                  rounded
+                  inline-block
+                  bg-blue-100
+                  text-gray-600
+                  cursor-pointer
+                  hover:bg-blue-200
+                  focus:outline-none
+                  disabled:cursor-default
+                  disabled:opacity-70
+                  disabled:bg-blue-100
+                "
               >
                 Add
               </button>
             </div>
             <p class="text-sm text-center text-red-600">{{ payeesError }}</p>
             <div class="w-full">
-              <div
-                v-for="(payee,i) in payees"
-                :key="i"
-                class="flex"
-              >
+              <div v-for="(payee, i) in payees" :key="i" class="flex">
                 <div class="flex items-center mr-3">
                   <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                 </div>
                 <div class="w-4/6 flex items-center">
-                  <p class="">
+                  <div class="">
                     <Address :address="payee.address" />
-                  </p>
+                  </div>
                 </div>
                 <div class="w-1/6 flex items-center">
                   <p class="text-sm text-grey-dark">{{ payee.share }}</p>
@@ -577,10 +696,7 @@ export default defineComponent({
   </Modal>
 
   <!-- ======================= Finalize Modal ======================= -->
-  <Modal
-    :modalOpen="finalizeModal"
-    @modalClose="closeFinalizeModal"
-  >
+  <Modal :modalOpen="finalizeModal" @modalClose="closeFinalizeModal">
     <div class="w-full text-center">
       <p class="text-2xl">Finalize</p>
       <p class="text-xl my-4">Are you sure to finalize the splitter?</p>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { updateChainId, urlParams } from '../utils/url'
 import { useVueDapp } from '@vue-dapp/core'
-import { Signer } from 'ethers'
+import { Signer, ethers } from 'ethers'
 
 export const isDev = import.meta.env.DEV
 export const infuraApiKey = import.meta.env.VITE_INFURA_API_KEY
@@ -22,10 +22,12 @@ export const useDappStore = defineStore('DappStore', {
   state: (): {
     isConnectModalOpen: boolean
     appChainId: number | SupportedChainId
+    provider: ethers.providers.Web3Provider | null
     signer: Signer | null
   } => ({
     isConnectModalOpen: false,
     appChainId: isDev ? 31337 : 4,
+    provider: null,
     signer: null,
   }),
   getters: {

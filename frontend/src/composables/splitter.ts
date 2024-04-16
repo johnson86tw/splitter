@@ -166,11 +166,11 @@ export default function useSplitter() {
     state.splitter = markRaw(splitter)
     state.payees = payees
     state.address = address
-    state.balance = displayEther(balance)
+    state.balance = ethers.utils.formatEther(balance)
     state.owner = owner
     state.totalPayees = totalPayees.toNumber()
     state.totalShares = totalShares.toNumber()
-    state.totalReceived = displayEther(totalReceived)
+    state.totalReceived = ethers.utils.formatEther(totalReceived)
     switch (stateNum) {
       case 0:
         state.state = 'Opening'

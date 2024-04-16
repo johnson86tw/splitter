@@ -17,8 +17,8 @@ export default defineComponent({
   name: 'Home',
   setup() {
     const router = useRouter()
-    
-    const {error: connectError} = useVueDapp()
+
+    const { error: connectError } = useVueDapp()
     const dappStore = useDappStore()
 
     // feat: History
@@ -127,10 +127,7 @@ export default defineComponent({
   <p class="text-center text-red-600">{{ connectError }}</p>
 
   <div class="text-center p-6">
-    <button
-      @click="createSplitterHandler"
-      class="btn"
-    >Create Splitter</button>
+    <button @click="createSplitterHandler" class="btn">Create Splitter</button>
   </div>
 
   <div class="max-w-sm mx-auto p-1 pr-0 flex items-center">
@@ -139,11 +136,8 @@ export default defineComponent({
       type="text"
       placeholder="existing contract address"
       class="flex-1 appearance-none rounded shadow p-3 text-grey-dark mr-2 focus:outline-none"
-    >
-    <button
-      @click="searchHandler"
-      class="btn"
-    >Search</button>
+    />
+    <button @click="searchHandler" class="btn">Search</button>
   </div>
   <p class="text-center text-red-600">{{ inputError }}</p>
 
@@ -172,13 +166,17 @@ export default defineComponent({
                 {{ searchAddress.chainId }}
               </div>
               <router-link
-                :to="{ name: 'Contract', params: { address: searchAddress.address }, query: { chainId: searchAddress.chainId}}"
+                :to="{
+                  name: 'Contract',
+                  params: { address: searchAddress.address },
+                  query: { chainId: searchAddress.chainId },
+                }"
                 class="w-12 text-sm text-gray-500 tracking-wide"
               >
                 <Link />
               </router-link>
               <div class="text-sm text-gray-500 tracking-wide">
-                <Delete @click="removeHistory(reverseStorage.length-1-i)" />
+                <Delete @click="removeHistory(reverseStorage.length - 1 - i)" />
               </div>
             </div>
           </div>
@@ -203,7 +201,9 @@ export default defineComponent({
               placeholder="owner's address"
               class="my-2 w-full text-sm bg-grey-light text-grey-darkest rounded h-10 p-3 focus:outline-none"
             />
-            <h3 class="font-normal text-lg p-1 leading-tight">Recipients and Shares</h3>
+            <h3 class="font-normal text-lg p-1 leading-tight">
+              Recipients and Shares
+            </h3>
             <div class="flex items-center">
               <input
                 v-model="address"
@@ -226,18 +226,12 @@ export default defineComponent({
             </div>
             <p class="text-sm text-center text-red-600">{{ payeesError }}</p>
             <div class="w-full">
-              <div
-                v-for="(payee,i ) in payees"
-                :key="i"
-                class="flex"
-              >
+              <div v-for="(payee, i) in payees" :key="i" class="flex">
                 <div class="flex items-center mr-3">
                   <span class="bg-blue-400 h-1.5 w-1.5 m-2 rounded-full"></span>
                 </div>
                 <div class="w-4/6 flex items-center">
-                  <p class="">
-                  <Address :address="payee.address"></Address>
-                  </p>
+                  <Address :address="payee.address" />
                 </div>
                 <div class="w-1/6 flex items-center">
                   <p class="text-sm text-grey-dark">{{ payee.share }}</p>
@@ -257,7 +251,8 @@ export default defineComponent({
               :handlerFn="deployHandler"
               globalLoader
               loadingMsg="Deploying..."
-            >Deploy</Button>
+              >Deploy</Button
+            >
           </div>
         </div>
       </div>

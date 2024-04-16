@@ -29,6 +29,7 @@ addConnectors([new BrowserWalletConnector()])
 
 onWalletUpdated(({ provider }) => {
   const ethersProvider = new ethers.providers.Web3Provider(provider)
+  dappStore.provider = markRaw(ethersProvider)
   dappStore.signer = markRaw(ethersProvider.getSigner())
 
   notify({

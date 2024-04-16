@@ -43,7 +43,7 @@ export default defineComponent({
         : (isLoading.value = true)
       try {
         await props.handlerFn()
-      } catch (e) {
+      } catch (e: any) {
         errMsg.value = e.message
       } finally {
         props.globalLoader
