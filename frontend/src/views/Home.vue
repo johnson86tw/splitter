@@ -7,19 +7,19 @@ import { useRouter } from 'vue-router'
 import { isAddress } from '@ethersproject/address'
 import usePayees from '../composables/payees'
 import useSplitter from '../composables/splitter'
-import useConfig from '../config'
 import useHistory from '../composables/history'
-import { useEthers, useWallet, displayChainName } from 'vue-dapp'
 import { notify } from '@kyvg/vue3-notification'
+import { useVueDapp } from '@vue-dapp/core'
+import { useDappStore, isDev } from '../stores/dappStore'
 
 export default defineComponent({
   components: { Delete, Button },
   name: 'Home',
   setup() {
     const router = useRouter()
-    const { error: connectError } = useWallet()
-    const { signer } = useEthers()
-    const { isDev, appChainId } = useConfig()
+    
+    const {error: connectError} = useVueDapp()
+    const dappStore = useDappStore()
 
     // feat: History
     const { add: addHistory, remove: removeHistory, storage } = useHistory()
@@ -61,7 +61,7 @@ export default defineComponent({
       if (isAddress(addressInput.value)) {
         addHistory({
           address: addressInput.value,
-          chainId: appChainId.value,
+          chainId: dappStore.appChainId,
         })
         router.push(`/contract/${addressInput.value}`)
       } else {
@@ -73,7 +73,7 @@ export default defineComponent({
     const { deploy } = useSplitter()
     const ownerInput = ref('')
     const deployHandler = async () => {
-      if (!signer.value) {
+      if (!dappStore.signer) {
         const e = 'Wallet was not yet connected.'
         notify({ type: 'error', text: e })
         throw new Error(e)
@@ -86,12 +86,12 @@ export default defineComponent({
         shares.push(payee.share)
       })
       const address = await deploy(
-        signer.value,
+        dappStore.signer,
         ownerInput.value,
         addrs,
         shares,
       )
-      addHistory({ address, chainId: appChainId.value })
+      addHistory({ address, chainId: dappStore.appChainId })
       router.push(`/contract/${address}`)
     }
 
@@ -118,7 +118,6 @@ export default defineComponent({
       // history
       reverseStorage,
       removeHistory,
-      displayChainName,
     }
   },
 })
@@ -170,7 +169,7 @@ export default defineComponent({
                 <Address :address="searchAddress.address" />
               </div>
               <div class="w-24">
-                {{ displayChainName(searchAddress.chainId) }}
+                {{ searchAddress.chainId }}
               </div>
               <router-link
                 :to="{ name: 'Contract', params: { address: searchAddress.address }, query: { chainId: searchAddress.chainId}}"

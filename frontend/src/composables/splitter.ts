@@ -3,11 +3,9 @@ import artifact from '@splitter/contracts/artifacts/contracts/Splitter.sol/Split
 import { Splitter } from '@splitter/contracts/typechain/Splitter'
 import { SplitterFactory } from '@splitter/contracts/typechain/SplitterFactory'
 import { BigNumber, ContractFactory, ethers, Signer } from 'ethers'
-import useConfig from '@/config'
 import { formatEther } from 'ethers/lib/utils'
-import { ContractCall, displayEther, useMulticall } from 'vue-dapp'
-
-const { rpcURL } = useConfig()
+import { useDappStore } from '@/stores/dappStore'
+import { storeToRefs } from 'pinia'
 
 const splitterAddress: Readonly<Record<string, string>> = {
   localhost: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
@@ -21,6 +19,8 @@ type Payee = {
 }
 
 export default function useSplitter() {
+  const { rpcURL } = storeToRefs(useDappStore())
+
   const state = reactive({
     splitter: <Splitter | null>null,
     address: '',

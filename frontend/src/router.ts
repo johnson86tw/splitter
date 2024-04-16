@@ -3,7 +3,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Home from './views/Home.vue'
 import ContractPage from './views/Contract.vue'
 import { updateChainId } from './utils/url'
-import useConfig from './config'
+import { useDappStore, isDev } from './stores/dappStore'
 
 // For info on using Vue Router with the Composition API, see https://next.router.vuejs.org/guide/advanced/composition-api.html
 
@@ -33,11 +33,11 @@ const router = createRouter({
 })
 
 router.afterEach((to, from) => {
-  const { appChainId, isDev } = useConfig()
+  const dappStore = useDappStore()
   if (to.query.chainId) {
-    appChainId.value = Number(to.query.chainId)
+    dappStore.appChainId = Number(to.query.chainId)
   }
-  updateChainId(appChainId.value)
+  updateChainId(dappStore.appChainId)
   if (isDev) console.log('router.beforeEach: updateChainId')
 })
 

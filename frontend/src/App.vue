@@ -1,62 +1,66 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { markRaw } from 'vue'
 import LayoutFooter from './components/LayoutFooter.vue'
 import LayoutHeader from './components/LayoutHeader.vue'
 import Loader from './components/Loader.vue'
 
-import useConfig from './config'
-import { useWallet } from 'vue-dapp'
+import { ethers } from 'ethers'
+import {
+  BrowserWalletConnector,
+  VueDappProvider,
+  useVueDapp,
+} from '@vue-dapp/core'
+import { VueDappModal } from '@vue-dapp/modal'
+import '@vue-dapp/modal/dist/style.css'
 import { notify } from '@kyvg/vue3-notification'
+import { useDappStore } from './stores/dappStore'
 
-export default defineComponent({
-  name: 'App',
-  components: { LayoutHeader, LayoutFooter, Loader },
-  setup() {
-    const { isSupportedNetwork, unmatchedNetwork, supportedChainName } =
-      useConfig()
-    const { onAccountsChanged, onChainChanged } = useWallet()
+const dappStore = useDappStore()
 
-    onAccountsChanged(() => {
-      notify({
-        text: 'Account Changed',
-        type: 'warn',
-      })
-    })
+try {
+  dappStore.init()
+} catch (err: any) {
+  console.error(err)
+}
 
-    onChainChanged(() => {
-      notify({
-        text: 'Chain Changed',
-        type: 'warn',
-      })
-    })
+const { addConnectors, onWalletUpdated } = useVueDapp()
 
-    return { isSupportedNetwork, unmatchedNetwork, supportedChainName }
-  },
+addConnectors([new BrowserWalletConnector()])
+
+onWalletUpdated(({ provider }) => {
+  const ethersProvider = new ethers.providers.Web3Provider(provider)
+  dappStore.signer = markRaw(ethersProvider.getSigner())
+
+  notify({
+    text: 'Wallet Updated',
+    type: 'warn',
+  })
 })
 </script>
 
 <template>
-  <layout-header />
-  <div v-if="isSupportedNetwork && !unmatchedNetwork">
-    <router-view></router-view>
-  </div>
-  <div
-    v-else
-    class="text-center text-xl text-red-500 p-4"
-  >
-    <p>
-      You are connected to the wrong chain. Please switch to
-      {{ supportedChainName }}.
-    </p>
-  </div>
-  <layout-footer />
-  <vdapp-board />
-  <loader />
-  <notifications
-    position="bottom right"
-    :width="300"
-    animation-name="fade-down"
-  />
+  <VueDappProvider>
+    <layout-header />
+    <div v-if="dappStore.isSupportedNetwork && !dappStore.unmatchedNetwork">
+      <router-view></router-view>
+    </div>
+    <div v-else class="text-center text-xl text-red-500 p-4">
+      <p>
+        You are connected to the wrong chain. Please switch to
+        {{ dappStore.supportedChainName }}.
+      </p>
+    </div>
+    <layout-footer />
+
+    <loader />
+    <notifications
+      position="bottom right"
+      :width="300"
+      animation-name="fade-down"
+    />
+
+    <VueDappModal v-model="dappStore.isConnectModalOpen" />
+  </VueDappProvider>
 </template>
 
 <style>

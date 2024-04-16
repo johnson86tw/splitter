@@ -1,8 +1,10 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
-import useConfig from '../config'
 import Address from './Address.vue'
-import { useBoard, useEthers, displayEther, displayChainName } from 'vue-dapp'
+
+import { ethers } from 'ethers'
+import { useDappStore, supportedChainIds } from '@/stores/dappStore'
+import { useVueDapp } from '@vue-dapp/core'
 
 const navigation: { name: string; href: string }[] = []
 
@@ -10,43 +12,59 @@ export default defineComponent({
   components: { Address },
   name: 'LayoutHeader',
   setup() {
-    const { open: openBoard } = useBoard()
-    const { address, balance, chainId, isActivated } = useEthers()
-    const {
-      isSupportedNetwork,
-      unmatchedNetwork,
-      appChainId,
-      supportedChainIds,
-      changeAppChainId,
-      supportedChainNames,
-    } = useConfig()
+    const dappStore = useDappStore()
+    const { address, chainId, isConnected, onWalletUpdated } = useVueDapp()
+
+    const balance = ref(0)
+    onWalletUpdated(() => {
+      // get balance
+    })
 
     const dropdown = ref(false)
     const dropdownHandler = () => {
       dropdown.value = !dropdown.value
     }
 
-    const chainName = computed(() => {
-      return appChainId.value ? displayChainName(appChainId.value) : ''
-    })
-
     return {
-      openBoard,
-      address,
+      dappStore,
+      supportedChainIds,
+      address: computed(() => address.value ?? ''),
       chainId,
-      appChainId,
-      displayBalance: computed(() => displayEther(balance.value)),
-      isSupportedNetwork,
-      unmatchedNetwork,
-      chainName,
-      supportedChainNames,
-      isActivated,
+      displayBalance: computed(() => ethers.utils.formatEther(balance.value)),
+      isConnected,
       navigation,
       dropdown,
-      supportedChainIds,
+
       dropdownHandler,
-      changeAppChainId,
+      onClickConnect: () => {
+        dappStore.openConnectModal()
+      },
     }
+  },
+  directives: {
+    'click-outside': {
+      beforeMount: (el: any, binding: any) => {
+        el.clickOutsideEvent = (event: MouseEvent) => {
+          event.stopPropagation()
+
+          if (event.target !== el && !el.contains(event.target)) {
+            binding.value(event)
+          }
+        }
+        const clickHandler =
+          'ontouchstart' in document.documentElement ? 'touchstart' : 'click'
+        setTimeout(() => {
+          document.addEventListener(clickHandler, el.clickOutsideEvent)
+        }, 0)
+      },
+      unmounted: (el: any) => {
+        const clickOutsideEvent = el.clickOutsideEvent
+        delete el.clickOutsideEvent
+        const clickHandler =
+          'ontouchstart' in document.documentElement ? 'touchstart' : 'click'
+        document.removeEventListener(clickHandler, clickOutsideEvent)
+      },
+    },
   },
 })
 </script>
@@ -105,7 +123,7 @@ export default defineComponent({
                   aria-expanded="true"
                   aria-haspopup="true"
                 >
-                  {{ chainName }}
+                  {{ dappStore.currentChainName }}
                   <svg
                     class="-mr-1 ml-2 h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
@@ -141,15 +159,12 @@ export default defineComponent({
                 aria-labelledby="menu-button"
                 tabindex="-1"
               >
-                <div
-                  class="py-1"
-                  role="none"
-                >
+                <div class="py-1" role="none">
                   <!-- Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700" -->
                   <div
-                    v-for="(chainName, i) in supportedChainNames"
+                    v-for="(chainName, i) in dappStore.supportedChainNames"
                     :key="i"
-                    @click="changeAppChainId(supportedChainIds[i])"
+                    @click="dappStore.changeAppChainId(supportedChainIds[i])"
                     href="#"
                     class="
                       text-gray-700
@@ -170,30 +185,27 @@ export default defineComponent({
                 </div>
               </div>
             </div>
-            <div
-              v-if="!isSupportedNetwork"
-              class="flex items-center"
-            >
+            <div v-if="!dappStore.isSupportedNetwork" class="flex items-center">
               <div class="text-gray-500">unsupported network</div>
             </div>
 
             <div
-              v-else-if="unmatchedNetwork"
+              v-else-if="dappStore.unmatchedNetwork"
               class="flex items-center"
             >
               <div class="text-gray-500">unmatched network</div>
             </div>
 
-            <div
-              v-else-if="isActivated"
-              class="flex items-center"
-            >
+            <div v-else-if="isConnected" class="flex items-center">
               <!-- Account -->
-              <div class="sm:hidden py-2 px-3 rounded-2xl inline-block bg-gray-100">
+              <div
+                class="sm:hidden py-2 px-3 rounded-2xl inline-block bg-gray-100"
+              >
                 <Address :address="address" />
               </div>
 
-              <div class="
+              <div
+                class="
                   hidden
                   sm:flex
                   py-1
@@ -202,7 +214,8 @@ export default defineComponent({
                   items-center
                   rounded-3xl
                   border border-solid
-                ">
+                "
+              >
                 <div class="px-1 mr-1">{{ displayBalance }} ETH</div>
                 <div class="py-2 px-3 rounded-2xl inline-block bg-gray-100">
                   <Address :address="address" />
@@ -210,11 +223,7 @@ export default defineComponent({
               </div>
             </div>
 
-            <button
-              v-else
-              @click="openBoard"
-              class="btn-gray"
-            >
+            <button v-else @click="onClickConnect" class="btn-gray">
               Connect Wallet
             </button>
           </div>
